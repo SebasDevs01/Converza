@@ -68,7 +68,7 @@ $posts = $stmt_posts->fetchAll(PDO::FETCH_ASSOC);
 
     <!-- Avatar -->
     <div class="widget-user-image">
-      <img class="img-circle" src="avatars/<?php echo htmlspecialchars($usuario['avatar']); ?>" alt="User Image">
+      <img class="img-circle" src="public/avatars/<?php echo htmlspecialchars($usuario['avatar']); ?>" alt="User Image">
     </div>
 
     <div class="box-footer">
@@ -104,7 +104,7 @@ $posts = $stmt_posts->fetchAll(PDO::FETCH_ASSOC);
         <?php foreach ($posts as $post): ?>
         <div class="post">
           <div class="user-block">
-            <img class="img-circle img-bordered-sm" src="avatars/<?php echo htmlspecialchars($usuario['avatar']); ?>" alt="user image">
+            <img class="img-circle img-bordered-sm" src="public/avatars/<?php echo htmlspecialchars($usuario['avatar']); ?>" alt="user image">
             <span class="username">
               <a href="#"><?php echo htmlspecialchars($usuario['nombre']); ?></a>
             </span>
@@ -116,7 +116,7 @@ $posts = $stmt_posts->fetchAll(PDO::FETCH_ASSOC);
 
           <?php if (!empty($post['imagen'])) { ?>
           <div class="attachment-block clearfix">
-            <img class="attachment-img" src="uploads/<?php echo htmlspecialchars($post['imagen']); ?>" alt="Post image">
+            <img class="attachment-img" src="public/uploads/<?php echo htmlspecialchars($post['imagen']); ?>" alt="Post image">
           </div>
           <?php } ?>
 
