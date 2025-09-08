@@ -1,0 +1,19 @@
+{
+    "name": "leonc/trabajo-red-social",
+    "description": "Proyecto red social en PHP con JWT",
+    "type": "project",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Leonc\\TrabajoRedSocial\\": "app/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Sebastian Sanabria",
+            "email": "jhonsanabria407@gmail.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {}
+}

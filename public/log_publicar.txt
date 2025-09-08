@@ -1,0 +1,496 @@
+Log de depuración de publicaciones y subida de imágenes.
+2025-09-06 15:42:28 - LLEGA AL INICIO
+2025-09-06 15:45:11 - LLEGA AL INICIO
+2025-09-06 15:45:16 - LLEGA AL INICIO
+2025-09-06 15:47:30 - LLEGA AL INICIO
+2025-09-06 15:47:32 - LLEGA AL INICIO
+2025-09-06 15:47:38 - LLEGA AL INICIO
+2025-09-06 15:47:43 - LLEGA AL INICIO
+2025-09-06 15:57:17 - LLEGA AL INICIO
+2025-09-06 15:57:31 - LLEGA AL INICIO
+2025-09-06 17:25:55 - LLEGA AL INICIO
+2025-09-06 17:25:55 - POST recibido. Campos: {"publicacion":"hola"}
+2025-09-06 17:26:05 - LLEGA AL INICIO
+2025-09-06 17:26:05 - POST recibido. Campos: {"publicacion":"hola"}
+2025-09-06 17:26:10 - LLEGA AL INICIO
+2025-09-06 17:26:10 - POST recibido. Campos: {"publicacion":"como vas"}
+2025-09-06 17:28:12 - LLEGA AL INICIO
+2025-09-06 17:28:12 - POST recibido. Campos: {"publicacion":"como vas"}
+2025-09-06 17:28:12 - Intento de publicación: usuario_id=1, texto=como vas
+2025-09-06 17:28:12 - Error PDO: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'texto' in 'field list'
+2025-09-06 17:28:17 - LLEGA AL INICIO
+2025-09-06 17:28:17 - POST recibido. Campos: {"publicacion":"hola"}
+2025-09-06 17:28:17 - Intento de publicación: usuario_id=1, texto=hola
+2025-09-06 17:28:17 - Error PDO: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'texto' in 'field list'
+2025-09-06 17:32:27 - LLEGA AL INICIO
+2025-09-06 17:32:27 - POST recibido. Campos: {"publicacion":"hola"}
+2025-09-06 17:32:27 - Intento de publicación: usuario_id=1, texto=hola
+2025-09-06 17:32:27 - Publicación creada por usuario 1 (sebas11).
+2025-09-06 17:32:27 - LLEGA AL INICIO
+2025-09-06 17:32:42 - LLEGA AL INICIO
+2025-09-06 17:32:50 - LLEGA AL INICIO
+2025-09-06 17:32:50 - POST recibido. Campos: {"publicacion":"estoy aburrido jajja"}
+2025-09-06 17:32:50 - Intento de publicación: usuario_id=1, texto=estoy aburrido jajja
+2025-09-06 17:32:50 - Publicación creada por usuario 1 (sebas11).
+2025-09-06 17:32:50 - LLEGA AL INICIO
+2025-09-06 17:33:05 - LLEGA AL INICIO
+2025-09-06 17:43:27 - LLEGA AL INICIO
+2025-09-06 17:43:27 - POST recibido. Campos: {"publicacion":"hola"}
+2025-09-06 17:43:27 - FILES['foto']: {"name":"Diagrama Caso De Uso Red Social (1).jpeg","full_path":"Diagrama Caso De Uso Red Social (1).jpeg","type":"image\/jpeg","tmp_name":"C:\\xampp\\tmp\\php5B38.tmp","error":0,"size":451567}
+2025-09-06 17:43:27 - Intento de publicación: usuario_id=1, texto=hola
+2025-09-06 17:43:27 - Imagen subida correctamente: 68bc569fbd78e.jpeg
+2025-09-06 17:43:27 - Publicación creada por usuario 1 (sebas11) con imagen 68bc569fbd78e.jpeg.
+2025-09-06 17:43:27 - LLEGA AL INICIO
+2025-09-06 17:45:31 - LLEGA AL INICIO
+2025-09-06 17:45:31 - POST recibido. Campos: {"publicacion":"prueba imagen 2"}
+2025-09-06 17:45:31 - FILES['foto']: {"name":"1299888.png","full_path":"1299888.png","type":"image\/png","tmp_name":"C:\\xampp\\tmp\\php3E13.tmp","error":0,"size":2379756}
+2025-09-06 17:45:31 - Intento de publicación: usuario_id=1, texto=prueba imagen 2
+2025-09-06 17:45:31 - Imagen subida correctamente: 68bc571b50914.png
+2025-09-06 17:45:31 - Publicación creada por usuario 1 (sebas11) con imagen 68bc571b50914.png.
+2025-09-06 17:45:31 - LLEGA AL INICIO
+2025-09-06 17:45:31 - LLEGA AL INICIO
+2025-09-06 17:49:13 - LLEGA AL INICIO
+2025-09-06 17:49:13 - LLEGA AL INICIO
+2025-09-06 17:51:42 - LLEGA AL INICIO
+2025-09-06 17:51:43 - LLEGA AL INICIO
+2025-09-06 17:51:58 - LLEGA AL INICIO
+2025-09-06 17:51:58 - POST recibido. Campos: {"publicacion":"ashudaaaaa"}
+2025-09-06 17:51:58 - FILES['foto']: {"name":"","full_path":"","type":"","tmp_name":"","error":4,"size":0}
+2025-09-06 17:51:58 - Intento de publicación: usuario_id=3, texto=ashudaaaaa
+2025-09-06 17:51:58 - Publicación creada por usuario 3 (cami123).
+2025-09-06 17:51:58 - LLEGA AL INICIO
+2025-09-06 17:51:58 - LLEGA AL INICIO
+2025-09-06 17:52:13 - LLEGA AL INICIO
+2025-09-06 17:52:13 - LLEGA AL INICIO
+2025-09-06 17:52:38 - LLEGA AL INICIO
+2025-09-06 17:52:38 - LLEGA AL INICIO
+2025-09-06 17:52:43 - LLEGA AL INICIO
+2025-09-06 17:52:43 - LLEGA AL INICIO
+2025-09-06 17:52:52 - LLEGA AL INICIO
+2025-09-06 17:53:00 - LLEGA AL INICIO
+2025-09-06 17:53:00 - POST recibido. Campos: {"publicacion":"itachi aaaa"}
+2025-09-06 17:53:00 - FILES['foto']: {"name":"1299888.png","full_path":"1299888.png","type":"image\/png","tmp_name":"C:\\xampp\\tmp\\php1A2E.tmp","error":0,"size":2379756}
+2025-09-06 17:53:00 - Intento de publicación: usuario_id=1, texto=itachi aaaa
+2025-09-06 17:53:00 - Imagen subida correctamente: 68bc58dcd24c9.png
+2025-09-06 17:53:00 - Publicación creada por usuario 1 (sebas11) con imagen 68bc58dcd24c9.png.
+2025-09-06 17:53:00 - LLEGA AL INICIO
+2025-09-06 17:53:00 - LLEGA AL INICIO
+2025-09-06 17:54:15 - LLEGA AL INICIO
+2025-09-06 17:54:15 - POST recibido. Campos: {"publicacion":""}
+2025-09-06 17:54:15 - FILES['foto']: {"name":"img 1.jpg","full_path":"img 1.jpg","type":"image\/jpeg","tmp_name":"C:\\xampp\\tmp\\php3D14.tmp","error":0,"size":105040}
+2025-09-06 17:54:15 - Intento de publicación: usuario_id=1, texto=
+2025-09-06 17:54:15 - Imagen subida correctamente: 68bc592742db6.jpg
+2025-09-06 17:54:15 - Publicación creada por usuario 1 (sebas11) con imagen 68bc592742db6.jpg.
+2025-09-06 17:54:15 - LLEGA AL INICIO
+2025-09-06 17:54:15 - LLEGA AL INICIO
+2025-09-06 17:57:24 - LLEGA AL INICIO
+2025-09-06 18:05:29 - LLEGA AL INICIO
+2025-09-06 18:05:29 - POST recibido. Campos: {"publicacion":""}
+2025-09-06 18:05:29 - FILES['fotos']: {"name":["1.jpg"],"full_path":["1.jpg"],"type":["image\/jpeg"],"tmp_name":["C:\\xampp\\tmp\\php8614.tmp"],"error":[0],"size":[505679]}
+2025-09-06 18:05:29 - Intento de publicación: usuario_id=1, texto=
+2025-09-06 18:05:29 - Imagen subida correctamente: 68bc5bc965afe.jpg
+2025-09-06 18:05:29 - Publicación creada por usuario 1 (sebas11) con 1 imagen(es).
+2025-09-06 18:05:29 - LLEGA AL INICIO
+2025-09-06 18:06:49 - LLEGA AL INICIO
+2025-09-06 18:07:30 - LLEGA AL INICIO
+2025-09-06 18:07:30 - POST recibido. Campos: {"publicacion":"dejara varias imagenes?"}
+2025-09-06 18:07:30 - FILES['fotos']: {"name":["naruto.jpg","1.jpg"],"full_path":["naruto.jpg","1.jpg"],"type":["image\/jpeg","image\/jpeg"],"tmp_name":["C:\\xampp\\tmp\\php5D94.tmp","C:\\xampp\\tmp\\php5D95.tmp"],"error":[0,0],"size":[211122,505679]}
+2025-09-06 18:07:30 - Intento de publicación: usuario_id=1, texto=dejara varias imagenes?
+2025-09-06 18:07:30 - Imagen subida correctamente: 68bc5c420a5c7.jpg
+2025-09-06 18:07:30 - Imagen subida correctamente: 68bc5c420b033.jpg
+2025-09-06 18:07:30 - Publicación creada por usuario 1 (sebas11) con 2 imagen(es).
+2025-09-06 18:07:30 - LLEGA AL INICIO
+2025-09-06 18:09:03 - LLEGA AL INICIO
+2025-09-06 18:13:25 - LLEGA AL INICIO
+2025-09-06 18:15:07 - LLEGA AL INICIO
+2025-09-06 18:16:59 - LLEGA AL INICIO
+2025-09-06 18:16:59 - POST recibido. Campos: {"publicacion":""}
+2025-09-06 18:16:59 - FILES['fotos']: {"name":["jajaj.gif"],"full_path":["jajaj.gif"],"type":["image\/gif"],"tmp_name":["C:\\xampp\\tmp\\phpF7A.tmp"],"error":[0],"size":[1803986]}
+2025-09-06 18:16:59 - Intento de publicación: usuario_id=1, texto=
+2025-09-06 18:16:59 - Imagen subida correctamente: 68bc5e7be8d20.gif
+2025-09-06 18:17:00 - Publicación creada por usuario 1 (sebas11) con 1 imagen(es).
+2025-09-06 18:17:00 - LLEGA AL INICIO
+2025-09-06 18:17:22 - LLEGA AL INICIO
+2025-09-06 18:17:58 - LLEGA AL INICIO
+2025-09-06 18:18:07 - LLEGA AL INICIO
+2025-09-06 18:22:49 - LLEGA AL INICIO
+2025-09-06 18:23:56 - LLEGA AL INICIO
+2025-09-06 18:26:38 - LLEGA AL INICIO
+2025-09-06 18:29:07 - LLEGA AL INICIO
+2025-09-06 18:29:51 - LLEGA AL INICIO
+2025-09-06 18:31:48 - LLEGA AL INICIO
+2025-09-06 18:33:18 - LLEGA AL INICIO
+2025-09-06 18:35:08 - LLEGA AL INICIO
+2025-09-06 18:37:11 - LLEGA AL INICIO
+2025-09-06 18:38:57 - LLEGA AL INICIO
+2025-09-06 18:45:33 - LLEGA AL INICIO
+2025-09-06 18:46:08 - LLEGA AL INICIO
+2025-09-06 18:46:08 - POST recibido. Campos: {"publicacion":"A veces faltan las palabras para expresar lo que se quiere decir. En esos casos, la poes\u00eda es una manera de manifestar sentimientos que pueden ir desde la tristeza y la angustia hasta la felicidad.\r\n\r\nEn el siguiente listado, se puede encontrar una selecci\u00f3n de poemas de diversos autores y \u00e9pocas que reflejan pensamientos, declaraciones de amor o de p\u00e9rdida para ser dedicados o compartidos."}
+2025-09-06 18:46:08 - FILES['fotos']: {"name":[""],"full_path":[""],"type":[""],"tmp_name":[""],"error":[4],"size":[0]}
+2025-09-06 18:46:08 - Intento de publicación: usuario_id=1, texto=A veces faltan las palabras para expresar lo que se quiere decir. En esos casos, la poesía es una m
+2025-09-06 18:46:08 - Publicación creada por usuario 1 (sebas11) con 0 imagen(es).
+2025-09-06 18:46:08 - LLEGA AL INICIO
+2025-09-06 18:47:47 - LLEGA AL INICIO
+2025-09-06 18:58:10 - LLEGA AL INICIO
+2025-09-06 18:58:27 - LLEGA AL INICIO
+2025-09-06 19:02:50 - LLEGA AL INICIO
+2025-09-06 19:03:12 - LLEGA AL INICIO
+2025-09-06 19:03:52 - LLEGA AL INICIO
+2025-09-06 19:04:07 - LLEGA AL INICIO
+2025-09-06 19:07:37 - LLEGA AL INICIO
+2025-09-06 19:13:52 - LLEGA AL INICIO
+2025-09-06 19:14:04 - LLEGA AL INICIO
+2025-09-06 19:14:15 - LLEGA AL INICIO
+2025-09-06 19:14:23 - LLEGA AL INICIO
+2025-09-06 19:14:40 - LLEGA AL INICIO
+2025-09-06 19:14:46 - LLEGA AL INICIO
+2025-09-06 19:14:59 - LLEGA AL INICIO
+2025-09-06 19:15:04 - LLEGA AL INICIO
+2025-09-06 19:15:10 - LLEGA AL INICIO
+2025-09-06 19:17:20 - LLEGA AL INICIO
+2025-09-06 19:18:01 - LLEGA AL INICIO
+2025-09-06 19:18:01 - POST recibido. Campos: {"publicacion":""}
+2025-09-06 19:18:01 - FILES['fotos']: {"name":["3.jpg","1299888.png"],"full_path":["3.jpg","1299888.png"],"type":["image\/jpeg","image\/png"],"tmp_name":["C:\\xampp\\tmp\\phpED1E.tmp","C:\\xampp\\tmp\\phpED1F.tmp"],"error":[0,0],"size":[540126,2379756]}
+2025-09-06 19:18:01 - Intento de publicación: usuario_id=1, texto=
+2025-09-06 19:18:01 - Imagen subida correctamente: 68bc6cc928a62.jpg
+2025-09-06 19:18:01 - Imagen subida correctamente: 68bc6cc9293fd.png
+2025-09-06 19:18:01 - Publicación creada por usuario 1 (sebas11) con 2 imagen(es).
+2025-09-06 19:18:01 - LLEGA AL INICIO
+2025-09-06 19:18:12 - LLEGA AL INICIO
+2025-09-06 19:19:49 - LLEGA AL INICIO
+2025-09-06 19:20:12 - LLEGA AL INICIO
+2025-09-06 19:23:59 - LLEGA AL INICIO
+2025-09-06 19:30:51 - LLEGA AL INICIO
+2025-09-06 19:31:19 - LLEGA AL INICIO
+2025-09-06 19:37:39 - LLEGA AL INICIO
+2025-09-06 19:40:16 - LLEGA AL INICIO
+2025-09-06 19:40:32 - LLEGA AL INICIO
+2025-09-06 19:40:32 - POST recibido. Campos: {"publicacion":"trabajando ando \ud83e\udd76"}
+2025-09-06 19:40:32 - FILES['fotos']: {"name":[""],"full_path":[""],"type":[""],"tmp_name":[""],"error":[4],"size":[0]}
+2025-09-06 19:40:32 - Intento de publicación: usuario_id=1, texto=trabajando ando 🥶
+2025-09-06 19:40:32 - Publicación creada por usuario 1 (sebas11) con 0 imagen(es).
+2025-09-06 19:40:32 - LLEGA AL INICIO
+2025-09-06 19:43:39 - LLEGA AL INICIO
+2025-09-06 19:44:08 - LLEGA AL INICIO
+2025-09-06 19:48:44 - LLEGA AL INICIO
+2025-09-06 19:49:10 - LLEGA AL INICIO
+2025-09-06 19:49:13 - LLEGA AL INICIO
+2025-09-06 19:49:32 - LLEGA AL INICIO
+2025-09-06 20:01:10 - LLEGA AL INICIO
+2025-09-06 20:04:23 - LLEGA AL INICIO
+2025-09-06 20:11:31 - LLEGA AL INICIO
+2025-09-06 20:11:50 - LLEGA AL INICIO
+2025-09-06 20:11:57 - LLEGA AL INICIO
+2025-09-06 20:12:33 - LLEGA AL INICIO
+2025-09-06 20:12:33 - POST recibido. Campos: {"publicacion":"ayuda el edit_public, no previsualiza las imagenes ni guarda como quiero"}
+2025-09-06 20:12:33 - FILES['fotos']: {"name":["jajaj.gif"],"full_path":["jajaj.gif"],"type":["image\/gif"],"tmp_name":["C:\\xampp\\tmp\\phpDC2A.tmp"],"error":[0],"size":[1803986]}
+2025-09-06 20:12:33 - Intento de publicación: usuario_id=1, texto=ayuda el edit_public, no previsualiza las imagenes ni guarda como quiero
+2025-09-06 20:12:33 - Imagen subida correctamente: 68bc7991830c0.gif
+2025-09-06 20:12:33 - Publicación creada por usuario 1 (sebas11) con 1 imagen(es).
+2025-09-06 20:12:33 - LLEGA AL INICIO
+2025-09-06 20:18:46 - LLEGA AL INICIO
+2025-09-06 20:18:51 - LLEGA AL INICIO
+2025-09-06 20:23:07 - LLEGA AL INICIO
+2025-09-06 20:24:07 - LLEGA AL INICIO
+2025-09-06 20:27:14 - LLEGA AL INICIO
+2025-09-06 20:30:43 - LLEGA AL INICIO
+2025-09-06 20:31:04 - LLEGA AL INICIO
+2025-09-06 20:31:04 - POST recibido. Campos: {"publicacion":""}
+2025-09-06 20:31:04 - FILES['fotos']: {"name":["1299888.png"],"full_path":["1299888.png"],"type":["image\/png"],"tmp_name":["C:\\xampp\\tmp\\phpD0A2.tmp"],"error":[0],"size":[2379756]}
+2025-09-06 20:31:04 - Intento de publicación: usuario_id=1, texto=
+2025-09-06 20:31:04 - Imagen subida correctamente: 68bc7de8ae554.png
+2025-09-06 20:31:04 - Publicación creada por usuario 1 (sebas11) con 1 imagen(es).
+2025-09-06 20:31:04 - LLEGA AL INICIO
+2025-09-06 20:35:23 - LLEGA AL INICIO
+2025-09-06 20:36:56 - LLEGA AL INICIO
+2025-09-06 20:37:03 - LLEGA AL INICIO
+2025-09-06 20:37:07 - LLEGA AL INICIO
+2025-09-06 20:37:18 - LLEGA AL INICIO
+2025-09-06 20:37:18 - POST recibido. Campos: {"publicacion":"Itachi el pro"}
+2025-09-06 20:37:18 - FILES['fotos']: {"name":["1299888.png"],"full_path":["1299888.png"],"type":["image\/png"],"tmp_name":["C:\\xampp\\tmp\\php8545.tmp"],"error":[0],"size":[2379756]}
+2025-09-06 20:37:18 - Intento de publicación: usuario_id=1, texto=Itachi el pro
+2025-09-06 20:37:18 - Imagen subida correctamente: 68bc7f5e9a4d5.png
+2025-09-06 20:37:18 - Publicación creada por usuario 1 (sebas11) con 1 imagen(es).
+2025-09-06 20:37:18 - LLEGA AL INICIO
+2025-09-06 20:40:05 - LLEGA AL INICIO
+2025-09-06 20:45:38 - LLEGA AL INICIO
+2025-09-06 20:46:03 - LLEGA AL INICIO
+2025-09-06 20:46:15 - LLEGA AL INICIO
+2025-09-06 20:46:20 - LLEGA AL INICIO
+2025-09-06 20:49:00 - LLEGA AL INICIO
+2025-09-06 20:49:45 - LLEGA AL INICIO
+2025-09-06 20:49:57 - LLEGA AL INICIO
+2025-09-06 20:50:11 - LLEGA AL INICIO
+2025-09-06 21:00:09 - LLEGA AL INICIO
+2025-09-06 21:00:24 - LLEGA AL INICIO
+2025-09-06 21:09:39 - LLEGA AL INICIO
+2025-09-06 21:11:41 - LLEGA AL INICIO
+2025-09-06 21:14:47 - LLEGA AL INICIO
+2025-09-06 21:20:28 - LLEGA AL INICIO
+2025-09-06 21:26:55 - LLEGA AL INICIO
+2025-09-06 21:27:19 - LLEGA AL INICIO
+2025-09-06 21:27:19 - POST recibido. Campos: {"contenido":"ashuda","imagenes_actuales":["68bc854f7ff4a.gif","68bc8993caba1.png"]}
+2025-09-06 21:27:19 - FILES['fotos']: NO RECIBIDO
+2025-09-06 21:27:35 - LLEGA AL INICIO
+2025-09-06 21:27:35 - POST recibido. Campos: {"contenido":"ashuda uwu","imagenes_actuales":["68bc854f7ff4a.gif","68bc8993caba1.png"]}
+2025-09-06 21:27:35 - FILES['fotos']: NO RECIBIDO
+2025-09-06 21:33:05 - LLEGA AL INICIO
+2025-09-06 21:33:05 - POST recibido. Campos: {"publicacion":"55555"}
+2025-09-06 21:33:05 - FILES['fotos']: {"name":["3.jpg","1299888.png","jajaj.gif"],"full_path":["3.jpg","1299888.png","jajaj.gif"],"type":["image\/jpeg","image\/png","image\/gif"],"tmp_name":["C:\\xampp\\tmp\\php9714.tmp","C:\\xampp\\tmp\\php9724.tmp","C:\\xampp\\tmp\\php9735.tmp"],"error":[0,0,0],"size":[540126,2379756,1803986]}
+2025-09-06 21:33:05 - Intento de publicación: usuario_id=3, texto=55555
+2025-09-06 21:33:05 - Imagen subida correctamente: 68bc8c71af2bb.jpg
+2025-09-06 21:33:05 - Imagen subida correctamente: 68bc8c71b0151.png
+2025-09-06 21:33:05 - Imagen subida correctamente: 68bc8c71b0887.gif
+2025-09-06 21:33:05 - Publicación creada por usuario 3 (cami123) con 3 imagen(es).
+2025-09-06 21:33:05 - LLEGA AL INICIO
+2025-09-06 21:33:49 - LLEGA AL INICIO
+2025-09-06 21:33:49 - POST recibido. Campos: {"contenido":"55555","imagenes_actuales":["68bc8c71af2bb.jpg","68bc8c71b0151.png","68bc8c71b0887.gif"]}
+2025-09-06 21:33:49 - FILES['fotos']: NO RECIBIDO
+2025-09-06 23:03:47 - LLEGA AL INICIO
+2025-09-06 23:10:19 - LLEGA AL INICIO
+2025-09-06 23:10:19 - POST recibido. Campos: {"publicacion":"Y pensar que la ame hasta m\u00e1s no poder, sin darme cuenta estando entre mis manos la perdi y cuando enserio la perdi me desespere intentado volverla a tener pero cuando regrese ya era demasiado tarde ya ella no estaba ahi para mi y aunque se que la perdi y que ya no es la misma que cuando la conoci la volveria a elegir porque la amo -Rosa Entre Las Manos"}
+2025-09-06 23:10:19 - FILES['fotos']: {"name":[""],"full_path":[""],"type":[""],"tmp_name":[""],"error":[4],"size":[0]}
+2025-09-06 23:10:20 - Intento de publicación: usuario_id=3, texto=Y pensar que la ame hasta más no poder, sin darme cuenta estando entre mis manos la perdi y cuando 
+2025-09-06 23:10:20 - Publicación creada por usuario 3 (cami123) con 0 imagen(es).
+2025-09-06 23:10:20 - LLEGA AL INICIO
+2025-09-06 23:13:40 - LLEGA AL INICIO
+2025-09-06 23:13:40 - POST recibido. Campos: {"contenido":"Y pensar que la ame hasta m\u00e1s no poder, sin darme cuenta estando entre mis manos la perdi y cuando enserio la perdi me desespere intentado volverla a tener pero cuando regrese ya era demasiado tarde ya ella no estaba ahi para mi y aunque se que la perdi y que ya no es la misma que cuando la conoci la volveria a elegir porque la amo -Rosa Entre Las Manos"}
+2025-09-06 23:13:40 - FILES['fotos']: NO RECIBIDO
+2025-09-06 23:20:12 - LLEGA AL INICIO
+2025-09-06 23:22:08 - LLEGA AL INICIO
+2025-09-06 23:22:08 - POST recibido. Campos: {"contenido":"55555","imagenes_actuales":["68bc8c71af2bb.jpg","68bc8c71b0151.png","68bc8c71b0887.gif"]}
+2025-09-06 23:22:08 - FILES['fotos']: {"name":["Diagrama Caso De Uso Red Social (1).jpeg"],"full_path":["Diagrama Caso De Uso Red Social (1).jpeg"],"type":["image\/jpeg"],"tmp_name":["C:\\xampp\\tmp\\php6EE9.tmp"],"error":[0],"size":[451567]}
+2025-09-06 23:22:08 - Intento de publicación: usuario_id=3, texto=
+2025-09-06 23:22:08 - Imagen subida correctamente: 68bca600d8f1e.jpeg
+2025-09-06 23:22:08 - Publicación creada por usuario 3 (cami123) con 1 imagen(es).
+2025-09-06 23:22:08 - LLEGA AL INICIO
+2025-09-06 23:22:28 - LLEGA AL INICIO
+2025-09-06 23:22:47 - LLEGA AL INICIO
+2025-09-06 23:22:47 - POST recibido. Campos: {"contenido":"55555","imagenes_actuales":["68bc8c71af2bb.jpg","68bc8c71b0151.png","68bc8c71b0887.gif"]}
+2025-09-06 23:22:47 - FILES['fotos']: {"name":[""],"full_path":[""],"type":[""],"tmp_name":[""],"error":[4],"size":[0]}
+2025-09-06 23:30:37 - LLEGA AL INICIO
+2025-09-06 23:31:15 - LLEGA AL INICIO
+2025-09-06 23:31:15 - POST recibido. Campos: {"contenido":"55555","imagenes_actuales":["68bc8c71af2bb.jpg","68bc8c71b0151.png","68bc8c71b0887.gif"]}
+2025-09-06 23:31:15 - FILES['fotos']: {"name":["Diagrama Caso De Uso Red Social (1).jpeg"],"full_path":["Diagrama Caso De Uso Red Social (1).jpeg"],"type":["image\/jpeg"],"tmp_name":["C:\\xampp\\tmp\\phpC512.tmp"],"error":[0],"size":[451567]}
+2025-09-06 23:31:15 - Intento de publicación: usuario_id=3, texto=
+2025-09-06 23:31:15 - Imagen subida correctamente: 68bca823295d9.jpeg
+2025-09-06 23:31:15 - Publicación creada por usuario 3 (cami123) con 1 imagen(es).
+2025-09-06 23:31:15 - LLEGA AL INICIO
+2025-09-06 23:36:02 - LLEGA AL INICIO
+2025-09-06 23:36:25 - LLEGA AL INICIO
+2025-09-06 23:41:01 - LLEGA AL INICIO
+2025-09-06 23:41:18 - LLEGA AL INICIO
+2025-09-06 23:41:18 - POST recibido. Campos: {"contenido":"Itachi el pro uwu","imagenes_actuales":["68bc7f5e9a4d5.png"]}
+2025-09-06 23:41:18 - FILES['fotos']: {"name":[""],"full_path":[""],"type":[""],"tmp_name":[""],"error":[4],"size":[0]}
+2025-09-06 23:52:09 - LLEGA AL INICIO
+2025-09-06 23:53:08 - LLEGA AL INICIO
+2025-09-06 23:53:08 - POST recibido. Campos: {"publicacion":"uwu"}
+2025-09-06 23:53:08 - FILES['fotos']: {"name":["Diagrama Caso De Uso Red Social (1).jpeg"],"full_path":["Diagrama Caso De Uso Red Social (1).jpeg"],"type":["image\/jpeg"],"tmp_name":["C:\\xampp\\tmp\\phpCF91.tmp"],"error":[0],"size":[451567]}
+2025-09-06 23:53:08 - Intento de publicación: usuario_id=1, texto=uwu
+2025-09-06 23:53:08 - Imagen subida correctamente: 68bcad449bfad.jpeg
+2025-09-06 23:53:08 - Publicación creada por usuario 1 (sebas11) con 1 imagen(es).
+2025-09-06 23:53:08 - LLEGA AL INICIO
+2025-09-06 23:53:21 - LLEGA AL INICIO
+2025-09-06 23:53:21 - POST recibido. Campos: {"contenido":"uwu"}
+2025-09-06 23:53:21 - FILES['fotos']: {"name":["img 1.jpg"],"full_path":["img 1.jpg"],"type":["image\/jpeg"],"tmp_name":["C:\\xampp\\tmp\\php2C7.tmp"],"error":[0],"size":[105040]}
+2025-09-06 23:53:21 - Intento de publicación: usuario_id=1, texto=
+2025-09-06 23:53:21 - Imagen subida correctamente: 68bcad51a30ab.jpg
+2025-09-06 23:53:21 - Publicación creada por usuario 1 (sebas11) con 1 imagen(es).
+2025-09-06 23:53:21 - LLEGA AL INICIO
+2025-09-06 23:53:29 - LLEGA AL INICIO
+2025-09-06 23:53:32 - LLEGA AL INICIO
+2025-09-06 23:54:07 - LLEGA AL INICIO
+2025-09-06 23:54:21 - LLEGA AL INICIO
+2025-09-07 00:03:11 - LLEGA AL INICIO
+2025-09-07 00:07:40 - LLEGA AL INICIO
+2025-09-07 00:10:22 - LLEGA AL INICIO
+2025-09-07 00:10:37 - LLEGA AL INICIO
+2025-09-07 00:10:37 - POST recibido. Campos: {"contenido":"Itachi el pro uwu"}
+2025-09-07 00:10:37 - FILES['fotos']: {"name":[""],"full_path":[""],"type":[""],"tmp_name":[""],"error":[4],"size":[0]}
+2025-09-07 00:17:09 - LLEGA AL INICIO
+2025-09-07 00:17:53 - LLEGA AL INICIO
+2025-09-07 00:18:25 - LLEGA AL INICIO
+2025-09-07 00:18:36 - LLEGA AL INICIO
+2025-09-07 00:18:59 - LLEGA AL INICIO
+2025-09-07 00:23:06 - LLEGA AL INICIO
+2025-09-07 00:23:35 - LLEGA AL INICIO
+2025-09-07 00:25:41 - LLEGA AL INICIO
+2025-09-07 00:27:46 - LLEGA AL INICIO
+2025-09-07 00:48:41 - LLEGA AL INICIO
+2025-09-07 00:54:04 - LLEGA AL INICIO
+2025-09-07 00:54:24 - LLEGA AL INICIO
+2025-09-07 00:54:34 - LLEGA AL INICIO
+2025-09-07 00:58:11 - LLEGA AL INICIO
+2025-09-07 18:19:01 - LLEGA AL INICIO
+2025-09-07 18:24:04 - LLEGA AL INICIO
+2025-09-07 18:24:24 - LLEGA AL INICIO
+2025-09-08 19:53:58 - LLEGA AL INICIO
+2025-09-08 19:56:31 - LLEGA AL INICIO
+2025-09-08 20:15:18 - LLEGA AL INICIO
+2025-09-08 20:15:39 - LLEGA AL INICIO
+2025-09-08 20:30:57 - LLEGA AL INICIO
+2025-09-08 20:34:10 - LLEGA AL INICIO
+2025-09-08 20:34:16 - LLEGA AL INICIO
+2025-09-08 20:35:16 - LLEGA AL INICIO
+2025-09-08 20:35:26 - LLEGA AL INICIO
+2025-09-08 20:35:37 - LLEGA AL INICIO
+2025-09-08 20:38:21 - LLEGA AL INICIO
+2025-09-08 20:48:33 - LLEGA AL INICIO
+2025-09-08 20:55:31 - LLEGA AL INICIO
+2025-09-08 20:57:20 - LLEGA AL INICIO
+2025-09-08 20:57:31 - LLEGA AL INICIO
+2025-09-08 20:57:32 - LLEGA AL INICIO
+2025-09-08 20:58:22 - LLEGA AL INICIO
+2025-09-08 20:58:35 - LLEGA AL INICIO
+2025-09-08 20:58:35 - POST recibido. Campos: {"publicacion":"hola soy cristofer mu\u00f1oz mucho gusto"}
+2025-09-08 20:58:35 - FILES['fotos']: {"name":[""],"full_path":[""],"type":[""],"tmp_name":[""],"error":[4],"size":[0]}
+2025-09-08 20:58:35 - Intento de publicación: usuario_id=1, texto=hola soy cristofer muñoz mucho gusto
+2025-09-08 20:58:35 - Publicación creada por usuario 1 (Cristofer) con 0 imagen(es).
+2025-09-08 20:58:35 - LLEGA AL INICIO
+2025-09-08 20:59:53 - LLEGA AL INICIO
+2025-09-08 20:59:56 - LLEGA AL INICIO
+2025-09-08 20:59:58 - LLEGA AL INICIO
+2025-09-08 21:00:07 - LLEGA AL INICIO
+2025-09-08 21:01:46 - LLEGA AL INICIO
+2025-09-08 21:01:49 - LLEGA AL INICIO
+2025-09-08 21:02:17 - LLEGA AL INICIO
+2025-09-08 21:02:18 - LLEGA AL INICIO
+2025-09-08 21:02:20 - LLEGA AL INICIO
+2025-09-08 21:02:21 - LLEGA AL INICIO
+2025-09-08 21:02:22 - LLEGA AL INICIO
+2025-09-08 21:02:35 - LLEGA AL INICIO
+2025-09-08 21:03:39 - LLEGA AL INICIO
+2025-09-08 21:06:24 - LLEGA AL INICIO
+2025-09-08 21:06:26 - LLEGA AL INICIO
+2025-09-08 21:06:49 - LLEGA AL INICIO
+2025-09-08 21:06:49 - POST recibido. Campos: {"publicacion":"cristofer danilo munoz luna xd"}
+2025-09-08 21:06:49 - FILES['fotos']: {"name":["LOGO FONDO-05.jpg"],"full_path":["LOGO FONDO-05.jpg"],"type":["image\/jpeg"],"tmp_name":["C:\\xampp\\tmp\\php8408.tmp"],"error":[0],"size":[5471570]}
+2025-09-08 21:06:49 - Intento de publicación: usuario_id=1, texto=cristofer danilo munoz luna xd
+2025-09-08 21:06:49 - Imagen subida correctamente: 68bf294908c9a.jpg
+2025-09-08 21:06:49 - Publicación creada por usuario 1 (Cristofer) con 1 imagen(es).
+2025-09-08 21:06:49 - LLEGA AL INICIO
+2025-09-08 21:06:53 - LLEGA AL INICIO
+2025-09-08 21:06:59 - LLEGA AL INICIO
+2025-09-08 21:07:34 - LLEGA AL INICIO
+2025-09-08 21:07:35 - POST recibido. Campos: {"publicacion":"que linda\r\n"}
+2025-09-08 21:07:35 - FILES['fotos']: {"name":["hola.png"],"full_path":["hola.png"],"type":["image\/png"],"tmp_name":["C:\\xampp\\tmp\\php37C9.tmp"],"error":[0],"size":[6151]}
+2025-09-08 21:07:35 - Intento de publicación: usuario_id=1, texto=que linda
+2025-09-08 21:07:35 - Imagen subida correctamente: 68bf29770b168.png
+2025-09-08 21:07:35 - Publicación creada por usuario 1 (Cristofer) con 1 imagen(es).
+2025-09-08 21:07:35 - LLEGA AL INICIO
+2025-09-08 21:07:49 - LLEGA AL INICIO
+2025-09-08 21:07:49 - POST recibido. Campos: {"contenido":"que linda"}
+2025-09-08 21:07:49 - FILES['fotos']: {"name":["hola.png"],"full_path":["hola.png"],"type":["image\/png"],"tmp_name":["C:\\xampp\\tmp\\php7168.tmp"],"error":[0],"size":[6151]}
+2025-09-08 21:07:49 - Intento de publicación: usuario_id=1, texto=
+2025-09-08 21:07:49 - Imagen subida correctamente: 68bf2985c005b.png
+2025-09-08 21:07:49 - Publicación creada por usuario 1 (Cristofer) con 1 imagen(es).
+2025-09-08 21:07:49 - LLEGA AL INICIO
+2025-09-08 21:07:59 - LLEGA AL INICIO
+2025-09-08 21:08:27 - LLEGA AL INICIO
+2025-09-08 21:09:18 - LLEGA AL INICIO
+2025-09-08 21:09:18 - LLEGA AL INICIO
+2025-09-08 21:09:50 - LLEGA AL INICIO
+2025-09-08 21:09:51 - LLEGA AL INICIO
+2025-09-08 21:10:23 - LLEGA AL INICIO
+2025-09-08 21:10:49 - LLEGA AL INICIO
+2025-09-08 21:10:53 - LLEGA AL INICIO
+2025-09-08 21:10:53 - LLEGA AL INICIO
+2025-09-08 21:10:54 - LLEGA AL INICIO
+2025-09-08 21:11:20 - LLEGA AL INICIO
+2025-09-08 21:11:21 - LLEGA AL INICIO
+2025-09-08 21:11:21 - LLEGA AL INICIO
+2025-09-08 21:11:22 - LLEGA AL INICIO
+2025-09-08 21:12:09 - LLEGA AL INICIO
+2025-09-08 21:12:10 - LLEGA AL INICIO
+2025-09-08 21:12:10 - LLEGA AL INICIO
+2025-09-08 21:15:04 - LLEGA AL INICIO
+2025-09-08 21:15:05 - LLEGA AL INICIO
+2025-09-08 21:17:14 - LLEGA AL INICIO
+2025-09-08 21:17:20 - LLEGA AL INICIO
+2025-09-08 21:17:23 - LLEGA AL INICIO
+2025-09-08 21:17:23 - POST recibido. Campos: {"publicacion":"asdasdasdasd"}
+2025-09-08 21:17:23 - FILES['fotos']: {"name":[""],"full_path":[""],"type":[""],"tmp_name":[""],"error":[4],"size":[0]}
+2025-09-08 21:17:23 - Intento de publicación: usuario_id=1, texto=asdasdasdasd
+2025-09-08 21:17:23 - Publicación creada por usuario 1 (Cristofer) con 0 imagen(es).
+2025-09-08 21:17:23 - LLEGA AL INICIO
+2025-09-08 21:17:26 - LLEGA AL INICIO
+2025-09-08 21:18:27 - LLEGA AL INICIO
+2025-09-08 21:18:27 - LLEGA AL INICIO
+2025-09-08 21:18:28 - LLEGA AL INICIO
+2025-09-08 21:18:34 - LLEGA AL INICIO
+2025-09-08 21:18:50 - LLEGA AL INICIO
+2025-09-08 21:18:54 - LLEGA AL INICIO
+2025-09-08 21:18:54 - LLEGA AL INICIO
+2025-09-08 21:18:54 - LLEGA AL INICIO
+2025-09-08 21:18:55 - LLEGA AL INICIO
+2025-09-08 21:18:56 - LLEGA AL INICIO
+2025-09-08 21:19:04 - LLEGA AL INICIO
+2025-09-08 21:19:50 - LLEGA AL INICIO
+2025-09-08 21:20:28 - LLEGA AL INICIO
+2025-09-08 21:20:29 - LLEGA AL INICIO
+2025-09-08 21:20:29 - LLEGA AL INICIO
+2025-09-08 21:26:47 - LLEGA AL INICIO
+2025-09-08 21:30:11 - LLEGA AL INICIO
+2025-09-08 21:37:12 - LLEGA AL INICIO
+2025-09-08 21:37:16 - LLEGA AL INICIO
+2025-09-08 21:37:22 - LLEGA AL INICIO
+2025-09-08 21:37:35 - LLEGA AL INICIO
+2025-09-08 21:38:30 - LLEGA AL INICIO
+2025-09-08 21:38:34 - LLEGA AL INICIO
+2025-09-08 21:39:44 - LLEGA AL INICIO
+2025-09-08 21:41:53 - LLEGA AL INICIO
+2025-09-08 21:41:53 - LLEGA AL INICIO
+2025-09-08 21:42:04 - LLEGA AL INICIO
+2025-09-08 21:42:07 - LLEGA AL INICIO
+2025-09-08 21:42:13 - LLEGA AL INICIO
+2025-09-08 21:42:49 - LLEGA AL INICIO
+2025-09-08 21:42:53 - LLEGA AL INICIO
+2025-09-08 21:43:04 - LLEGA AL INICIO
+2025-09-08 21:43:53 - LLEGA AL INICIO
+2025-09-08 21:47:31 - LLEGA AL INICIO
+2025-09-08 21:47:36 - LLEGA AL INICIO
+2025-09-08 21:47:42 - LLEGA AL INICIO
+2025-09-08 21:47:50 - LLEGA AL INICIO
+2025-09-08 21:47:54 - LLEGA AL INICIO
+2025-09-08 21:47:55 - LLEGA AL INICIO
+2025-09-08 21:48:57 - LLEGA AL INICIO
+2025-09-08 21:48:58 - LLEGA AL INICIO
+2025-09-08 21:48:58 - LLEGA AL INICIO
+2025-09-08 21:50:40 - LLEGA AL INICIO
+2025-09-08 21:50:41 - LLEGA AL INICIO
+2025-09-08 21:50:41 - LLEGA AL INICIO
+2025-09-08 21:53:36 - LLEGA AL INICIO
+2025-09-08 21:53:37 - LLEGA AL INICIO
+2025-09-08 21:53:51 - LLEGA AL INICIO
+2025-09-08 21:57:28 - LLEGA AL INICIO
+2025-09-08 21:59:38 - LLEGA AL INICIO
+2025-09-08 22:01:28 - LLEGA AL INICIO
+2025-09-08 22:01:35 - LLEGA AL INICIO
+2025-09-08 22:11:46 - LLEGA AL INICIO
+2025-09-08 22:11:59 - LLEGA AL INICIO
+2025-09-08 22:12:12 - LLEGA AL INICIO
+2025-09-08 22:12:13 - LLEGA AL INICIO
+2025-09-08 22:12:22 - LLEGA AL INICIO
+2025-09-08 22:12:38 - LLEGA AL INICIO
+2025-09-08 22:12:48 - LLEGA AL INICIO
+2025-09-08 22:13:50 - LLEGA AL INICIO
+2025-09-08 22:14:32 - LLEGA AL INICIO
+2025-09-08 22:16:55 - LLEGA AL INICIO
+2025-09-08 22:17:39 - LLEGA AL INICIO
+2025-09-08 22:17:55 - LLEGA AL INICIO
+2025-09-08 22:18:17 - LLEGA AL INICIO
+2025-09-08 22:19:52 - LLEGA AL INICIO
+2025-09-08 22:20:17 - LLEGA AL INICIO
+2025-09-08 22:21:16 - LLEGA AL INICIO
+2025-09-08 22:22:04 - LLEGA AL INICIO
+2025-09-08 22:23:10 - LLEGA AL INICIO
+2025-09-08 22:23:37 - LLEGA AL INICIO
+2025-09-08 22:26:18 - LLEGA AL INICIO
+2025-09-08 22:26:19 - LLEGA AL INICIO
+2025-09-08 22:26:20 - LLEGA AL INICIO
+2025-09-08 22:26:29 - LLEGA AL INICIO
+2025-09-08 22:26:38 - LLEGA AL INICIO
+2025-09-08 22:26:40 - LLEGA AL INICIO
+2025-09-08 22:27:10 - LLEGA AL INICIO
+2025-09-08 22:27:42 - LLEGA AL INICIO
+2025-09-08 22:28:01 - LLEGA AL INICIO
