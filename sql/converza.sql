@@ -120,5 +120,12 @@ CREATE TABLE notificaciones (
     FOREIGN KEY (user2) REFERENCES usuarios(id_use) ON DELETE CASCADE,
     FOREIGN KEY (id_pub) REFERENCES publicaciones(id_pub) ON DELETE SET NULL
 );
+-- Tabla para asociar varias imágenes a una publicación
+CREATE TABLE IF NOT EXISTS imagenes_publicacion (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    publicacion_id INT NOT NULL,
+    nombre_imagen VARCHAR(255) NOT NULL,
+    FOREIGN KEY (publicacion_id) REFERENCES publicaciones(id_pub) ON DELETE CASCADE
+);
 
 -- Panel de administración: gestionable desde la tabla usuarios (tipo = 'admin')

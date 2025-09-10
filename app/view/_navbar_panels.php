@@ -42,7 +42,6 @@
     <div class="d-flex align-items-center mb-2">
         <?php echo $imgU; ?>
         <a class="me-auto fw-bold text-decoration-none" href="../presenters/perfil.php?id=<?php echo (int)$us['id_use']; ?>"><?php echo htmlspecialchars($us['usuario']); ?></a>
-        <?php echo $am['de']; ?>
         <a href="../presenters/solicitud.php?action=aceptar&id=<?php echo (int)$am['de']; ?>" class="btn btn-success btn-sm me-1"><i class="bi bi-check"></i></a>
         <a href="../presenters/solicitud.php?action=rechazar&id=<?php echo (int)$am['de']; ?>" class="btn btn-danger btn-sm"><i class="bi bi-x"></i></a>
     </div>
