@@ -103,13 +103,22 @@ $publicaciones = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 }
                 ?>
                 <div class="d-flex align-items-center gap-3 mt-2">
-                    <a href="/TrabajoRedSocial/app/presenters/megusta.php?id=<?php echo (int)$pub['id_pub']; ?>" class="btn btn-outline-primary btn-sm like" id="<?php echo (int)$pub['id_pub']; ?>">
-                        <i class="bi bi-hand-thumbs-up"></i> Me gusta
+                    <a href="#" 
+                    class="btn btn-outline-primary btn-sm like" 
+                    data-id="<?php echo (int)$pub['id_pub']; ?>">
+                    <i class="bi bi-hand-thumbs-up"></i> Me gusta
                     </a>
-                    <span id="likes_<?php echo (int)$pub['id_pub']; ?>" class="text-muted small">(0)</span>
-                    <span class="text-muted small ms-auto"><i class="bi bi-chat-dots"></i> Comentarios</span>
-                    <a href="#" class="btn btn-outline-secondary btn-sm"><i class="bi bi-share"></i> Compartir</a>
+                    <span id="likes_<?php echo (int)$pub['id_pub']; ?>" class="text-muted small">
+                        (<?php echo (int)$pub['likes']; ?>)
+                    </span>
+                    <span class="text-muted small ms-auto">
+                        <i class="bi bi-chat-dots"></i> Comentarios
+                    </span>
+                    <a href="#" class="btn btn-outline-secondary btn-sm">
+                        <i class="bi bi-share"></i> Compartir
+                    </a>
                 </div>
+
             </div>
             <div class="ps-5 mt-2">
                 <?php
@@ -192,3 +201,22 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script>
+$(document).on('click', '.like', function(e) {
+    e.preventDefault();
+
+    const postId = $(this).data('id');
+    const $btn = $(this);
+
+    $.post('/TrabajoRedSocial/app/presenters/megusta.php', { id: postId }, function(res) {
+        if (res.error) {
+            alert(res.error);
+        } else {
+            $('#likes_' + postId).text(res.likes);
+            $btn.html(res.text);
+        }
+    }, 'json');
+});
+</script>
+

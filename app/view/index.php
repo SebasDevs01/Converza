@@ -8,7 +8,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         file_put_contents(__DIR__.'/../../public/log_publicar.txt', date('Y-m-d H:i:s')." - FILES['fotos']: NO RECIBIDO\n", FILE_APPEND);
     }
-    $POST_DIAGNOSTIC = true;
+    $POST_DIAGNOSTIC = false;
 } else {
     $POST_DIAGNOSTIC = false;
 }

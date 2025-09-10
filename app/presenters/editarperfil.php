@@ -33,7 +33,6 @@ if (isset($_GET['id'])) {
         $usuario = trim($_POST['usuario']);
         $email = trim($_POST['email']);
         $sexo = $_POST['sexo'];
-        $nacimiento = !empty($_POST['nacimiento']) ? $_POST['nacimiento'] : $use['nacimiento'];
 
         // Comprobar usuario único
         $stmtCheck = $conexion->prepare("SELECT id_use FROM usuarios WHERE usuario = :usuario AND id_use != :id");
@@ -96,12 +95,11 @@ if (isset($_GET['id'])) {
             }
 
             // Actualizar datos en la BD
-            $stmtUpdate = $conexion->prepare("UPDATE usuarios SET nombre = :nombre, usuario = :usuario, email = :email, sexo = :sexo, nacimiento = :nacimiento, avatar = :avatar WHERE id_use = :id");
+            $stmtUpdate = $conexion->prepare("UPDATE usuarios SET nombre = :nombre, usuario = :usuario, email = :email, sexo = :sexo, avatar = :avatar WHERE id_use = :id");
             $stmtUpdate->bindParam(':nombre', $nombre, PDO::PARAM_STR);
             $stmtUpdate->bindParam(':usuario', $usuario, PDO::PARAM_STR);
             $stmtUpdate->bindParam(':email', $email, PDO::PARAM_STR);
             $stmtUpdate->bindParam(':sexo', $sexo, PDO::PARAM_STR);
-            $stmtUpdate->bindParam(':nacimiento', $nacimiento, PDO::PARAM_STR);
             $stmtUpdate->bindParam(':avatar', $avatarFinal, PDO::PARAM_STR);
             $stmtUpdate->bindParam(':id', $id, PDO::PARAM_INT);
 
@@ -203,10 +201,7 @@ if (isset($_GET['id'])) {
                     <label class="form-check-label" for="sexoM">Mujer</label>
                 </div>
             </div>
-            <div class="mb-3">
-                <label for="nacimiento" class="form-label">Fecha de nacimiento</label>
-                <input type="date" name="nacimiento" id="nacimiento" class="form-control" value="<?php echo $use['nacimiento']; ?>">
-            </div>
+
             <button type="submit" name="actualizar" class="btn btn-primary w-100">Actualizar datos</button>
 
         </form>

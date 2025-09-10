@@ -535,3 +535,164 @@ Log de depuración de publicaciones y subida de imágenes.
 2025-09-10 03:16:18 - LLEGA AL INICIO
 2025-09-10 03:16:18 - LLEGA AL INICIO
 2025-09-10 03:16:27 - LLEGA AL INICIO
+2025-09-11 00:35:37 - LLEGA AL INICIO
+2025-09-11 00:37:22 - LLEGA AL INICIO
+2025-09-11 00:37:34 - LLEGA AL INICIO
+2025-09-11 00:37:34 - POST recibido. Campos: {"contenido":"hola"}
+2025-09-11 00:37:34 - FILES['fotos']: {"name":[""],"full_path":[""],"type":[""],"tmp_name":[""],"error":[4],"size":[0]}
+2025-09-11 00:38:40 - LLEGA AL INICIO
+2025-09-11 00:38:57 - LLEGA AL INICIO
+2025-09-11 00:39:02 - LLEGA AL INICIO
+2025-09-11 00:39:02 - POST recibido. Campos: {"publicacion":"lakdsasd"}
+2025-09-11 00:39:02 - FILES['fotos']: {"name":[""],"full_path":[""],"type":[""],"tmp_name":[""],"error":[4],"size":[0]}
+2025-09-11 00:39:02 - Intento de publicación: usuario_id=1, texto=lakdsasd
+2025-09-11 00:39:02 - Publicación creada por usuario 1 (cristofer) con 0 imagen(es).
+2025-09-11 00:39:02 - LLEGA AL INICIO
+2025-09-11 00:39:11 - LLEGA AL INICIO
+2025-09-11 00:39:11 - POST recibido. Campos: {"contenido":"dasjldjas\u00f1ldkas\r\nsadasdas"}
+2025-09-11 00:39:11 - FILES['fotos']: {"name":[""],"full_path":[""],"type":[""],"tmp_name":[""],"error":[4],"size":[0]}
+2025-09-11 00:39:47 - LLEGA AL INICIO
+2025-09-11 00:39:52 - LLEGA AL INICIO
+2025-09-11 00:39:52 - POST recibido. Campos: {"publicacion":"asdklasdklas"}
+2025-09-11 00:39:52 - FILES['fotos']: {"name":[""],"full_path":[""],"type":[""],"tmp_name":[""],"error":[4],"size":[0]}
+2025-09-11 00:39:52 - Intento de publicación: usuario_id=2, texto=asdklasdklas
+2025-09-11 00:39:52 - Publicación creada por usuario 2 (paula) con 0 imagen(es).
+2025-09-11 00:39:52 - LLEGA AL INICIO
+2025-09-11 00:40:00 - LLEGA AL INICIO
+2025-09-11 00:40:06 - LLEGA AL INICIO
+2025-09-11 00:40:10 - LLEGA AL INICIO
+2025-09-11 00:40:40 - LLEGA AL INICIO
+2025-09-11 00:41:28 - LLEGA AL INICIO
+2025-09-11 00:41:28 - POST recibido. Campos: {"publicacion":"asdkasd\u00f1as"}
+2025-09-11 00:41:28 - FILES['fotos']: {"name":["perfil.jpeg"],"full_path":["perfil.jpeg"],"type":["image\/jpeg"],"tmp_name":["C:\\xampp\\tmp\\php70A3.tmp"],"error":[0],"size":[9321]}
+2025-09-11 00:41:28 - Intento de publicación: usuario_id=1, texto=asdkasdñas
+2025-09-11 00:41:28 - Imagen subida correctamente: 68c1fe986949b.jpeg
+2025-09-11 00:41:28 - Publicación creada por usuario 1 (cristofer) con 1 imagen(es).
+2025-09-11 00:41:28 - LLEGA AL INICIO
+2025-09-11 00:42:07 - LLEGA AL INICIO
+2025-09-11 00:50:25 - LLEGA AL INICIO
+2025-09-11 00:50:31 - LLEGA AL INICIO
+2025-09-11 00:50:32 - LLEGA AL INICIO
+2025-09-11 00:53:29 - LLEGA AL INICIO
+2025-09-11 00:53:53 - LLEGA AL INICIO
+2025-09-11 00:54:01 - LLEGA AL INICIO
+2025-09-11 00:54:04 - LLEGA AL INICIO
+2025-09-11 00:56:46 - LLEGA AL INICIO
+2025-09-11 01:00:19 - LLEGA AL INICIO
+2025-09-11 01:00:22 - LLEGA AL INICIO
+2025-09-11 01:03:15 - LLEGA AL INICIO
+2025-09-11 01:03:31 - LLEGA AL INICIO
+2025-09-11 01:03:39 - LLEGA AL INICIO
+2025-09-11 01:05:09 - LLEGA AL INICIO
+2025-09-11 01:05:47 - LLEGA AL INICIO
+2025-09-11 01:06:10 - LLEGA AL INICIO
+2025-09-11 01:08:53 - LLEGA AL INICIO
+2025-09-11 01:09:04 - LLEGA AL INICIO
+2025-09-11 01:09:04 - POST recibido. Campos: {"contenido":"cristofer lo mama"}
+2025-09-11 01:09:04 - FILES['fotos']: {"name":[""],"full_path":[""],"type":[""],"tmp_name":[""],"error":[4],"size":[0]}
+2025-09-11 01:10:56 - LLEGA AL INICIO
+2025-09-11 01:10:56 - POST recibido. Campos: {"contenido":"cristofer lo mama"}
+2025-09-11 01:10:56 - FILES['fotos']: {"name":[""],"full_path":[""],"type":[""],"tmp_name":[""],"error":[4],"size":[0]}
+2025-09-11 01:11:03 - LLEGA AL INICIO
+2025-09-11 01:11:03 - POST recibido. Campos: {"contenido":"cristofer"}
+2025-09-11 01:11:03 - FILES['fotos']: {"name":[""],"full_path":[""],"type":[""],"tmp_name":[""],"error":[4],"size":[0]}
+2025-09-11 01:11:05 - LLEGA AL INICIO
+2025-09-11 01:11:05 - POST recibido. Campos: {"contenido":"cristofer"}
+2025-09-11 01:11:05 - FILES['fotos']: {"name":[""],"full_path":[""],"type":[""],"tmp_name":[""],"error":[4],"size":[0]}
+2025-09-11 01:11:50 - LLEGA AL INICIO
+2025-09-11 01:11:50 - POST recibido. Campos: {"contenido":"crsitofe\r\nr\r\n"}
+2025-09-11 01:11:50 - FILES['fotos']: {"name":[""],"full_path":[""],"type":[""],"tmp_name":[""],"error":[4],"size":[0]}
+2025-09-11 01:13:15 - LLEGA AL INICIO
+2025-09-11 01:13:15 - POST recibido. Campos: {"contenido":"crsitofe\r\nr\r\n"}
+2025-09-11 01:13:15 - FILES['fotos']: {"name":[""],"full_path":[""],"type":[""],"tmp_name":[""],"error":[4],"size":[0]}
+2025-09-11 01:13:22 - LLEGA AL INICIO
+2025-09-11 01:13:22 - POST recibido. Campos: {"contenido":"cristofer\r\n"}
+2025-09-11 01:13:22 - FILES['fotos']: {"name":[""],"full_path":[""],"type":[""],"tmp_name":[""],"error":[4],"size":[0]}
+2025-09-11 01:13:26 - LLEGA AL INICIO
+2025-09-11 01:13:26 - POST recibido. Campos: {"contenido":"cristofer\r\n"}
+2025-09-11 01:13:26 - FILES['fotos']: {"name":[""],"full_path":[""],"type":[""],"tmp_name":[""],"error":[4],"size":[0]}
+2025-09-11 01:13:28 - LLEGA AL INICIO
+2025-09-11 01:13:28 - POST recibido. Campos: {"contenido":"cristofer\r\n"}
+2025-09-11 01:13:28 - FILES['fotos']: {"name":[""],"full_path":[""],"type":[""],"tmp_name":[""],"error":[4],"size":[0]}
+2025-09-11 01:15:30 - LLEGA AL INICIO
+2025-09-11 01:15:30 - POST recibido. Campos: {"contenido":"cristofer\r\n"}
+2025-09-11 01:15:30 - FILES['fotos']: {"name":[""],"full_path":[""],"type":[""],"tmp_name":[""],"error":[4],"size":[0]}
+2025-09-11 01:15:35 - LLEGA AL INICIO
+2025-09-11 01:15:35 - POST recibido. Campos: {"contenido":"cristoer"}
+2025-09-11 01:15:35 - FILES['fotos']: {"name":[""],"full_path":[""],"type":[""],"tmp_name":[""],"error":[4],"size":[0]}
+2025-09-11 01:15:38 - LLEGA AL INICIO
+2025-09-11 01:15:38 - POST recibido. Campos: {"contenido":"cristoer"}
+2025-09-11 01:15:38 - FILES['fotos']: {"name":[""],"full_path":[""],"type":[""],"tmp_name":[""],"error":[4],"size":[0]}
+2025-09-11 01:16:55 - LLEGA AL INICIO
+2025-09-11 01:16:55 - POST recibido. Campos: {"contenido":"cristoer"}
+2025-09-11 01:16:55 - FILES['fotos']: {"name":[""],"full_path":[""],"type":[""],"tmp_name":[""],"error":[4],"size":[0]}
+2025-09-11 01:17:01 - LLEGA AL INICIO
+2025-09-11 01:17:01 - POST recibido. Campos: {"contenido":"crsitofer\r\n"}
+2025-09-11 01:17:01 - FILES['fotos']: {"name":[""],"full_path":[""],"type":[""],"tmp_name":[""],"error":[4],"size":[0]}
+2025-09-11 01:17:30 - LLEGA AL INICIO
+2025-09-11 01:17:30 - POST recibido. Campos: {"contenido":"crsitofer\r\n"}
+2025-09-11 01:17:30 - FILES['fotos']: {"name":[""],"full_path":[""],"type":[""],"tmp_name":[""],"error":[4],"size":[0]}
+2025-09-11 01:17:36 - LLEGA AL INICIO
+2025-09-11 01:17:36 - POST recibido. Campos: {"contenido":"asdasd"}
+2025-09-11 01:17:36 - FILES['fotos']: {"name":[""],"full_path":[""],"type":[""],"tmp_name":[""],"error":[4],"size":[0]}
+2025-09-11 01:20:22 - LLEGA AL INICIO
+2025-09-11 01:20:22 - POST recibido. Campos: {"contenido":"cristofer\r\n"}
+2025-09-11 01:20:22 - FILES['fotos']: {"name":[""],"full_path":[""],"type":[""],"tmp_name":[""],"error":[4],"size":[0]}
+2025-09-11 01:20:23 - LLEGA AL INICIO
+2025-09-11 01:20:23 - POST recibido. Campos: {"contenido":"cristofer\r\n"}
+2025-09-11 01:20:23 - FILES['fotos']: {"name":[""],"full_path":[""],"type":[""],"tmp_name":[""],"error":[4],"size":[0]}
+2025-09-11 01:20:25 - LLEGA AL INICIO
+2025-09-11 01:20:25 - POST recibido. Campos: {"contenido":"cristofer\r\n"}
+2025-09-11 01:20:25 - FILES['fotos']: {"name":[""],"full_path":[""],"type":[""],"tmp_name":[""],"error":[4],"size":[0]}
+2025-09-11 01:20:32 - LLEGA AL INICIO
+2025-09-11 01:20:32 - POST recibido. Campos: {"contenido":"hola"}
+2025-09-11 01:20:32 - FILES['fotos']: {"name":[""],"full_path":[""],"type":[""],"tmp_name":[""],"error":[4],"size":[0]}
+2025-09-11 01:20:44 - LLEGA AL INICIO
+2025-09-11 01:20:44 - POST recibido. Campos: {"contenido":"hola"}
+2025-09-11 01:20:44 - FILES['fotos']: {"name":[""],"full_path":[""],"type":[""],"tmp_name":[""],"error":[4],"size":[0]}
+2025-09-11 01:22:42 - LLEGA AL INICIO
+2025-09-11 01:22:42 - POST recibido. Campos: {"contenido":"hola"}
+2025-09-11 01:22:42 - FILES['fotos']: {"name":[""],"full_path":[""],"type":[""],"tmp_name":[""],"error":[4],"size":[0]}
+2025-09-11 01:24:06 - LLEGA AL INICIO
+2025-09-11 01:24:06 - POST recibido. Campos: {"contenido":"hola"}
+2025-09-11 01:24:06 - FILES['fotos']: {"name":[""],"full_path":[""],"type":[""],"tmp_name":[""],"error":[4],"size":[0]}
+2025-09-11 01:24:08 - LLEGA AL INICIO
+2025-09-11 01:24:08 - POST recibido. Campos: {"contenido":"hola"}
+2025-09-11 01:24:08 - FILES['fotos']: {"name":[""],"full_path":[""],"type":[""],"tmp_name":[""],"error":[4],"size":[0]}
+2025-09-11 01:24:24 - LLEGA AL INICIO
+2025-09-11 01:24:24 - POST recibido. Campos: {"contenido":"hola"}
+2025-09-11 01:24:24 - FILES['fotos']: {"name":[""],"full_path":[""],"type":[""],"tmp_name":[""],"error":[4],"size":[0]}
+2025-09-11 01:25:45 - LLEGA AL INICIO
+2025-09-11 01:25:45 - POST recibido. Campos: {"contenido":"hola"}
+2025-09-11 01:25:45 - FILES['fotos']: {"name":[""],"full_path":[""],"type":[""],"tmp_name":[""],"error":[4],"size":[0]}
+2025-09-11 01:27:48 - LLEGA AL INICIO
+2025-09-11 01:27:48 - POST recibido. Campos: {"contenido":"hola"}
+2025-09-11 01:27:48 - FILES['fotos']: {"name":[""],"full_path":[""],"type":[""],"tmp_name":[""],"error":[4],"size":[0]}
+2025-09-11 01:29:22 - LLEGA AL INICIO
+2025-09-11 01:29:22 - POST recibido. Campos: {"contenido":"hola"}
+2025-09-11 01:29:22 - FILES['fotos']: {"name":[""],"full_path":[""],"type":[""],"tmp_name":[""],"error":[4],"size":[0]}
+2025-09-11 01:30:48 - LLEGA AL INICIO
+2025-09-11 01:30:52 - LLEGA AL INICIO
+2025-09-11 01:33:00 - LLEGA AL INICIO
+2025-09-11 01:34:03 - LLEGA AL INICIO
+2025-09-11 01:34:04 - LLEGA AL INICIO
+2025-09-11 01:35:10 - LLEGA AL INICIO
+2025-09-11 01:36:56 - LLEGA AL INICIO
+2025-09-11 01:37:30 - LLEGA AL INICIO
+2025-09-11 01:37:31 - LLEGA AL INICIO
+2025-09-11 01:37:41 - LLEGA AL INICIO
+2025-09-11 01:37:41 - LLEGA AL INICIO
+2025-09-11 01:37:47 - LLEGA AL INICIO
+2025-09-11 01:38:13 - LLEGA AL INICIO
+2025-09-11 01:38:57 - LLEGA AL INICIO
+2025-09-11 01:38:58 - LLEGA AL INICIO
+2025-09-11 01:43:26 - LLEGA AL INICIO
+2025-09-11 01:43:26 - LLEGA AL INICIO
+2025-09-11 01:44:59 - LLEGA AL INICIO
+2025-09-11 01:44:59 - LLEGA AL INICIO
+2025-09-11 01:45:58 - LLEGA AL INICIO
+2025-09-11 01:45:58 - LLEGA AL INICIO
+2025-09-11 01:45:59 - LLEGA AL INICIO
+2025-09-11 01:46:19 - LLEGA AL INICIO
+2025-09-11 01:46:36 - LLEGA AL INICIO
+2025-09-11 01:46:52 - LLEGA AL INICIO

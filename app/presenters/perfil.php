@@ -124,7 +124,7 @@ $posts = $stmt_posts->fetchAll(PDO::FETCH_ASSOC);
             <?php foreach ($posts as $post): ?>
               <div class="mb-4 border-bottom pb-3">
                 <div class="d-flex align-items-center mb-2">
-                  <img src="public/avatars/<?php echo htmlspecialchars($usuario['avatar']); ?>" class="rounded-circle me-2" width="40" height="40">
+                  <img src="/TrabajoRedSocial/public/avatars/<?php echo htmlspecialchars($usuario['avatar']); ?>" class="rounded-circle me-2" width="40" height="40">
                   <div>
                     <span class="fw-bold"><?php echo htmlspecialchars($usuario['nombre']); ?></span>
                     <span class="text-muted small ms-2"><?php echo date('d/m/Y H:i', strtotime($post['fecha'])); ?></span>
@@ -132,7 +132,7 @@ $posts = $stmt_posts->fetchAll(PDO::FETCH_ASSOC);
                 </div>
                 <div class="mb-2"><?php echo nl2br(htmlspecialchars($post['contenido'])); ?></div>
                 <?php if (!empty($post['imagen'])) { ?>
-                  <img src="public/publicaciones/<?php echo htmlspecialchars($post['imagen']); ?>" class="img-fluid rounded mb-2" alt="Imagen publicación">
+                  <img src="/TrabajoRedSocial/public/avatars/<?php echo htmlspecialchars($post['imagen']); ?>" class="img-fluid rounded mb-2" alt="Imagen publicación">
                 <?php } ?>
               </div>
             <?php endforeach; ?>
