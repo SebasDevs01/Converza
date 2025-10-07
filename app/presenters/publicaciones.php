@@ -1,4 +1,3 @@
-
 <?php
 if (session_status() === PHP_SESSION_NONE) {
         session_start();
@@ -103,14 +102,23 @@ $publicaciones = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 }
                 ?>
                 <div class="d-flex align-items-center gap-3 mt-2">
-                    <a href="#" 
-                    class="btn btn-outline-primary btn-sm like" 
-                    data-id="<?php echo (int)$pub['id_pub']; ?>">
-                    <i class="bi bi-hand-thumbs-up"></i> Me gusta
-                    </a>
-                    <span id="likes_<?php echo (int)$pub['id_pub']; ?>" class="text-muted small">
-                        (<?php echo (int)$pub['likes']; ?>)
+                    <div class="like-button-container" data-id="<?php echo (int)$pub['id_pub']; ?>">
+                        <button class="like-button" id="like_button_<?php echo (int)$pub['id_pub']; ?>">👍 Me gusta</button>
+                        <div class="reactions-menu" style="display: none;">
+                            <span class="reaction" data-reaction="like">👍</span>
+                            <span class="reaction" data-reaction="love">❤️</span>
+                            <span class="reaction" data-reaction="haha">😂</span>
+                            <span class="reaction" data-reaction="wow">😮</span>
+                            <span class="reaction" data-reaction="sad">😢</span>
+                            <span class="reaction" data-reaction="angry">😡</span>
+                        </div>
+                    </div>
+                    <span id="reaction_count_<?php echo (int)$pub['id_pub']; ?>" class="text-muted small" style="display: none; cursor: pointer;" title="Usuarios que reaccionaron">
+                        <!-- Contador de reacciones -->
                     </span>
+                    <div id="reaction_tooltip_<?php echo (int)$pub['id_pub']; ?>" class="reaction-tooltip" style="display: none;">
+                        <!-- Tooltip con nombres de usuarios y reacciones -->
+                    </div>
                     <span class="text-muted small ms-auto">
                         <i class="bi bi-chat-dots"></i> Comentarios
                     </span>
@@ -218,5 +226,170 @@ $(document).on('click', '.like', function(e) {
         }
     }, 'json');
 });
+
+// Manejar reacciones para múltiples publicaciones
+const likeButtons = document.querySelectorAll('.like-button-container');
+
+likeButtons.forEach(container => {
+    const likeButton = container.querySelector('.like-button');
+    const reactionsMenu = container.querySelector('.reactions-menu');
+    const reactionCountElement = document.getElementById(`reaction_count_${container.dataset.id}`);
+    const reactionTooltip = document.getElementById(`reaction_tooltip_${container.dataset.id}`);
+    const postId = container.dataset.id;
+    let selectedReaction = null;
+
+    // Cargar reacción seleccionada y contador al iniciar
+    fetch(`/TrabajoRedSocial/app/presenters/get_reactions.php?postId=${postId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Mostrar reacción del usuario
+                const userReaction = data.userReaction;
+                if (userReaction) {
+                    selectedReaction = userReaction.tipo_reaccion;
+                    const reactionText = {
+                        like: 'Me gusta',
+                        love: 'Me encanta',
+                        haha: 'Me divierte',
+                        wow: 'Me asombra',
+                        sad: 'Me entristece',
+                        angry: 'Me enoja'
+                    };
+                    likeButton.innerHTML = `${selectedReaction} <span style="margin-left: 8px;">${reactionText[selectedReaction]}</span>`;
+                }
+
+                // Actualizar contador
+                if (data.reactions.length > 0) {
+                    reactionCountElement.style.display = 'inline';
+                    reactionCountElement.textContent = `(${data.reactions.length})`;
+                    reactionTooltip.innerHTML = data.reactions.map(r => `<div>${r.usuario}: ${r.tipo_reaccion}</div>`).join('');
+                } else {
+                    reactionCountElement.style.display = 'none';
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error al cargar las reacciones:', error);
+        });
+
+    // Mostrar/ocultar menú de reacciones
+    likeButton.addEventListener('click', () => {
+        reactionsMenu.style.display = reactionsMenu.style.display === 'none' ? 'block' : 'none';
+    });
+
+    likeButton.addEventListener('mouseleave', () => {
+        setTimeout(() => {
+            if (!reactionsMenu.matches(':hover')) {
+                reactionsMenu.style.display = 'none';
+            }
+        }, 200);
+    });
+
+    reactionsMenu.addEventListener('mouseleave', () => {
+        reactionsMenu.style.display = 'none';
+    });
+
+    // Manejar selección de reacción
+    reactionsMenu.addEventListener('click', (event) => {
+        const reaction = event.target.dataset.reaction;
+
+        if (reaction) {
+            const reactionText = {
+                like: 'Me gusta',
+                love: 'Me encanta',
+                haha: 'Me divierte',
+                wow: 'Me asombra',
+                sad: 'Me entristece',
+                angry: 'Me enoja'
+            };
+
+            if (selectedReaction === reaction) {
+                selectedReaction = null;
+                likeButton.textContent = '👍 Me gusta';
+            } else {
+                selectedReaction = reaction;
+                likeButton.innerHTML = `${event.target.outerHTML} <span style="margin-left: 8px;">${reactionText[reaction]}</span>`;
+            }
+
+            // Enviar la reacción al servidor
+            fetch('/TrabajoRedSocial/app/presenters/save_reaction.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ reaction, postId }),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        reactionCountElement.style.display = 'inline';
+                        reactionCountElement.textContent = `(${data.reactions.length})`;
+                        reactionTooltip.innerHTML = data.reactions.map(r => `<div>${r.usuario}: ${r.tipo_reaccion}</div>`).join('');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error al guardar la reacción:', error);
+                });
+        }
+
+        // Cerrar el menú después de seleccionar
+        reactionsMenu.style.display = 'none';
+    });
+
+    // Mostrar tooltip al pasar el cursor sobre el contador
+    reactionCountElement.addEventListener('mouseenter', () => {
+        reactionTooltip.style.display = 'block';
+        reactionTooltip.style.opacity = '1';
+        reactionTooltip.style.transform = 'translateY(0)';
+    });
+
+    reactionCountElement.addEventListener('mouseleave', () => {
+        reactionTooltip.style.opacity = '0';
+        reactionTooltip.style.transform = 'translateY(-10px)';
+        setTimeout(() => {
+            reactionTooltip.style.display = 'none';
+        }, 200);
+    });
+});
 </script>
+
+<style>
+/* Estilo del menú de reacciones */
+.reactions-menu {
+    position: absolute;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 10px;
+    display: flex;
+    gap: 10px;
+    z-index: 1000;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.reaction {
+    font-size: 24px;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.reaction:hover {
+    transform: scale(1.2);
+}
+
+/* Estilo del tooltip de reacciones */
+.reaction-tooltip {
+    position: absolute;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 10px;
+    z-index: 1000;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    opacity: 0;
+    transform: translateY(-10px);
+}
+</style>
 

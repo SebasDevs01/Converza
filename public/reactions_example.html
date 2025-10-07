@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reacciones</title>
+    <link rel="stylesheet" href="/TrabajoRedSocial/bootstrap/css/bootstrap.min.css">
+    <script src="/TrabajoRedSocial/public/js/jquery.jscroll.js"></script>
+</head>
+<body data-user-id="1"> <!-- Suponiendo que el ID del usuario está en un atributo data -->
+    <div class="container">
+        <div class="post" data-post-id="123">
+            <h3>Publicación de ejemplo</h3>
+            <div id="reactions-123" class="reactions">
+                <button id="boton-123-like" data-reaction="like">👍 Me gusta <span id="contador-123-like">0</span></button>
+                <button id="boton-123-love" data-reaction="love">❤️ Me encanta <span id="contador-123-love">0</span></button>
+                <button id="boton-123-angry" data-reaction="angry">😡 Me enoja <span id="contador-123-angry">0</span></button>
+            </div>
+        </div>
+    </div>
+    <script src="/TrabajoRedSocial/public/reaction_button.html"></script>
+</body>
+</html>

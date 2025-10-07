@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Botón de Me Gusta con Reacciones</title>
+    <style>
+        /* Estilo general */
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f4f4f9;
+        }
+
+        /* Contenedor del botón */
+        .like-button-container {
+            position: relative;
+            display: inline-block;
+        }
+
+        /* Botón principal */
+        .like-button {
+            background-color: #e4e6eb;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            font-size: 24px;
+            transition: transform 0.2s;
+        }
+
+        .like-button:hover {
+            transform: scale(1.1);
+        }
+
+        /* Burbuja de reacciones */
+        .reactions {
+            position: absolute;
+            bottom: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            background: white;
+            padding: 10px;
+            border-radius: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s, transform 0.2s;
+            transform: translate(-50%, 10px);
+        }
+
+        .reactions.show {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translate(-50%, 0);
+        }
+
+        .reaction {
+            font-size: 20px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .reaction:hover {
+            transform: scale(1.3);
+        }
+
+        /* Estilo para el contador de reacciones */
+        .reaction-count {
+            display: none;
+            font-size: 14px;
+            margin-left: 5px;
+            color: #333;
+        }
+
+        /* Estilo para el tooltip de reacciones */
+        .reaction-tooltip {
+            display: none;
+            position: absolute;
+            bottom: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            z-index: 10;
+        }
+
+        .like-button-container:hover .reaction-tooltip {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="like-button-container">
+        <button class="like-button" id="likeButton">👍</button>
+        <div class="reactions" id="reactions">
+            <span class="reaction" data-reaction="like">👍</span>
+            <span class="reaction" data-reaction="love">❤️</span>
+            <span class="reaction" data-reaction="haha">😂</span>
+            <span class="reaction" data-reaction="wow">😮</span>
+            <span class="reaction" data-reaction="sad">😢</span>
+            <span class="reaction" data-reaction="angry">😡</span>
+        </div>
+        <div class="reaction-count" id="reaction_count_1">(0)</div>
+        <div class="reaction-tooltip" id="reaction_tooltip_1"></div>
+    </div>
+
+    <script>
+        // Referencias a los elementos
+        const likeButton = document.getElementById('likeButton');
+        const reactions = document.getElementById('reactions');
+        let selectedReaction = null;
+
+        // Mostrar/ocultar reacciones al pasar el cursor
+        likeButton.addEventListener('mouseenter', () => {
+            reactions.classList.add('show');
+        });
+
+        likeButton.addEventListener('mouseleave', () => {
+            setTimeout(() => {
+                if (!reactions.matches(':hover')) {
+                    reactions.classList.remove('show');
+                }
+            }, 200);
+        });
+
+        reactions.addEventListener('mouseleave', () => {
+            reactions.classList.remove('show');
+        });
+
+        // Manejar la selección de una reacción
+        reactions.addEventListener('click', (event) => {
+            const reaction = event.target.dataset.reaction;
+
+            if (reaction) {
+                if (selectedReaction === reaction) {
+                    // Si la reacción ya está seleccionada, deseleccionarla
+                    selectedReaction = null;
+                    likeButton.textContent = '👍';
+                } else {
+                    // Seleccionar una nueva reacción
+                    selectedReaction = reaction;
+                    likeButton.textContent = event.target.textContent;
+                }
+
+                // Enviar la reacción al servidor
+                sendReactionToServer(selectedReaction);
+            }
+        });
+
+        // Función para enviar la reacción al servidor
+        function sendReactionToServer(reaction) {
+            fetch('app/presenters/megusta.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ reaction }),
+            })
+                .then((response) => response.json())
+                .then((data) => {
+                    console.log('Reacción guardada:', data);
+                })
+                .catch((error) => {
+                    console.error('Error al guardar la reacción:', error);
+                });
+        }
+
+        // Función para manejar la selección de una reacción
+        function reaccionar(id_publicacion, tipo_reaccion) {
+            const userId = document.body.dataset.userId; // Suponiendo que el ID del usuario está en un atributo data del body
+
+            fetch('/TrabajoRedSocial/app/presenters/save_reaction.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `id_usuario=${userId}&id_publicacion=${id_publicacion}&tipo_reaccion=${tipo_reaccion}`
+            })
+            .then(res => res.json())
+            .then(data => {
+                console.log('Respuesta del servidor:', data); // Verificar la respuesta del servidor
+                if (data.success) {
+                    actualizarContador(id_publicacion, tipo_reaccion);
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(err => console.error('Error fetch:', err));
+        }
+
+        // Función para actualizar el contador de reacciones
+        function actualizarContador(id_publicacion, tipo_reaccion) {
+            const contador = document.querySelector(`#contador-${id_publicacion}-${tipo_reaccion}`);
+            if (contador) {
+                contador.textContent = parseInt(contador.textContent) + 1;
+            }
+        }
+
+        // Función para cargar la reacción del usuario al cargar la página
+        function cargarReaccionUsuario(id_publicacion) {
+            const userId = document.body.dataset.userId;
+
+            fetch(`/TrabajoRedSocial/app/presenters/get_reaction.php?id_usuario=${userId}&id_publicacion=${id_publicacion}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        const reaccion = data.reaction;
+                        const boton = document.querySelector(`#boton-${id_publicacion}-${reaccion}`);
+                        if (boton) {
+                            boton.classList.add('seleccionado'); // Marcar la reacción seleccionada
+                        }
+                    }
+                })
+                .catch(err => console.error('Error al cargar la reacción:', err));
+        }
+
+        // Llamar a las funciones para cada publicación al cargar la página
+        const posts = document.querySelectorAll('.post');
+
+        posts.forEach(post => {
+            const postId = post.dataset.postId;
+
+            // Manejar clics en el botón de reacción
+            const reactionsMenu = document.querySelector(`#reactions-${postId}`);
+
+            reactionsMenu.addEventListener('click', (event) => {
+                const reaction = event.target.dataset.reaction;
+                if (reaction) {
+                    reaccionar(postId, reaction);
+                }
+            });
+
+            // Cargar la reacción del usuario
+            cargarReaccionUsuario(postId);
+        });
+    </script>
+</body>
+</html>
