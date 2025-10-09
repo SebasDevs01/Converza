@@ -86,12 +86,12 @@ function Headerb() {
             <!-- User Account -->
             <li class="dropdown user user-menu">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                <img src="/TrabajoRedSocial/public/avatars/<?php echo htmlspecialchars($avatar); ?>" class="user-image" alt="User Image">
+                <img src="/converza/public/avatars/<?php echo htmlspecialchars($avatar); ?>" class="user-image" alt="User Image">
                 <span class="hidden-xs"><?php echo $username; ?></span>
               </a>
               <ul class="dropdown-menu">
                 <li class="user-header">
-                  <img src="/TrabajoRedSocial/public/avatars/<?php echo htmlspecialchars($avatar); ?>" class="img-circle" alt="User Image">
+                  <img src="/converza/public/avatars/<?php echo htmlspecialchars($avatar); ?>" class="img-circle" alt="User Image">
                   <p>
                     <?php echo $username; ?>
                     <small>Miembro desde <?php echo $fechaRegEsp; ?></small>
@@ -139,7 +139,7 @@ function Side() {
     <!-- Sidebar user panel -->
     <div class="user-panel">
       <div class="pull-left">
-  <img src="/TrabajoRedSocial/public/avatars/<?php echo htmlspecialchars($_SESSION['avatar']); ?>" width="60" class="img-circle" alt="User Image">
+  <img src="/converza/public/avatars/<?php echo htmlspecialchars($_SESSION['avatar']); ?>" width="60" class="img-circle" alt="User Image">
       </div>
       <div class="pull-left info">
         <p><?php echo ucwords($_SESSION['usuario']); ?></p>

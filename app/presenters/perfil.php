@@ -70,12 +70,12 @@ $posts = $stmt_posts->fetchAll(PDO::FETCH_ASSOC);
           <?php
             $avatar = htmlspecialchars($usuario['avatar']);
             $avatarPath = __DIR__ . '/../../public/avatars/' . $avatar; 
-            $avatarWebPath = '/TrabajoRedSocial/public/avatars/' . $avatar;
+            $avatarWebPath = '/converza/public/avatars/' . $avatar;
 
             if ($avatar && $avatar !== 'default_avatar.svg' && $avatar !== 'defect.jpg' && file_exists($avatarPath)) {
                 echo '<img src="' . $avatarWebPath . '" class="rounded-circle mb-3" width="120" height="120" alt="Avatar">';
             } else {
-                echo '<img src="/TrabajoRedSocial/public/avatars/defect.jpg" class="rounded-circle mb-3" width="120" height="120" alt="Avatar por defecto">';
+                echo '<img src="/converza/public/avatars/defect.jpg" class="rounded-circle mb-3" width="120" height="120" alt="Avatar por defecto">';
             }
           ?>
 
@@ -124,7 +124,7 @@ $posts = $stmt_posts->fetchAll(PDO::FETCH_ASSOC);
             <?php foreach ($posts as $post): ?>
               <div class="mb-4 border-bottom pb-3">
                 <div class="d-flex align-items-center mb-2">
-                  <img src="/TrabajoRedSocial/public/avatars/<?php echo htmlspecialchars($usuario['avatar']); ?>" class="rounded-circle me-2" width="40" height="40">
+                  <img src="/converza/public/avatars/<?php echo htmlspecialchars($usuario['avatar']); ?>" class="rounded-circle me-2" width="40" height="40">
                   <div>
                     <span class="fw-bold"><?php echo htmlspecialchars($usuario['nombre']); ?></span>
                     <span class="text-muted small ms-2"><?php echo date('d/m/Y H:i', strtotime($post['fecha'])); ?></span>
@@ -132,7 +132,7 @@ $posts = $stmt_posts->fetchAll(PDO::FETCH_ASSOC);
                 </div>
                 <div class="mb-2"><?php echo nl2br(htmlspecialchars($post['contenido'])); ?></div>
                 <?php if (!empty($post['imagen'])) { ?>
-                  <img src="/TrabajoRedSocial/public/avatars/<?php echo htmlspecialchars($post['imagen']); ?>" class="img-fluid rounded mb-2" alt="Imagen publicación">
+                  <img src="/converza/public/avatars/<?php echo htmlspecialchars($post['imagen']); ?>" class="img-fluid rounded mb-2" alt="Imagen publicación">
                 <?php } ?>
               </div>
             <?php endforeach; ?>
@@ -169,7 +169,7 @@ $posts = $stmt_posts->fetchAll(PDO::FETCH_ASSOC);
           if ($amigos):
               foreach ($amigos as $am): ?>
                   <a href="perfil.php?id=<?php echo (int)$am['id_use']; ?>" class="d-inline-block text-center me-2 mb-2">
-                    <img src="/TrabajoRedSocial/public/avatars/<?php echo htmlspecialchars($am['avatar']); ?>" class="rounded-circle" width="48" height="48" alt="Avatar">
+                    <img src="/converza/public/avatars/<?php echo htmlspecialchars($am['avatar']); ?>" class="rounded-circle" width="48" height="48" alt="Avatar">
                     <div class="small fw-bold"><?php echo htmlspecialchars($am['usuario']); ?></div>
                   </a>
               <?php endforeach;

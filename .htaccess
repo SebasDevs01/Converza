@@ -1,0 +1,5 @@
+# Configuración de reescritura para el proyecto Converza
+RewriteEngine On
+RewriteBase /converza/
+RewriteRule ^app/presenters/(.*)$ app/presenters/$1 [L]
+RewriteRule ^app/view/(.*)$ app/view/$1 [L]

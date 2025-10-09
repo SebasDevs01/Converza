@@ -4,6 +4,22 @@ require(__DIR__.'/../models/config.php'); // Aquí tienes tu conexión PDO en $c
 // Verificar si el usuario está logueado (opcional, depende de tu sistema)
 session_start();
 
+// Cambiar la ruta base para reflejar la URL correcta del proyecto
+if (!defined('BASE_URL')) {
+    define('BASE_URL', '/converza/app/view/');
+}
+
+// Cambiar la ruta de redireccionamiento para que se ajuste correctamente
+if (!defined('REDIRECT_URL')) {
+    define('REDIRECT_URL', '/converza/app/view/agregarcomentario.php');
+}
+
+// Redirigir en caso de error
+if (!file_exists(__FILE__)) {
+    header('Location: ' . BASE_URL . 'error.php');
+    exit;
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Validar campos
     if (!empty($_POST['usuario']) && !empty($_POST['comentario']) && !empty($_POST['publicacion'])) {
@@ -24,8 +40,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
 
                 // Insertar comentario
-                $stmt = $conexion->prepare("INSERT INTO comentarios (usuario, comentario, fecha, publicacion) 
-                                            VALUES (:usuario, :comentario, NOW(), :publicacion)");
+                $stmt = $conexion->prepare("INSERT INTO comentarios (usuario, comentario, publicacion) 
+                                            VALUES (:usuario, :comentario, :publicacion)");
                 $stmt->execute([
                     ':usuario' => $usuario,
                     ':comentario' => $comentario,
@@ -91,30 +107,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    // Si no es AJAX, mostrar SweetAlert
-    $icon = $response['status'] === 'success' ? 'success' : ($response['status'] === 'warning' ? 'warning' : 'error');
-    $title = $response['status'] === 'success' ? '¡Comentario agregado!' : ($response['status'] === 'warning' ? 'Campos vacíos' : 'Error');
-    
-    echo "<!DOCTYPE html>
-    <html>
-    <head>
-        <script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>
-    </head>
-    <body>
-        <script>
-            Swal.fire({
-                icon: '{$icon}',
-                title: '{$title}',
-                text: '{$response['message']}',
-                confirmButtonText: 'Aceptar'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    window.location.href = '/TrabajoRedSocial/app/view/index.php';
-                }
-            });
-        </script>
-    </body>
-    </html>";
-    exit;
+    // Ajustar la lógica para redirigir directamente al index
+    if ($response['status'] === 'success') {
+        header('Location: ' . BASE_URL . 'index.php');
+        exit;
+    }
 }
 ?>

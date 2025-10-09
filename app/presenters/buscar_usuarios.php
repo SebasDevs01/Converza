@@ -25,9 +25,9 @@ foreach ($usuarios as $u) {
     $avatar = htmlspecialchars($u['avatar']);
     $avatarPath = __DIR__.'/../../public/avatars/'.$avatar;
     if ($avatar && file_exists($avatarPath)) {
-        $src = '/TrabajoRedSocial/public/avatars/'.$avatar;
+        $src = '/converza/public/avatars/'.$avatar;
     } else {
-        $src = '/TrabajoRedSocial/public/avatars/defect.jpg';
+        $src = '/converza/public/avatars/defect.jpg';
     }
     echo '<div class="d-flex align-items-center mb-2">';
     echo '<img src="'.$src.'" class="rounded-circle me-2" width="32" height="32" alt="Avatar">';

@@ -86,9 +86,9 @@ if (isset($_GET['eliminar']) && is_numeric($_GET['eliminar'])) {
                         $avatar = htmlspecialchars($u['avatar']);
                         $avatarPath = __DIR__.'/../../public/avatars/'.$avatar;
                         if ($avatar && file_exists($avatarPath)) {
-                          $src = '/TrabajoRedSocial/public/avatars/'.$avatar;
+                          $src = '/converza/public/avatars/'.$avatar;
                         } else {
-                          $src = '/TrabajoRedSocial/public/avatars/defect.jpg';
+                          $src = '/converza/public/avatars/defect.jpg';
                         }
                       ?>
                       <img src="<?php echo $src; ?>" alt="avatar" width="40" height="40" class="rounded-circle">

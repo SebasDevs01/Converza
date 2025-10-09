@@ -109,7 +109,7 @@ if (isset($_GET['id'])) {
                 if ($errorAvatar) {
                     $error = $errorAvatar;
                 } else {
-                    header("Location: /TrabajoRedSocial/app/view?id=$id");
+                    header("Location: /converza/app/view?id=$id");
                     exit();
                 }
             } else {
@@ -138,7 +138,7 @@ if (isset($_GET['id'])) {
     <div class="card shadow-lg p-4 w-100" style="max-width: 520px;">
                      <div class="d-flex justify-content-between align-items-center mb-4">
                          <h2 class="mb-0 text-center flex-grow-1">Editar perfil</h2>
-                         <a href="/TrabajoRedSocial/app/presenters/perfil.php?id=<?php echo (int)$id; ?>" class="btn btn-light btn-sm ms-2" title="Cerrar" style="border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;box-shadow:none;"><span aria-hidden="true">&times;</span></a>
+                         <a href="/converza/app/presenters/perfil.php?id=<?php echo (int)$id; ?>" class="btn btn-light btn-sm ms-2" title="Cerrar" style="border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;box-shadow:none;"><span aria-hidden="true">&times;</span></a>
                      </div>
         <form method="post" enctype="multipart/form-data">
             <?php if (isset($error)) echo "<div class='alert alert-danger'>$error</div>"; ?>
@@ -165,7 +165,7 @@ if (isset($_GET['id'])) {
                     <span id="avatarPreviewContainer">
                     <?php
                     $avatarActual = $use['avatar'];
-                    $avatarWebPath = '/TrabajoRedSocial/public/avatars/' . $id . '.jpg';
+                    $avatarWebPath = '/converza/public/avatars/' . $id . '.jpg';
                     $avatarPath = __DIR__.'/../../public/avatars/' . $id . '.jpg';
                     if ($avatarActual && $avatarActual !== 'default_avatar.svg' && file_exists($avatarPath)) {
                         echo '<img src="'.$avatarWebPath.'" class="rounded-circle border bg-secondary" width="60" height="60" alt="Avatar actual" id="avatarPreview" style="object-fit:cover;">';

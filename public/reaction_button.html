@@ -182,7 +182,7 @@
         function reaccionar(id_publicacion, tipo_reaccion) {
             const userId = document.body.dataset.userId; // Suponiendo que el ID del usuario está en un atributo data del body
 
-            fetch('/TrabajoRedSocial/app/presenters/save_reaction.php', {
+            fetch('/converza/app/presenters/save_reaction.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: `id_usuario=${userId}&id_publicacion=${id_publicacion}&tipo_reaccion=${tipo_reaccion}`
@@ -211,7 +211,7 @@
         function cargarReaccionUsuario(id_publicacion) {
             const userId = document.body.dataset.userId;
 
-            fetch(`/TrabajoRedSocial/app/presenters/get_reaction.php?id_usuario=${userId}&id_publicacion=${id_publicacion}`)
+            fetch(`/converza/app/presenters/get_reaction.php?id_usuario=${userId}&id_publicacion=${id_publicacion}`)
                 .then(res => res.json())
                 .then(data => {
                     if (data.success) {

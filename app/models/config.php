@@ -18,3 +18,9 @@ try {
 } catch (PDOException $e) {
     die("Error de conexión: " . $e->getMessage());
 }
+
+// Agregar conexión mysqli
+$conn = mysqli_connect($host, $user, $pass, $db);
+if (!$conn) {
+    die("Error de conexión mysqli: " . mysqli_connect_error());
+}

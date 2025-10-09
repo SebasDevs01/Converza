@@ -23,10 +23,10 @@ $publicaciones = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     $avatar = htmlspecialchars($pub['avatar']);
                     $avatarPath = __DIR__.'/../../public/avatars/'.$avatar;
                     if ($avatar && file_exists($avatarPath)) {
-                        $src = '/TrabajoRedSocial/public/avatars/'.$avatar;
+                        $src = '/converza/public/avatars/'.$avatar;
                         echo '<img src="'.$src.'" class="rounded-circle me-2" width="48" height="48" alt="Avatar">';
                     } else {
-                        echo '<img src="/TrabajoRedSocial/public/avatars/defect.jpg" class="rounded-circle me-2" width="48" height="48" alt="Avatar por defecto">';
+                        echo '<img src="/converza/public/avatars/defect.jpg" class="rounded-circle me-2" width="48" height="48" alt="Avatar por defecto">';
                     }
                 ?>
                 <div>
@@ -96,9 +96,33 @@ $publicaciones = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 if ($imagenes) {
                     echo '<div class="d-flex flex-wrap gap-2 mb-2">';
                     foreach ($imagenes as $img) {
-                        echo '<img src="/TrabajoRedSocial/public/publicaciones/'.htmlspecialchars($img).'" class="rounded-3 mb-2" style="max-width:180px;max-height:180px;object-fit:cover;">';
+                        echo '<img src="/converza/public/publicaciones/'.htmlspecialchars($img).'" class="rounded-3 mb-2" style="max-width:180px;max-height:180px;object-fit:cover;">';
                     }
                     echo '</div>';
+                }
+                ?>
+                <?php
+                // Mostrar videos asociados a publicaciones
+                $stmtVideos = $conexion->prepare("SELECT video FROM publicaciones WHERE id_pub = :pubid AND video IS NOT NULL");
+                $stmtVideos->bindParam(':pubid', $pub['id_pub'], PDO::PARAM_INT);
+                $stmtVideos->execute();
+                $videos = $stmtVideos->fetchAll(PDO::FETCH_COLUMN);
+                if ($videos) {
+                    echo '<div class="d-flex flex-wrap gap-2 mb-2">';
+                    foreach ($videos as $video) {
+                        echo '<video controls class="rounded-3 mb-2" style="max-width:320px;max-height:240px;object-fit:cover;">
+                                <source src="/converza/public/publicaciones/'.htmlspecialchars($video).'" type="video/mp4">
+                              </video>';
+                    }
+                    echo '</div>';
+                }
+                ?>
+                <?php
+                // Mostrar videos de YouTube embebidos
+                if (!empty($pub['youtube_link'])) {
+                    echo '<div class="mb-2">
+                            <iframe width="560" height="315" src="https://www.youtube.com/embed/'.htmlspecialchars($pub['youtube_link']).'" frameborder="0" allowfullscreen></iframe>
+                          </div>';
                 }
                 ?>
                 <div class="d-flex align-items-center gap-3 mt-2">
@@ -138,10 +162,10 @@ $publicaciones = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     $avatarc = htmlspecialchars($com['avatar']);
                     $avatarcPath = __DIR__.'/../../public/avatars/'.$avatarc;
                     if ($avatarc && file_exists($avatarcPath)) {
-                        $srcC = '/TrabajoRedSocial/public/avatars/'.$avatarc;
+                        $srcC = '/converza/public/avatars/'.$avatarc;
                         $imgC = '<img class="rounded-circle me-2" src="'.$srcC.'" alt="Avatar" width="32" height="32">';
                     } else {
-                        $imgC = '<img class="rounded-circle me-2" src="/TrabajoRedSocial/public/avatars/defect.jpg" alt="Avatar por defecto" width="32" height="32">';
+                        $imgC = '<img class="rounded-circle me-2" src="/converza/public/avatars/defect.jpg" alt="Avatar por defecto" width="32" height="32">';
                     }
                 ?>
                 <div class="d-flex align-items-center mb-2">
@@ -153,7 +177,7 @@ $publicaciones = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     </div>
                 </div>
                 <?php endforeach; ?>
-                <form action="/TrabajoRedSocial/app/presenters/agregarcomentario.php" method="POST">
+                <form action="/converza/app/presenters/agregarcomentario.php" method="POST">
                     <input type="text" class="enviar-btn form-control" placeholder="Escribe un comentario" name="comentario" required>
                     <input type="hidden" name="usuario" value="<?php echo $sessionUserId; ?>">
                     <input type="hidden" name="publicacion" value="<?php echo (int)$pub['id_pub'];?>">

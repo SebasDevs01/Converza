@@ -56,7 +56,7 @@ $contenido = $pub['contenido'] ?? '';
       <div class="modal-body">
 
         <!-- 🔹 Formulario -->
-        <form method="post" enctype="multipart/form-data" id="formEditarModal" action="/TrabajoRedSocial/app/presenters/procesar_editar_pub.php">
+        <form method="post" enctype="multipart/form-data" id="formEditarModal" action="/Converza/app/presenters/procesar_editar_pub.php">
           <input type="hidden" name="id_pub" value="<?php echo (int)$id_pub; ?>">
 
           <div class="mb-3">
@@ -93,6 +93,25 @@ $contenido = $pub['contenido'] ?? '';
           <div class="mb-3">
             <label class="form-label">Agregar nuevas imágenes</label>
             <input type="file" name="fotos[]" class="form-control" multiple>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Contenido multimedia actual</label>
+            <?php if (!empty($pub['video'])): ?>
+              <div class="border rounded p-2 text-center" style="width:320px;">
+                <video controls class="img-fluid rounded" style="max-height:240px;object-fit:cover;">
+                  <source src="/Converza/public/publicaciones/<?php echo htmlspecialchars($pub['video']); ?>" type="video/mp4">
+                </video>
+              </div>
+            <?php elseif (!empty($pub['imagen'])): ?>
+              <div class="border rounded p-2 text-center" style="width:320px;">
+                <img src="/Converza/public/publicaciones/<?php echo htmlspecialchars($pub['imagen']); ?>" class="img-fluid rounded" style="max-height:240px;object-fit:cover;">
+              </div>
+            <?php else: ?>
+              <p class="text-muted">Esta publicación no tiene contenido multimedia.</p>
+            <?php endif; ?>
+            <input type="file" name="reemplazo_multimedia" class="form-control form-control-sm mt-2">
+            <small class="text-muted">Reemplazar por imagen o video</small>
           </div>
         </form>
       </div>

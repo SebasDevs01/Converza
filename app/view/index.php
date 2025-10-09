@@ -91,6 +91,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['publicacion']) || (i
                     $stmtImg->bindParam(':img', $img, PDO::PARAM_STR);
                     $stmtImg->execute();
                 }
+                // Manejo de videos
+                if (isset($_FILES['videos']) && is_array($_FILES['videos']['name'])) {
+                    $permitidas = ['mp4', 'webm', 'ogg'];
+                    foreach ($_FILES['videos']['name'] as $i => $name) {
+                        if (!$_FILES['videos']['error'][$i] && $_FILES['videos']['tmp_name'][$i] && $_FILES['videos']['name'][$i] !== '') {
+                            $ext = strtolower(pathinfo($name, PATHINFO_EXTENSION));
+                            if (in_array($ext, $permitidas)) {
+                                $nombreVideo = uniqid().'.'.$ext;
+                                $carpeta = __DIR__.'/../../public/publicaciones/';
+                                if (!is_dir($carpeta)) {
+                                    mkdir($carpeta, 0777, true);
+                                }
+                                $destino = $carpeta.$nombreVideo;
+                                if (move_uploaded_file($_FILES['videos']['tmp_name'][$i], $destino)) {
+                                    $stmtVideo = $conexion->prepare("UPDATE publicaciones SET video = :video WHERE id_pub = :pubid");
+                                    $stmtVideo->bindParam(':video', $nombreVideo, PDO::PARAM_STR);
+                                    $stmtVideo->bindParam(':pubid', $pubId, PDO::PARAM_INT);
+                                    $stmtVideo->execute();
+                                } else {
+                                    echo "Error: No se pudo guardar el video $name en el servidor.";
+                                }
+                            } else {
+                                echo "Error: Formato de video no permitido: $name.";
+                            }
+                        }
+                    }
+                }
                 $mensaje = "¡Publicación creada exitosamente!";
                 logPublicar('Publicación creada por usuario '.$_SESSION['id'].' ('.$_SESSION['usuario'].') con '.count($imagenesGuardadas).' imagen(es).');
                 header("Location: " . $_SERVER['PHP_SELF']);
@@ -115,7 +142,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['publicacion']) || (i
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="/TrabajoRedSocial/public/css/component.css" />
+    <link rel="stylesheet" href="/converza/public/css/component.css" />
 </head>
 <body class="bg-light">
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm mb-4">
@@ -165,16 +192,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['publicacion']) || (i
                     <?php
                         $avatar = htmlspecialchars($_SESSION['avatar']);
                         $avatarPath = realpath(__DIR__.'/../../public/avatars/'.$avatar);
-                        $avatarWebPath = '/TrabajoRedSocial/public/avatars/'.$avatar;
+                        $avatarWebPath = '/converza/public/avatars/'.$avatar;
                         if ($avatar && $avatar !== 'default_avatar.svg' && $avatarPath && file_exists($avatarPath)) {
                             echo '<img src="'.$avatarWebPath.'" class="rounded-circle me-3" width="60" height="60" alt="Avatar" loading="lazy" title="Tu avatar">';
                         } else {
-                            echo '<img src="/TrabajoRedSocial/public/avatars/defect.jpg" class="rounded-circle me-3" width="60" height="60" alt="Avatar por defecto" loading="lazy" title="Avatar por defecto">';
+                            echo '<img src="/converza/public/avatars/defect.jpg" class="rounded-circle me-3" width="60" height="60" alt="Avatar por defecto" loading="lazy" title="Avatar por defecto">';
                         }
                     ?>
                     <textarea name="publicacion" class="form-control" rows="2" placeholder="¿Qué estás pensando?"></textarea>
                     <input type="file" name="fotos[]" id="file-input" class="d-none" accept="image/jpeg,image/png,image/gif" multiple>
                     <label for="file-input" class="btn btn-outline-primary ms-2" title="Adjuntar archivo"><i class="bi bi-paperclip"></i></label>
+                    <input type="file" name="videos[]" id="video-input" class="d-none" accept="video/mp4,video/webm,video/ogg" multiple>
+                    <label for="video-input" class="btn btn-outline-primary ms-2" title="Adjuntar video"><i class="bi bi-camera-video"></i></label>
                     <button type="submit" name="publicar" class="btn btn-primary ms-2" title="Publicar"><i class="bi bi-send"></i> Publicar</button>
                 </div>
                 <div id="preview-container" class="mb-2 d-flex flex-wrap gap-2"></div>
@@ -209,7 +238,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['publicacion']) || (i
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-<script src="/TrabajoRedSocial/public/js/jquery.jscroll.js"></script>
+<script src="/converza/public/js/jquery.jscroll.js"></script>
 <script>
 // Buscador de usuarios en línea (AJAX)
 $(document).ready(function() {

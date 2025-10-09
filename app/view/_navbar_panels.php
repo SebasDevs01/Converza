@@ -32,11 +32,11 @@
             $us = $stmtUse->fetch(PDO::FETCH_ASSOC);
             $avatarU = htmlspecialchars($us['avatar']);
             $avatarUPath = realpath(__DIR__.'/../../public/avatars/'.$avatarU);
-            $avatarUWeb = '/TrabajoRedSocial/public/avatars/'.$avatarU;
+            $avatarUWeb = '/converza/public/avatars/'.$avatarU;
             if ($avatarU && $avatarU !== 'default_avatar.svg' && $avatarUPath && file_exists($avatarUPath)) {
                 $imgU = '<img src="'.$avatarUWeb.'" class="rounded-circle me-2" width="40" height="40" alt="Avatar" loading="lazy">';
             } else {
-                $imgU = '<img src="/TrabajoRedSocial/public/avatars/defect.jpg" class="rounded-circle me-2" width="40" height="40" alt="Avatar por defecto" loading="lazy">';
+                $imgU = '<img src="/converza/public/avatars/defect.jpg" class="rounded-circle me-2" width="40" height="40" alt="Avatar por defecto" loading="lazy">';
             }
     ?>
     <div class="d-flex align-items-center mb-2">
@@ -69,11 +69,11 @@
       foreach ($resReg as $reg):
           $avatarR = htmlspecialchars($reg['avatar']);
           $avatarRPath = realpath(__DIR__.'/../../public/avatars/'.$avatarR);
-          $avatarRWeb = '/TrabajoRedSocial/public/avatars/'.$avatarR;
+          $avatarRWeb = '/converza/public/avatars/'.$avatarR;
           if ($avatarR && $avatarR !== 'default_avatar.svg' && $avatarRPath && file_exists($avatarRPath)) {
               $imgR = '<img src="'.$avatarRWeb.'" class="card-img-top rounded-top" style="height:80px;object-fit:cover;" loading="lazy" title="Avatar de usuario">';
           } else {
-              $imgR = '<img src="/TrabajoRedSocial/public/avatars/defect.jpg" class="card-img-top rounded-top" style="height:80px;object-fit:cover;" width="100%" height="80" loading="lazy" title="Avatar por defecto">';
+              $imgR = '<img src="/converza/public/avatars/defect.jpg" class="card-img-top rounded-top" style="height:80px;object-fit:cover;" width="100%" height="80" loading="lazy" title="Avatar por defecto">';
           }
       ?>
       <div class="col-6">

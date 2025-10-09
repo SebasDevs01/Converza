@@ -98,7 +98,7 @@ try {
                         <!-- Formulario para comentar -->
                         <div class="card mb-4">
                             <div class="card-body">
-                                <form action="/TrabajoRedSocial/app/presenters/agregarcomentario.php" method="POST" class="d-flex">
+                                <form action="/converza/app/presenters/agregarcomentario.php" method="POST" class="d-flex">
                                 <input type="hidden" name="publicacion_id" value="<?php echo $publicacion_id; ?>" />
                                 <textarea name="comentario" class="form-control me-2" rows="1" placeholder="Escribe un comentario..." required></textarea>
                                 <button type="submit" class="btn btn-primary">

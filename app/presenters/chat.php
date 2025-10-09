@@ -49,7 +49,7 @@ $amigos = $stmtAmigos->fetchAll(PDO::FETCH_ASSOC);
       <!-- 📌 Listado de amigos -->
       <div class="card shadow-lg mb-4">
         <div class="card-header bg-secondary text-white d-flex justify-content-between">
-          <a href="/TrabajoRedSocial/app/view/index.php" class="btn btn-light btn-sm">
+          <a href="/converza/app/view/index.php" class="btn btn-light btn-sm">
             <i class="fa fa-arrow-left"></i> Volver
           </a>
           <span><i class="bi bi-people-fill"></i> Tus amigos</span>
@@ -60,7 +60,7 @@ $amigos = $stmtAmigos->fetchAll(PDO::FETCH_ASSOC);
               <?php foreach($amigos as $am): ?>
                 <li class="list-group-item d-flex align-items-center justify-content-between">
                   <div>
-                    <img src="/TrabajoRedSocial/public/avatars/<?php echo $am['avatar']; ?>" 
+                    <img src="/converza/public/avatars/<?php echo $am['avatar']; ?>" 
                          width="32" height="32" class="rounded-circle me-2">
                     <?php echo htmlspecialchars($am['usuario']); ?>
                   </div>
@@ -113,7 +113,7 @@ $amigos = $stmtAmigos->fetchAll(PDO::FETCH_ASSOC);
               if ($ch['de'] == $user) {
                 echo '
                 <div class="d-flex mb-3">
-                  <img src="/TrabajoRedSocial/public/avatars/'.$us['avatar'].'" 
+                  <img src="/converza/public/avatars/'.$us['avatar'].'" 
                        class="rounded-circle me-2" width="48" height="48">
                   <div>
                     <div class="fw-bold text-primary">'.htmlspecialchars($us['usuario']).'</div>
@@ -124,7 +124,7 @@ $amigos = $stmtAmigos->fetchAll(PDO::FETCH_ASSOC);
               } else {
                 echo '
                 <div class="d-flex flex-row-reverse mb-3">
-                  <img src="/TrabajoRedSocial/public/avatars/'.$us['avatar'].'" 
+                  <img src="/converza/public/avatars/'.$us['avatar'].'" 
                        class="rounded-circle ms-2" width="48" height="48">
                   <div>
                     <div class="fw-bold text-success text-end">'.htmlspecialchars($us['usuario']).'</div>
