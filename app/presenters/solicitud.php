@@ -43,7 +43,7 @@ if ($action === 'agregar') {
     $existe = $stmt->fetch();
     if ($existe) {
         echo 'Ya existe una solicitud o amistad.';
-        header('Location: /TrabajoRedSocial/app/view/index.php');
+        header('Location: /Converza/app/view/index.php');
         exit;
     }
 
@@ -56,7 +56,7 @@ if ($action === 'agregar') {
     // Notificación (simulada)
     $_SESSION['notificaciones'][] = "Solicitud enviada a usuario #$id";
     echo 'Solicitud enviada correctamente.';
-    header('Location: /TrabajoRedSocial/app/view/index.php');
+    header('Location: /Converza/app/view/index.php');
     exit;
 }
 
@@ -69,7 +69,7 @@ if ($action === 'aceptar') {
     // Notificación (simulada)
     $_SESSION['notificaciones'][] = "Has aceptado la solicitud de usuario #$id";
     echo 'Solicitud aceptada.';
-    header('Location: /TrabajoRedSocial/app/view/index.php');
+    header('Location: /Converza/app/view/index.php');
     exit;
 }
 
@@ -79,7 +79,7 @@ if ($action === 'rechazar') {
     $stmt->bindParam(':id', $id, PDO::PARAM_INT);
     $stmt->execute();
     echo 'Solicitud rechazada.';
-    header('Location: /TrabajoRedSocial/app/view/index.php');
+    header('Location: /Converza/app/view/index.php');
     exit;
 }
 

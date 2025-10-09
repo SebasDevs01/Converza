@@ -25,17 +25,17 @@ foreach ($usuarios as $u) {
     $avatar = htmlspecialchars($u['avatar']);
     $avatarPath = __DIR__.'/../../public/avatars/'.$avatar;
     if ($avatar && file_exists($avatarPath)) {
-        $src = '/converza/public/avatars/'.$avatar;
+        $src = '/Converza/public/avatars/'.$avatar;
     } else {
-        $src = '/converza/public/avatars/defect.jpg';
+        $src = '/Converza/public/avatars/defect.jpg';
     }
     echo '<div class="d-flex align-items-center mb-2">';
     echo '<img src="'.$src.'" class="rounded-circle me-2" width="32" height="32" alt="Avatar">';
     echo '<div class="flex-grow-1">';
-    echo '<a class="fw-bold text-decoration-none" href="../presenters/perfil.php?id='.urlencode($u['id_use']).'">'.htmlspecialchars($u['usuario']).'</a> ';
+    echo '<a class="fw-bold text-decoration-none" href="/Converza/app/presenters/perfil.php?id='.urlencode($u['id_use']).'">'.htmlspecialchars($u['usuario']).'</a> ';
     echo '<small class="text-muted">'.htmlspecialchars($u['sexo']).'</small>';
     echo '</div>';
-    echo '<a href="../presenters/chat.php?user='.urlencode($u['id_use']).'" class="btn btn-primary btn-sm ms-2"><i class="bi bi-chat"></i> Chatear</a>';
-    echo '<a href="../presenters/solicitud.php?action=agregar&id='.urlencode($u['id_use']).'" class="btn btn-success btn-sm ms-1"><i class="bi bi-person-plus"></i></a>';
+    echo '<a href="/Converza/app/presenters/chat.php?user='.urlencode($u['id_use']).'" class="btn btn-primary btn-sm ms-2"><i class="bi bi-chat"></i> Chatear</a>';
+    echo '<a href="/Converza/app/presenters/solicitud.php?action=agregar&id='.urlencode($u['id_use']).'" class="btn btn-success btn-sm ms-1"><i class="bi bi-person-plus"></i></a>';
     echo '</div>';
 }

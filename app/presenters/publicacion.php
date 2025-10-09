@@ -121,9 +121,20 @@ try {
                                             <img src="public/avatars/<?php echo $comentario['avatar'] ?? 'defect.jpg'; ?>"
                                                  alt="Avatar" class="rounded-circle me-3" width="40" height="40" />
                                             <div class="flex-grow-1">
-                                                <strong><?php echo htmlspecialchars($comentario['nombre_usuario']); ?></strong>
-                                                <p><?php echo nl2br(htmlspecialchars($comentario['comentario'])); ?></p>
-                                                <small class="text-muted"><?php echo date('d/m/Y H:i', strtotime($comentario['fecha'])); ?></small>
+                                                <div class="d-flex justify-content-between align-items-start">
+                                                    <div>
+                                                        <strong><?php echo htmlspecialchars($comentario['nombre_usuario']); ?></strong>
+                                                        <p><?php echo nl2br(htmlspecialchars($comentario['comentario'])); ?></p>
+                                                        <small class="text-muted"><?php echo date('d/m/Y H:i', strtotime($comentario['fecha'])); ?></small>
+                                                    </div>
+                                                    <?php if (isset($_SESSION['usuario_id']) && $_SESSION['usuario_id'] == $comentario['usuario']): ?>
+                                                        <button class="btn btn-link btn-sm text-danger p-0 ms-2 eliminar-comentario" 
+                                                                data-comentario-id="<?php echo $comentario['id_com']; ?>" 
+                                                                title="Eliminar comentario">
+                                                            <i class="bi bi-trash3"></i>
+                                                        </button>
+                                                    <?php endif; ?>
+                                                </div>
                                             </div>
                                         </div>
                                     <?php endforeach; ?>

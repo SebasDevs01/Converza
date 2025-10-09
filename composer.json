@@ -1,6 +1,6 @@
 {
-    "name": "leonc/trabajo-red-social",
-    "description": "Proyecto red social en PHP con JWT",
+    "name": "leonc/converza",
+    "description": "Proyecto red social Converza en PHP con JWT",
     "type": "project",
     "license": "MIT",
     "autoload": {

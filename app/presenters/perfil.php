@@ -38,24 +38,28 @@ $posts = $stmt_posts->fetchAll(PDO::FETCH_ASSOC);
   <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="/Converza/public/css/navbar-animations.css" />
 </head>
 
 <body class="bg-light">
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm mb-4">
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm mb-4 sticky-top">
   <div class="container-fluid">
-    <a class="navbar-brand fw-bold" href="../view/index.php" style="letter-spacing:2px;">Converza</a>
+    <a class="navbar-brand fw-bold" href="/Converza/app/view/index.php" style="letter-spacing:2px;">Converza</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav ms-auto align-items-center">
-        <li class="nav-item"><a class="nav-link" href="../view/index.php"><i class="bi bi-house-door"></i> Inicio</a></li>
-        <li class="nav-item"><a class="nav-link" href="perfil.php?id=<?php echo $_SESSION['id']; ?>"><i class="bi bi-person-circle"></i> Mi Perfil</a></li>
-        <li class="nav-item"><a class="nav-link" href="chat.php"><i class="bi bi-chat-dots"></i> Mensajes</a></li>
-        <li class="nav-item"><a class="nav-link" href="albumes.php?id=<?php echo $_SESSION['id']; ?>"><i class="bi bi-images"></i> Álbumes</a></li>
-        <li class="nav-item"><a class="nav-link" href="logout.php"><i class="bi bi-box-arrow-right"></i> Cerrar sesión</a></li>
+        <li class="nav-item"><a class="nav-link" href="/Converza/app/view/index.php"><i class="bi bi-house-door"></i> Inicio</a></li>
+        <li class="nav-item"><a class="nav-link active" href="/Converza/app/presenters/perfil.php?id=<?php echo $_SESSION['id']; ?>" aria-current="page"><i class="bi bi-person-circle"></i> Perfil</a></li>
+        <li class="nav-item"><a class="nav-link" href="/Converza/app/presenters/chat.php"><i class="bi bi-chat-dots"></i> Mensajes</a></li>
+        <li class="nav-item"><a class="nav-link" href="/Converza/app/presenters/albumes.php?id=<?php echo $_SESSION['id']; ?>"><i class="bi bi-images"></i> Álbumes</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSearch" title="Buscar usuarios"><i class="bi bi-search"></i></a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSolicitudes" title="Solicitudes de amistad"><i class="bi bi-person-plus"></i></a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNuevos" title="Nuevos usuarios"><i class="bi bi-people"></i></a></li>
+        <li class="nav-item"><a class="nav-link" href="/Converza/app/presenters/logout.php"><i class="bi bi-box-arrow-right"></i> Cerrar sesión</a></li>
         <?php if (isset($_SESSION['tipo']) && $_SESSION['tipo'] === 'admin'): ?>
-        <li class="nav-item"><a class="nav-link text-warning fw-bold" href="../view/admin.php"><i class="bi bi-shield-lock"></i> Panel Admin</a></li>
+        <li class="nav-item"><a class="nav-link text-warning fw-bold" href="/Converza/app/view/admin.php"><i class="bi bi-shield-lock"></i> Panel Admin</a></li>
         <?php endif; ?>
       </ul>
     </div>
@@ -124,16 +128,37 @@ $posts = $stmt_posts->fetchAll(PDO::FETCH_ASSOC);
             <?php foreach ($posts as $post): ?>
               <div class="mb-4 border-bottom pb-3">
                 <div class="d-flex align-items-center mb-2">
-                  <img src="/converza/public/avatars/<?php echo htmlspecialchars($usuario['avatar']); ?>" class="rounded-circle me-2" width="40" height="40">
+                  <img src="/Converza/public/avatars/<?php echo htmlspecialchars($usuario['avatar']); ?>" class="rounded-circle me-2" width="40" height="40">
                   <div>
                     <span class="fw-bold"><?php echo htmlspecialchars($usuario['nombre']); ?></span>
                     <span class="text-muted small ms-2"><?php echo date('d/m/Y H:i', strtotime($post['fecha'])); ?></span>
                   </div>
                 </div>
                 <div class="mb-2"><?php echo nl2br(htmlspecialchars($post['contenido'])); ?></div>
-                <?php if (!empty($post['imagen'])) { ?>
-                  <img src="/converza/public/avatars/<?php echo htmlspecialchars($post['imagen']); ?>" class="img-fluid rounded mb-2" alt="Imagen publicación">
-                <?php } ?>
+                
+                <?php 
+                // Obtener imágenes de la publicación
+                $stmt_imagenes = $conexion->prepare("SELECT nombre_imagen FROM imagenes_publicacion WHERE publicacion_id = :pub_id");
+                $stmt_imagenes->bindParam(':pub_id', $post['id_pub'], PDO::PARAM_INT);
+                $stmt_imagenes->execute();
+                $imagenes = $stmt_imagenes->fetchAll(PDO::FETCH_COLUMN);
+                
+                if (!empty($imagenes)): ?>
+                  <div class="mb-3">
+                    <?php foreach ($imagenes as $imagen): ?>
+                      <img src="/Converza/public/publicaciones/<?php echo htmlspecialchars($imagen); ?>" class="img-fluid rounded mb-2 me-2" style="max-width: 300px;" alt="Imagen de publicación">
+                    <?php endforeach; ?>
+                  </div>
+                <?php endif; ?>
+                
+                <?php if (!empty($post['video'])): ?>
+                  <div class="mb-3">
+                    <video controls class="img-fluid rounded" style="max-width: 400px;">
+                      <source src="/Converza/public/publicaciones/<?php echo htmlspecialchars($post['video']); ?>" type="video/mp4">
+                      Tu navegador no soporta el elemento de video.
+                    </video>
+                  </div>
+                <?php endif; ?>
               </div>
             <?php endforeach; ?>
           <?php else: ?>
@@ -198,6 +223,11 @@ $posts = $stmt_posts->fetchAll(PDO::FETCH_ASSOC);
     </div>
   </div>
 </div>
+
+<?php include '../view/_navbar_panels.php'; ?>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/Converza/public/js/buscador.js"></script>
 </body>
 </html>

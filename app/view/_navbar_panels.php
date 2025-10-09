@@ -32,18 +32,18 @@
             $us = $stmtUse->fetch(PDO::FETCH_ASSOC);
             $avatarU = htmlspecialchars($us['avatar']);
             $avatarUPath = realpath(__DIR__.'/../../public/avatars/'.$avatarU);
-            $avatarUWeb = '/converza/public/avatars/'.$avatarU;
+            $avatarUWeb = '/Converza/public/avatars/'.$avatarU;
             if ($avatarU && $avatarU !== 'default_avatar.svg' && $avatarUPath && file_exists($avatarUPath)) {
                 $imgU = '<img src="'.$avatarUWeb.'" class="rounded-circle me-2" width="40" height="40" alt="Avatar" loading="lazy">';
             } else {
-                $imgU = '<img src="/converza/public/avatars/defect.jpg" class="rounded-circle me-2" width="40" height="40" alt="Avatar por defecto" loading="lazy">';
+                $imgU = '<img src="/Converza/public/avatars/defect.jpg" class="rounded-circle me-2" width="40" height="40" alt="Avatar por defecto" loading="lazy">';
             }
     ?>
     <div class="d-flex align-items-center mb-2">
         <?php echo $imgU; ?>
-        <a class="me-auto fw-bold text-decoration-none" href="../presenters/perfil.php?id=<?php echo (int)$us['id_use']; ?>"><?php echo htmlspecialchars($us['usuario']); ?></a>
-        <a href="../presenters/solicitud.php?action=aceptar&id=<?php echo (int)$am['de']; ?>" class="btn btn-success btn-sm me-1"><i class="bi bi-check"></i></a>
-        <a href="../presenters/solicitud.php?action=rechazar&id=<?php echo (int)$am['de']; ?>" class="btn btn-danger btn-sm"><i class="bi bi-x"></i></a>
+        <a class="me-auto fw-bold text-decoration-none" href="/Converza/app/presenters/perfil.php?id=<?php echo (int)$us['id_use']; ?>"><?php echo htmlspecialchars($us['usuario']); ?></a>
+        <a href="/Converza/app/presenters/solicitud.php?action=aceptar&id=<?php echo (int)$am['de']; ?>" class="btn btn-success btn-sm me-1"><i class="bi bi-check"></i></a>
+        <a href="/Converza/app/presenters/solicitud.php?action=rechazar&id=<?php echo (int)$am['de']; ?>" class="btn btn-danger btn-sm"><i class="bi bi-x"></i></a>
     </div>
     <?php
         endforeach;
@@ -69,18 +69,18 @@
       foreach ($resReg as $reg):
           $avatarR = htmlspecialchars($reg['avatar']);
           $avatarRPath = realpath(__DIR__.'/../../public/avatars/'.$avatarR);
-          $avatarRWeb = '/converza/public/avatars/'.$avatarR;
+          $avatarRWeb = '/Converza/public/avatars/'.$avatarR;
           if ($avatarR && $avatarR !== 'default_avatar.svg' && $avatarRPath && file_exists($avatarRPath)) {
               $imgR = '<img src="'.$avatarRWeb.'" class="card-img-top rounded-top" style="height:80px;object-fit:cover;" loading="lazy" title="Avatar de usuario">';
           } else {
-              $imgR = '<img src="/converza/public/avatars/defect.jpg" class="card-img-top rounded-top" style="height:80px;object-fit:cover;" width="100%" height="80" loading="lazy" title="Avatar por defecto">';
+              $imgR = '<img src="/Converza/public/avatars/defect.jpg" class="card-img-top rounded-top" style="height:80px;object-fit:cover;" width="100%" height="80" loading="lazy" title="Avatar por defecto">';
           }
       ?>
       <div class="col-6">
         <div class="card h-100 text-center border-0 bg-light">
           <?php echo $imgR; ?>
           <div class="card-body p-2">
-            <a class="fw-bold text-decoration-none" href="../presenters/perfil.php?id=<?php echo (int)$reg['id_use']; ?>"><?php echo htmlspecialchars($reg['usuario']); ?></a>
+            <a class="fw-bold text-decoration-none" href="/Converza/app/presenters/perfil.php?id=<?php echo (int)$reg['id_use']; ?>"><?php echo htmlspecialchars($reg['usuario']); ?></a>
             <div class="text-muted small"><?php echo htmlspecialchars($reg['fecha_reg']); ?></div>
           </div>
         </div>

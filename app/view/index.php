@@ -142,10 +142,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['publicacion']) || (i
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="/converza/public/css/component.css" />
+    <link rel="stylesheet" href="/Converza/public/css/component.css" />
+    <link rel="stylesheet" href="/Converza/public/css/navbar-animations.css" />
 </head>
 <body class="bg-light">
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm mb-4">
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm mb-4 sticky-top">
     <div class="container-fluid">
         <a class="navbar-brand fw-bold" href="index.php" style="letter-spacing:2px;">Converza</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -153,7 +154,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['publicacion']) || (i
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto align-items-center">
-                <li class="nav-item"><a class="nav-link" href="index.php"><i class="bi bi-house-door"></i> Inicio</a></li>
+                <li class="nav-item"><a class="nav-link active" href="index.php" aria-current="page"><i class="bi bi-house-door"></i> Inicio</a></li>
                 <li class="nav-item"><a class="nav-link" href="../presenters/perfil.php?id=<?php echo (int)$_SESSION['id']; ?>"><i class="bi bi-person-circle"></i> Perfil</a></li>
                 <li class="nav-item"><a class="nav-link" href="../presenters/chat.php"><i class="bi bi-chat-dots"></i> Mensajes</a></li>
                 <li class="nav-item"><a class="nav-link" href="../presenters/albumes.php?id=<?php echo (int)$_SESSION['id']; ?>"><i class="bi bi-images"></i> Álbumes</a></li>
@@ -236,27 +237,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['publicacion']) || (i
         </div>
     </div>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-<script src="/converza/public/js/jquery.jscroll.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/Converza/public/js/jquery.jscroll.js"></script>
+<script src="/Converza/public/js/buscador.js"></script>
 <script>
-// Buscador de usuarios en línea (AJAX)
-$(document).ready(function() {
-    $('#buscador-usuarios').on('input', function() {
-        var query = $(this).val();
-        if (query.length > 1) {
-            $.ajax({
-                url: '../presenters/buscar_usuarios.php',
-                method: 'GET',
-                data: { q: query },
-                success: function(data) {
-                    $('#resultados-busqueda').html(data);
-                }
-            });
-        } else {
-            $('#resultados-busqueda').empty();
-        }
-    });
+// Funcionalidad del buscador ahora está en buscador.js
 
     // Previsualización de imagen antes de publicar
     // Previsualización de múltiples imágenes antes de publicar

@@ -1,0 +1,127 @@
+/* Estilos y animaciones para el navbar de Converza */
+
+.navbar.sticky-top { 
+  z-index: 1055; 
+}
+
+/* Offcanvas por encima del navbar */
+.offcanvas {
+  z-index: 1060 !important;
+}
+
+.offcanvas-backdrop {
+  z-index: 1059 !important;
+}
+
+.navbar .nav-link {
+  position: relative;
+  transition: background 0.3s ease, color 0.3s ease;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  color: #fff !important;
+  padding: 0.5rem 1rem;
+  margin: 0 0.2rem;
+}
+
+.navbar .nav-link.active, 
+.navbar .nav-link[aria-current="page"] {
+  color: #fff !important;
+  font-weight: 700;
+  background: transparent;
+}
+
+.navbar .nav-link.active::after, 
+.navbar .nav-link[aria-current="page"]::after {
+  content: '';
+  display: block;
+  margin: 0 auto;
+  width: 60%;
+  height: 3px;
+  border-radius: 2px;
+  background: #fff;
+  margin-top: 4px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  transition: width 0.3s ease;
+  animation: slideIn 0.3s ease-in-out;
+}
+
+.navbar .nav-link:not(.active):not([aria-current="page"])::after {
+  content: '';
+  display: block;
+  width: 0;
+  height: 3px;
+  background: transparent;
+  margin: 0 auto;
+  margin-top: 4px;
+  transition: width 0.3s ease, background 0.3s ease;
+}
+
+.navbar .nav-link:hover {
+  background: rgba(255,255,255,0.1);
+  color: #fff !important;
+  transform: translateY(-1px);
+  transition: all 0.3s ease;
+}
+
+.navbar .nav-link:hover::after {
+  width: 40%;
+  background: rgba(255,255,255,0.7);
+}
+
+.navbar .nav-link i {
+  transition: transform 0.3s ease;
+  margin-right: 0.5rem;
+}
+
+.navbar .nav-link:hover i {
+  transform: scale(1.1);
+}
+
+/* Animación para la aparición de la línea activa */
+@keyframes slideIn {
+  from {
+    width: 0;
+    opacity: 0;
+  }
+  to {
+    width: 60%;
+    opacity: 1;
+  }
+}
+
+/* Animación para el brand */
+.navbar-brand {
+  transition: transform 0.3s ease;
+}
+
+.navbar-brand:hover {
+  transform: scale(1.05);
+  text-shadow: 0 0 10px rgba(255,255,255,0.3);
+}
+
+/* Animaciones para el navbar colapsable en móvil */
+.navbar-collapse {
+  transition: all 0.3s ease;
+}
+
+.navbar-toggler {
+  transition: transform 0.3s ease;
+}
+
+.navbar-toggler:hover {
+  transform: rotate(90deg);
+}
+
+/* Efectos de hover mejorados para dispositivos táctiles */
+@media (max-width: 768px) {
+  .navbar .nav-link {
+    padding: 0.7rem 1rem;
+    margin: 0.2rem 0;
+    border-radius: 0.5rem;
+  }
+  
+  .navbar .nav-link:hover {
+    background: rgba(255,255,255,0.1);
+    transform: translateX(5px);
+  }
+}

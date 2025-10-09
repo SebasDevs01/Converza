@@ -72,7 +72,7 @@ $contenido = $pub['contenido'] ?? '';
               <?php if (!empty($imagenes)): ?>
                 <?php foreach($imagenes as $img): ?>
                   <div class="border rounded p-2 text-center" style="width:120px;">
-                    <img src="/TrabajoRedSocial/public/publicaciones/<?php echo htmlspecialchars($img); ?>"
+                    <img src="/Converza/public/publicaciones/<?php echo htmlspecialchars($img); ?>"
                          class="img-fluid mb-2 rounded" style="max-height:100px;object-fit:cover;">
                     <div class="form-check">
                       <input class="form-check-input" type="checkbox"
