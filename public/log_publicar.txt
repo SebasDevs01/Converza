@@ -1229,3 +1229,58 @@ Log de depuración de publicaciones y subida de imágenes.
 2025-10-10 03:45:45 - LLEGA AL INICIO
 2025-10-10 03:46:18 - LLEGA AL INICIO
 2025-10-10 03:46:27 - LLEGA AL INICIO
+2025-10-10 04:05:22 - LLEGA AL INICIO
+2025-10-10 04:06:04 - LLEGA AL INICIO
+2025-10-10 04:11:34 - LLEGA AL INICIO
+2025-10-10 04:14:45 - LLEGA AL INICIO
+2025-10-10 04:16:44 - LLEGA AL INICIO
+2025-10-10 04:23:57 - LLEGA AL INICIO
+2025-10-10 04:24:37 - LLEGA AL INICIO
+2025-10-10 04:26:24 - LLEGA AL INICIO
+2025-10-10 04:37:18 - LLEGA AL INICIO
+2025-10-10 04:38:27 - LLEGA AL INICIO
+2025-10-10 04:38:27 - POST recibido. Campos: {"publicacion":""}
+2025-10-10 04:38:27 - FILES['fotos']: {"name":["goku.gif"],"type":["image\/gif"],"tmp_name":["C:\\xampp\\tmp\\phpF6EB.tmp"],"error":[0],"size":[490448]}
+2025-10-10 04:38:27 - Intento de publicación: usuario_id=14, texto=
+2025-10-10 04:38:27 - Imagen subida correctamente: 68e871a3dc62d.gif
+2025-10-10 04:38:27 - Publicación creada por usuario 14 (sebas#1505) con 1 imagen(es).
+2025-10-10 04:38:27 - LLEGA AL INICIO
+2025-10-10 04:38:38 - LLEGA AL INICIO
+2025-10-10 04:38:44 - LLEGA AL INICIO
+2025-10-10 04:38:44 - POST recibido. Campos: {"publicacion":""}
+2025-10-10 04:38:44 - FILES['fotos']: {"name":["naru.jpg"],"type":["image\/jpeg"],"tmp_name":["C:\\xampp\\tmp\\php37CE.tmp"],"error":[0],"size":[711647]}
+2025-10-10 04:38:44 - Intento de publicación: usuario_id=14, texto=
+2025-10-10 04:38:44 - Imagen subida correctamente: 68e871b47e38b.jpg
+2025-10-10 04:38:44 - Publicación creada por usuario 14 (sebas#1505) con 1 imagen(es).
+2025-10-10 04:38:44 - LLEGA AL INICIO
+2025-10-10 04:39:00 - LLEGA AL INICIO
+2025-10-10 04:39:07 - LLEGA AL INICIO
+2025-10-10 04:42:21 - LLEGA AL INICIO
+2025-10-10 04:42:46 - LLEGA AL INICIO
+2025-10-10 04:42:46 - POST recibido. Campos: {"publicacion":""}
+2025-10-10 04:42:46 - FILES['fotos']: NO RECIBIDO
+2025-10-10 04:42:46 - Intento de publicación: usuario_id=14, texto=
+2025-10-10 04:42:46 - Error: Publicación vacía.
+2025-10-10 04:42:59 - LLEGA AL INICIO
+2025-10-10 04:42:59 - POST recibido. Campos: {"publicacion":"ONE PIECE"}
+2025-10-10 04:42:59 - FILES['fotos']: NO RECIBIDO
+2025-10-10 04:42:59 - Intento de publicación: usuario_id=14, texto=ONE PIECE
+2025-10-10 04:42:59 - Publicación creada por usuario 14 (sebas#1505) con 0 imagen(es).
+2025-10-10 04:42:59 - LLEGA AL INICIO
+2025-10-10 04:43:14 - LLEGA AL INICIO
+2025-10-10 04:43:50 - LLEGA AL INICIO
+2025-10-10 04:43:54 - LLEGA AL INICIO
+2025-10-10 04:59:48 - LLEGA AL INICIO
+2025-10-10 05:08:51 - LLEGA AL INICIO
+2025-10-10 05:09:01 - LLEGA AL INICIO
+2025-10-10 05:09:35 - LLEGA AL INICIO
+2025-10-10 05:09:35 - POST recibido. Campos: {"publicacion":""}
+2025-10-10 05:09:35 - FILES['fotos']: NO RECIBIDO
+2025-10-10 05:09:35 - Intento de publicación: usuario_id=14, texto=
+2025-10-10 05:09:35 - Error: Publicación vacía.
+2025-10-10 05:10:04 - LLEGA AL INICIO
+2025-10-10 05:10:04 - POST recibido. Campos: {"publicacion":"ONE PIECE"}
+2025-10-10 05:10:04 - FILES['fotos']: NO RECIBIDO
+2025-10-10 05:10:04 - Intento de publicación: usuario_id=14, texto=ONE PIECE
+2025-10-10 05:10:04 - Publicación creada por usuario 14 (sebas#1505) con 0 imagen(es).
+2025-10-10 05:10:04 - LLEGA AL INICIO

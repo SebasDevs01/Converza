@@ -144,6 +144,51 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['publicacion']) || (i
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <link rel="stylesheet" href="/Converza/public/css/component.css" />
     <link rel="stylesheet" href="/Converza/public/css/navbar-animations.css" />
+    <style>
+        /* Estilos para drag & drop */
+        #form-publicar {
+            transition: all 0.3s ease;
+            border: 2px dashed transparent;
+            border-radius: 10px;
+            padding: 15px;
+        }
+        
+        #form-publicar.border-primary {
+            border-color: #0d6efd !important;
+            background-color: #f8f9ff !important;
+        }
+        
+        /* Estilos para previsualizaciones */
+        #preview-container {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        /* Hover effect para previews */
+        #preview-container .position-relative:hover {
+            transform: scale(1.05);
+            transition: transform 0.2s ease;
+        }
+        
+        /* Botón eliminar mejorado - azul */
+        #preview-container button:hover {
+            background-color: #0b5ed7 !important;
+            transform: scale(1.1);
+        }
+        
+        /* Placeholder animado para drag */
+        .drag-placeholder {
+            border: 3px dashed #0d6efd;
+            background: linear-gradient(45deg, transparent 25%, rgba(13, 110, 253, 0.1) 25%, rgba(13, 110, 253, 0.1) 50%, transparent 50%);
+            background-size: 20px 20px;
+            animation: movePattern 2s linear infinite;
+        }
+        
+        @keyframes movePattern {
+            0% { background-position: 0 0; }
+            100% { background-position: 20px 20px; }
+        }
+    </style>
 </head>
 <body class="bg-light">
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm mb-4 sticky-top">
@@ -241,128 +286,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['publicacion']) || (i
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="/Converza/public/js/jquery.jscroll.js"></script>
 <script src="/Converza/public/js/buscador.js"></script>
+<script src="/Converza/public/js/drag-drop.js"></script>
 <script>
 // Funcionalidad del buscador ahora está en buscador.js
 
-    // Previsualización de imagen antes de publicar
-    // Previsualización de múltiples imágenes antes de publicar
-    let selectedFiles = [];
-    function renderPreviews() {
-        const container = $('#preview-container');
-        container.empty();
-        if (selectedFiles.length === 0) {
-            container.hide();
-            return;
-        }
-        container.show();
-        selectedFiles.forEach((file, idx) => {
-            const reader = new FileReader();
-            reader.onload = function(ev) {
-                const preview = $('<div class="position-relative d-inline-block">')
-                    .css({width:'120px',height:'120px'});
-                const img = $('<img class="rounded-3 border">')
-                    .attr('src', ev.target.result)
-                    .css({width:'120px',height:'120px',objectFit:'cover',display:'block'});
-                const btn = $('<button type="button" title="Eliminar">&times;</button>');
-                btn.removeClass(); // Elimina cualquier clase heredada
-                btn.css({
-                    position: 'absolute',
-                    top: '6px',
-                    right: '6px',
-                    width: '26px',
-                    height: '26px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    zIndex: 2,
-                    fontSize: '1.3rem',
-                    lineHeight: '1',
-                    background: '#0d6efd',
-                    border: 'none',
-                    color: '#fff',
-                    borderRadius: '8px',
-                    boxShadow: '0 1px 4px rgba(0,0,0,0.15)',
-                    cursor: 'pointer',
-                    padding: 0
-                });
-                btn.find('span,svg').css({margin:'0 auto'});
-                btn.on('click', function() {
-                    selectedFiles.splice(idx,1);
-                    renderPreviews();
-                });
-                preview.append(img).append(btn);
-                container.append(preview);
-            };
-            reader.readAsDataURL(file);
-        });
-    }
+$(document).ready(function() {
+    console.log('✅ Index.php cargado - usando drag-drop.js para todo');
 
-    // Drag & Drop para imágenes
-    const $form = $('#form-publicar');
-    $form.on('dragover', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        $(this).addClass('border-primary');
-    });
-    $form.on('dragleave drop', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        $(this).removeClass('border-primary');
-    });
-    $form.on('drop', function(e) {
-        const files = Array.from(e.originalEvent.dataTransfer.files);
-        // Solo imágenes permitidas
-        const valid = files.filter(f => /^image\/(jpeg|png|gif)$/.test(f.type));
-        valid.forEach(f => {
-            if (!selectedFiles.some(sf => sf.name === f.name && sf.size === f.size)) {
-                selectedFiles.push(f);
-            }
-        });
-        renderPreviews();
-    });
-    $('#file-input').on('change', function(e) {
-        const newFiles = Array.from(this.files);
-        // Evitar duplicados por nombre y tamaño
-        newFiles.forEach(f => {
-            if (!selectedFiles.some(sf => sf.name === f.name && sf.size === f.size)) {
-                selectedFiles.push(f);
-            }
-        });
-        renderPreviews();
-        // Limpiar el input para permitir volver a seleccionar el mismo archivo si se elimina
-        this.value = '';
-    });
-    // Al enviar el formulario, crear un nuevo input file con los archivos seleccionados
-    $('#form-publicar').on('submit', function(e) {
-        if (selectedFiles.length > 0) {
-            // Elimina cualquier input file existente
-            $(this).find('input[type="file"]').remove();
-            // Crea uno nuevo y lo agrega al form
-            const input = document.createElement('input');
-            input.type = 'file';
-            input.name = 'fotos[]';
-            input.multiple = true;
-            input.style.display = 'none';
-            const dt = new DataTransfer();
-            selectedFiles.forEach(f => dt.items.add(f));
-            input.files = dt.files;
-            this.appendChild(input);
-        }
-    });
-
-    // Feedback visual al publicar
-    const form = document.getElementById('form-publicar');
-    if(form) {
-        form.addEventListener('submit', function() {
-            const btn = form.querySelector('button[type="submit"]');
-            if(btn) {
-                btn.disabled = true;
-                btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Publicando...';
-            }
-        });
-    }
-
-    // Scroll infinito para publicaciones (solo carga publicaciones.php, no el index completo)
+    // Scroll infinito para publicaciones
     $('.scroll').jscroll({
         loadingHtml: '<div class="text-center py-3"><div class="spinner-border text-primary" role="status"></div></div>',
         padding: 20,

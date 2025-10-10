@@ -127,21 +127,25 @@ $publicaciones = $stmt->fetchAll(PDO::FETCH_ASSOC);
         font-weight: 500;
     }
     
-    /* Estilos para tooltip mejorado - reacciones y comentarios */
-    .reaction-counter[title]:hover::after, .comment-counter[title]:hover::after {
-        content: attr(title);
+    /* Tooltip simple para contadores - solo abajo */
+    .reaction-counter, .comment-counter {
+        position: relative;
+    }
+    
+    .reaction-counter[data-tooltip]:hover::after, .comment-counter[data-tooltip]:hover::after {
+        content: attr(data-tooltip);
         position: absolute;
-        bottom: 100%;
+        top: 100%;
         left: 50%;
         transform: translateX(-50%);
         background: #333;
         color: white;
-        padding: 8px 12px;
-        border-radius: 6px;
-        font-size: 0.8rem;
-        white-space: pre-line;
+        padding: 6px 10px;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        white-space: nowrap;
         z-index: 1000;
-        margin-bottom: 5px;
+        margin-top: 5px;
         box-shadow: 0 2px 8px rgba(0,0,0,0.2);
     }
     
@@ -258,9 +262,9 @@ $publicaciones = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         </div>
                         
                         <div class="comment-container d-flex align-items-center">
-                            <button class="btn btn-outline-secondary btn-sm comment-btn" data-post-id="<?php echo (int)$pub['id_pub']; ?>" onclick="document.querySelector('#comment_form_<?php echo (int)$pub['id_pub']; ?>').scrollIntoView()">
+                            <span class="btn btn-outline-secondary btn-sm comment-btn" data-post-id="<?php echo (int)$pub['id_pub']; ?>">
                                 <i class="bi bi-chat-dots"></i> <span class="comment-text">Comentar</span>
-                            </button>
+                            </span>
                             <span class="comment-counter ms-2" id="comment_counter_<?php echo (int)$pub['id_pub']; ?>"></span>
                         </div>
                         
@@ -693,7 +697,8 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (!reactionsArray || reactionsArray.length === 0) {
                 counterElement.innerHTML = '(0)';
-                counterElement.title = 'Sin reacciones';
+                counterElement.removeAttribute('title');
+                counterElement.setAttribute('data-tooltip', 'Sin reacciones');
                 counterElement.style.display = 'inline-block';
                 return;
             }
@@ -760,11 +765,13 @@ document.addEventListener('DOMContentLoaded', function() {
             // Mostrar solo cuando hay reacciones
             if (total > 0) {
                 counterElement.innerHTML = displayText;
-                counterElement.title = tooltip.trim();
+                counterElement.removeAttribute('title');
+                counterElement.setAttribute('data-tooltip', tooltip.trim());
                 counterElement.style.display = 'inline-block';
             } else {
                 counterElement.innerHTML = '';
-                counterElement.title = '';
+                counterElement.removeAttribute('title');
+                counterElement.removeAttribute('data-tooltip');
                 counterElement.style.display = 'none';
             }
         }
@@ -774,7 +781,8 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (total === 0) {
                 counterElement.textContent = '(0)';
-                counterElement.title = 'Sin comentarios';
+                counterElement.removeAttribute('title');
+                counterElement.setAttribute('data-tooltip', 'Sin comentarios');
                 return;
             }
 
@@ -791,7 +799,8 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             counterElement.textContent = `(${total})`;
-            counterElement.title = tooltip;
+            counterElement.removeAttribute('title');
+            counterElement.setAttribute('data-tooltip', tooltip);
             counterElement.style.cursor = 'pointer';
         }
     });
