@@ -10,7 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 // Verificar que el usuario esté logueado
-if (!isset($_SESSION['usuario_id'])) {
+if (!isset($_SESSION['id'])) {
     http_response_code(401);
     echo json_encode(['status' => 'error', 'message' => 'Usuario no autenticado']);
     exit;
@@ -19,7 +19,7 @@ if (!isset($_SESSION['usuario_id'])) {
 // Obtener datos
 $input = json_decode(file_get_contents('php://input'), true);
 $comentario_id = isset($input['comentario_id']) ? (int)$input['comentario_id'] : 0;
-$usuario_id = $_SESSION['usuario_id'];
+$usuario_id = $_SESSION['id'];
 
 if ($comentario_id <= 0) {
     http_response_code(400);
@@ -39,8 +39,22 @@ try {
         exit;
     }
     
-    // Verificar que el usuario es el propietario del comentario
-    if ((int)$comentario['usuario'] !== $usuario_id) {
+    // Verificar permisos: propietario del comentario o admin
+    $canDelete = false;
+    
+    // Es el propietario del comentario
+    if ((int)$comentario['usuario'] === $usuario_id) {
+        $canDelete = true;
+    }
+    
+    // Es admin
+    if (isset($_SESSION['rol']) && $_SESSION['rol'] === 'admin') {
+        $canDelete = true;
+    } elseif (isset($_SESSION['es_admin']) && $_SESSION['es_admin'] == 1) {
+        $canDelete = true;
+    }
+    
+    if (!$canDelete) {
         http_response_code(403);
         echo json_encode(['status' => 'error', 'message' => 'No tienes permisos para eliminar este comentario']);
         exit;

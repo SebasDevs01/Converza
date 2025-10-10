@@ -72,31 +72,103 @@ $publicaciones = $stmt->fetchAll(PDO::FETCH_ASSOC);
         background: #f0f4fa;
     }
     
-    /* Estilos para contadores de reacciones mejorados */
-    .reaction-counter {
+    /* Estilos para el menú de comentarios */
+    .comment-menu-btn {
+        opacity: 0.6;
+        transition: all 0.2s ease;
+    }
+    .comment-menu-btn:hover {
+        opacity: 1;
+        transform: scale(1.05);
+    }
+    .comment-menu-btn:focus {
+        outline: none;
+        box-shadow: 0 0 0 2px #0d6efd33;
+    }
+    .comment-menu {
+        min-width: 120px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        padding: 0.25rem 0;
+        background: #fff;
+        display: none;
+    }
+    .comment-menu a {
         font-size: 0.9rem;
-        margin-left: 0.5rem;
+        padding: 0.5rem 0.75rem;
         cursor: pointer;
-        transition: color 0.2s ease;
+        border-radius: 6px;
+        transition: background 0.15s;
+    }
+    .comment-menu a:hover {
+        background: #fff5f5;
     }
     
-    .reaction-counter:hover {
+    /* Estilos para contadores de reacciones y comentarios mejorados */
+    .reaction-counter, .comment-counter {
+        font-size: 0.85rem;
+        margin-left: 0.5rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: inline-block;
+        opacity: 0.8;
+        color: #6c757d;
+    }
+    
+    .reaction-counter:hover, .comment-counter:hover {
+        opacity: 1;
+        transform: scale(1.05);
         color: #007bff;
     }
     
-    /* Estilo para botones de reacción activos */
+    /* Contador dentro del botón */
+    .like-main-btn .reaction-counter {
+        margin-left: 0.5rem;
+        font-weight: 500;
+    }
+    
+    /* Estilos para tooltip mejorado - reacciones y comentarios */
+    .reaction-counter[title]:hover::after, .comment-counter[title]:hover::after {
+        content: attr(title);
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #333;
+        color: white;
+        padding: 8px 12px;
+        border-radius: 6px;
+        font-size: 0.8rem;
+        white-space: pre-line;
+        z-index: 1000;
+        margin-bottom: 5px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+    
+    /* Estilo para botones de reacción activos (SIN fondo colorido) */
     .btn-reaction-active {
-        background: linear-gradient(45deg, #007bff, #6610f2) !important;
-        border: none !important;
-        color: white !important;
-        box-shadow: 0 2px 8px rgba(0,123,255,0.3);
+        background: transparent !important;
+        border: 2px solid #007bff !important;
+        color: #007bff !important;
+        box-shadow: none !important;
         transform: scale(1.02);
         transition: all 0.2s ease;
     }
     
     .btn-reaction-active:hover {
         transform: scale(1.05);
-        box-shadow: 0 4px 12px rgba(0,123,255,0.4);
+        background: rgba(0, 123, 255, 0.1) !important;
+        border-color: #0056b3 !important;
+        color: #0056b3 !important;
+    }
+    
+    /* Asegurar que todos los botones de reacción no tengan fondo */
+    .like-main-btn {
+        background: transparent !important;
+    }
+    
+    .like-main-btn:hover {
+        background: rgba(0, 123, 255, 0.05) !important;
     }
     
     /* Transiciones suaves para botones de reacciones */
@@ -166,10 +238,11 @@ $publicaciones = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <div class="border-top pt-2 mt-2">
                     <div class="d-flex justify-content-around">
                         <!-- Botón Me gusta con menú hover -->
-                        <div class="like-container position-relative">
+                        <div class="like-container position-relative d-flex align-items-center">
                             <button class="btn btn-outline-secondary btn-sm like-main-btn" data-post-id="<?php echo (int)$pub['id_pub']; ?>" id="like_btn_<?php echo (int)$pub['id_pub']; ?>">
-                                <span class="like-icon">👍</span> <span class="like-text">Me gusta</span> <span class="reaction-counter" id="reaction_counter_<?php echo (int)$pub['id_pub']; ?>"></span>
+                                <span class="like-icon">👍</span> <span class="like-text">Me gusta</span>
                             </button>
+                            <span class="reaction-counter ms-2" id="reaction_counter_<?php echo (int)$pub['id_pub']; ?>" style="display: none;"></span>
                             
                             <!-- Menú de reacciones -->
                             <div class="reactions-popup" style="display: none; position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); margin-bottom: 10px; background: white; border: 1px solid #ccc; border-radius: 25px; padding: 5px 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 1000;">
@@ -184,9 +257,12 @@ $publicaciones = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             </div>
                         </div>
                         
-                        <button class="btn btn-outline-secondary btn-sm comment-btn" data-post-id="<?php echo (int)$pub['id_pub']; ?>" onclick="document.querySelector('#comment_form_<?php echo (int)$pub['id_pub']; ?>').scrollIntoView()">
-                            <i class="bi bi-chat-dots"></i> <span class="comment-text">Comentar</span> <span class="comment-counter" id="comment_counter_<?php echo (int)$pub['id_pub']; ?>"></span>
-                        </button>
+                        <div class="comment-container d-flex align-items-center">
+                            <button class="btn btn-outline-secondary btn-sm comment-btn" data-post-id="<?php echo (int)$pub['id_pub']; ?>" onclick="document.querySelector('#comment_form_<?php echo (int)$pub['id_pub']; ?>').scrollIntoView()">
+                                <i class="bi bi-chat-dots"></i> <span class="comment-text">Comentar</span>
+                            </button>
+                            <span class="comment-counter ms-2" id="comment_counter_<?php echo (int)$pub['id_pub']; ?>"></span>
+                        </div>
                         
                         <div class="share-container position-relative">
                             <button class="btn btn-outline-secondary btn-sm share-button" data-post-id="<?php echo (int)$pub['id_pub']; ?>">
@@ -221,7 +297,7 @@ $publicaciones = $stmt->fetchAll(PDO::FETCH_ASSOC);
             </div>
             <div class="ps-5 mt-2">
                 <?php
-                $stmtComentarios = $conexion->prepare("SELECT c.*, u.usuario, u.avatar FROM comentarios c JOIN usuarios u ON c.usuario = u.id_use WHERE c.publicacion = :publicacion ORDER BY c.id_com ASC");
+                $stmtComentarios = $conexion->prepare("SELECT c.*, u.usuario as nombre_usuario, u.avatar, u.id_use FROM comentarios c JOIN usuarios u ON c.usuario = u.id_use WHERE c.publicacion = :publicacion ORDER BY c.id_com ASC");
                 $stmtComentarios->bindParam(':publicacion', $pub['id_pub'], PDO::PARAM_INT);
                 $stmtComentarios->execute();
                 $comentarios = $stmtComentarios->fetchAll(PDO::FETCH_ASSOC);
@@ -239,17 +315,45 @@ $publicaciones = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <?php echo $imgC; ?>
                     <div class="bg-light rounded-4 p-2 flex-grow-1" style="max-width:80%;">
                         <div class="d-flex justify-content-between align-items-start">
-                            <div>
-                                <span class="fw-bold text-primary"> <?php echo htmlspecialchars($com['usuario']);?> </span>
+                            <div class="flex-grow-1">
+                                <span class="fw-bold text-primary"> <?php echo htmlspecialchars($com['nombre_usuario']);?> </span>
                                 <span class="text-muted small ms-2"> <?php echo htmlspecialchars($com['fecha']);?> </span><br>
                                 <?php echo nl2br(htmlspecialchars($com['comentario']));?>
                             </div>
-                            <?php if (isset($_SESSION['usuario_id']) && $_SESSION['usuario_id'] == $com['usuario']): ?>
-                                <button class="btn btn-link btn-sm text-danger p-0 ms-2 eliminar-comentario" 
-                                        data-comentario-id="<?php echo $com['id_com']; ?>" 
-                                        title="Eliminar comentario">
-                                    <i class="bi bi-trash3"></i>
-                                </button>
+                            <?php 
+                            // Debug temporal - quitar después
+                            echo "<!-- DEBUG: sessionUserId=$sessionUserId, com[usuario]={$com['usuario']}, nombre={$com['nombre_usuario']} -->";
+                            
+                            // Verificar si el usuario puede eliminar el comentario (dueño o admin)
+                            $canDelete = false;
+                            
+                            // Usuario logueado
+                            if ($sessionUserId > 0) {
+                                // Es el dueño del comentario (c.usuario es el ID del usuario que hizo el comentario)
+                                if ((int)$com['usuario'] === $sessionUserId) {
+                                    $canDelete = true;
+                                }
+                                
+                                // Es admin (verificar si existe rol de admin en sesión o BD)
+                                if (isset($_SESSION['rol']) && $_SESSION['rol'] === 'admin') {
+                                    $canDelete = true;
+                                } elseif (isset($_SESSION['es_admin']) && $_SESSION['es_admin'] == 1) {
+                                    $canDelete = true;
+                                }
+                            }
+                            
+                            echo "<!-- DEBUG: canDelete=" . ($canDelete ? 'true' : 'false') . " -->";
+                            
+                            if ($canDelete): 
+                            ?>
+                                <div class="comment-menu-wrapper position-relative d-inline-block ms-2 flex-shrink-0">
+                                    <button class="btn btn-light btn-sm rounded-circle comment-menu-btn" type="button" data-comment-id="<?php echo (int)$com['id_com']; ?>" style="width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:0.7rem;border:1px solid #dee2e6;">
+                                        <i class="bi bi-three-dots-vertical"></i>
+                                    </button>
+                                    <div class="comment-menu shadow" id="commentMenu-<?php echo (int)$com['id_com']; ?>" style="display:none;position:absolute;top:30px;right:0;z-index:1000;min-width:120px;background:#fff;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.15);">
+                                        <a href="#" class="d-block px-3 py-2 text-danger comment-delete" data-comment-id="<?php echo (int)$com['id_com']; ?>" style="text-decoration:none;font-size:0.9rem;">🗑️ Eliminar</a>
+                                    </div>
+                                </div>
                             <?php endif; ?>
                         </div>
                     </div>
@@ -282,6 +386,49 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     document.addEventListener('click', function() {
         document.querySelectorAll('.custom-menu').forEach(m => m.style.display = 'none');
+        document.querySelectorAll('.comment-menu').forEach(m => m.style.display = 'none');
+    });
+
+    // Menú de comentarios (3 puntos)
+    document.querySelectorAll('.comment-menu-btn').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            let commentId = btn.getAttribute('data-comment-id');
+            document.querySelectorAll('.comment-menu').forEach(m => m.style.display = 'none');
+            let menu = document.getElementById('commentMenu-' + commentId);
+            if (menu) menu.style.display = 'block';
+        });
+    });
+
+    // Eliminar comentario
+    document.querySelectorAll('.comment-delete').forEach(function(delBtn) {
+        delBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            let commentId = delBtn.getAttribute('data-comment-id');
+            if (confirm('¿Seguro que deseas eliminar este comentario?')) {
+                fetch('/Converza/app/presenters/eliminar_comentario.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        comentario_id: parseInt(commentId)
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        location.reload(); // Recargar para actualizar los comentarios
+                    } else {
+                        alert('Error al eliminar el comentario: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error de conexión');
+                });
+            }
+        });
     });
     // Eliminar publicación AJAX
     document.querySelectorAll('.custom-delete').forEach(function(delBtn) {
@@ -350,8 +497,8 @@ document.addEventListener('DOMContentLoaded', function() {
         // Cargar estado inicial
         loadReactionsData(postId);
 
-        // Mostrar menú de reacciones en hover
-        container.addEventListener('mouseenter', () => {
+        // Mostrar menú de reacciones en hover (solo en botón, NO en contador)
+        likeBtn.addEventListener('mouseenter', () => {
             reactionsPopup.style.display = 'block';
         });
 
@@ -493,7 +640,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const icon = likeBtn.querySelector('.like-icon');
             const text = likeBtn.querySelector('.like-text');
             
-            console.log(`🔄 Actualizando botón con reacción: "${reaction}"`);
+            console.log(`🔄 Actualizando botón con reacción del usuario: "${reaction}"`);
             
             // Animación de cambio
             likeBtn.style.transform = 'scale(0.95)';
@@ -502,26 +649,34 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 150);
             
             if (reaction && reactions[reaction]) {
-                console.log(`✅ Cambiando a: ${reactions[reaction]} ${reactionNames[reaction]}`);
-                // Mostrar la reacción específica seleccionada
+                console.log(`✅ Usuario reaccionó con: ${reactions[reaction]} ${reactionNames[reaction]}`);
+                // Mostrar la reacción específica del usuario
                 icon.textContent = reactions[reaction];
                 text.textContent = reactionNames[reaction];
-                likeBtn.classList.remove('btn-outline-secondary', 'btn-primary');
-                likeBtn.classList.add('btn-reaction-active');
                 
-                // Mostrar mensaje personalizado temporalmente
-                const originalText = text.textContent;
-                text.textContent = `¡${reactionNames[reaction]}!`;
-                setTimeout(() => {
-                    text.textContent = originalText;
-                }, 1500);
+                // Estilo activo (usuario ha reaccionado)
+                likeBtn.classList.remove('btn-outline-secondary', 'btn-primary', 'btn-reaction-active');
+                likeBtn.classList.add('btn-outline-primary');
+                
+                // Aplicar estilos sin fondo colorido
+                likeBtn.style.backgroundColor = 'transparent';
+                likeBtn.style.borderColor = '#007bff';
+                likeBtn.style.color = '#007bff';
+                
             } else {
-                console.log(`🔄 Volviendo a estado por defecto`);
-                // Estado por defecto
+                console.log(`🔄 Usuario no ha reaccionado`);
+                // Estado por defecto - Me gusta
                 icon.textContent = '👍';
                 text.textContent = 'Me gusta';
-                likeBtn.classList.remove('btn-primary', 'btn-reaction-active');
+                
+                // Estado por defecto (usuario no ha reaccionado)
+                likeBtn.classList.remove('btn-primary', 'btn-reaction-active', 'btn-outline-primary');
                 likeBtn.classList.add('btn-outline-secondary');
+                
+                // Aplicar estilos sin fondo
+                likeBtn.style.backgroundColor = 'transparent';
+                likeBtn.style.borderColor = '#6c757d';
+                likeBtn.style.color = '#6c757d';
             }
         }
 
@@ -537,81 +692,103 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             if (!reactionsArray || reactionsArray.length === 0) {
-                counterElement.innerHTML = '';
-                counterElement.title = '';
+                counterElement.innerHTML = '(0)';
+                counterElement.title = 'Sin reacciones';
+                counterElement.style.display = 'inline-block';
                 return;
             }
 
             let total = 0;
-            let displayText = '';
             let tooltip = '';
 
             // Ordenar por total descendente
             reactionsArray.sort((a, b) => parseInt(b.total) - parseInt(a.total));
 
-            reactionsArray.forEach((reaction, index) => {
-                const count = parseInt(reaction.total);
-                total += count;
-                
-                console.log(`🔍 Procesando reacción:`, reaction);
-                console.log(`  - Tipo: "${reaction.tipo_reaccion}"`);
-                console.log(`  - Count: ${count}`);
-                console.log(`  - Usuarios: "${reaction.usuarios}"`);
-                
-                const emoji = reactions[reaction.tipo_reaccion];
-                const reactionName = reactionNames[reaction.tipo_reaccion];
-                
-                console.log(`  - Emoji encontrado:`, emoji);
-                console.log(`  - Nombre encontrado:`, reactionName);
-                
-                if (!emoji || !reactionName) {
-                    console.error(`❌ Reacción no encontrada para tipo: "${reaction.tipo_reaccion}"`);
-                    console.log('Reacciones disponibles:', Object.keys(reactions));
-                    return; // Saltar esta reacción
-                }
-                
+            // Mostrar solo la reacción más popular en formato "❤️ Me encanta (2)"
+            const topReaction = reactionsArray[0];
+            const count = parseInt(topReaction.total);
+            total = reactionsArray.reduce((sum, r) => sum + parseInt(r.total), 0);
+            
+            console.log(`🔍 Procesando reacción principal:`, topReaction);
+            console.log(`  - Tipo: "${topReaction.tipo_reaccion}"`);
+            console.log(`  - Count: ${count}`);
+            console.log(`  - Total general: ${total}`);
+            
+            const emoji = reactions[topReaction.tipo_reaccion];
+            const reactionName = reactionNames[topReaction.tipo_reaccion];
+            
+            console.log(`  - Emoji encontrado:`, emoji);
+            console.log(`  - Nombre encontrado:`, reactionName);
+            
+            if (!emoji || !reactionName) {
+                console.error(`❌ Reacción no encontrada para tipo: "${topReaction.tipo_reaccion}"`);
+                console.log('Reacciones disponibles:', Object.keys(reactions));
+                return;
+            }
+
+            // Construir tooltip detallado para hover
+            reactionsArray.forEach((reaction) => {
+                const reactionCount = parseInt(reaction.total);
+                const reactionEmoji = reactions[reaction.tipo_reaccion];
+                const reactionText = reactionNames[reaction.tipo_reaccion];
                 const usuarios = reaction.usuarios ? reaction.usuarios.split(', ') : [];
                 
-                // Para el tooltip
-                tooltip += `${emoji} ${reactionName} (${count}):\n`;
-                usuarios.forEach(user => {
-                    tooltip += `  • ${user}\n`;
-                });
-                tooltip += '\n';
-                
-                // Para el display (mostrar emojis de las reacciones más populares)
-                if (index < 3) { // Mostrar máximo 3 emojis diferentes
-                    displayText += `${emoji}${count > 1 ? count : ''} `;
+                // Formato más natural para el tooltip
+                if (reactionCount === 1) {
+                    tooltip += `${usuarios[0]} ${reactionText.toLowerCase()} esto\n`;
+                } else if (reactionCount === 2) {
+                    tooltip += `${usuarios[0]} y ${usuarios[1]} les ${reactionText.toLowerCase()} esto\n`;
+                } else {
+                    tooltip += `${usuarios[0]}, ${usuarios[1]} y ${reactionCount - 2} más les ${reactionText.toLowerCase()} esto\n`;
                 }
             });
 
-            // Si hay más de 3 tipos de reacciones, mostrar +X
-            if (reactionsArray.length > 3) {
-                const remaining = reactionsArray.slice(3).reduce((sum, r) => sum + parseInt(r.total), 0);
-                displayText += `+${remaining}`;
+            // Formato solo numérico: "(2)" o "y 3 más" 
+            let displayText = '';
+            
+            if (reactionsArray.length > 1) {
+                // Múltiples tipos: "y 3 más"
+                displayText = `y ${reactionsArray.length - 1} más (${total})`;
+            } else {
+                // Un solo tipo: "(2)"
+                displayText = `(${count})`;
             }
 
             console.log('Texto final del contador:', displayText);
-            console.log('Total de reacciones:', total);
+            console.log('Tooltip:', tooltip.trim());
 
-            counterElement.innerHTML = `<span class="text-muted small">${displayText.trim()}</span>`;
-            counterElement.title = tooltip.trim();
-            counterElement.style.cursor = 'pointer';
+            // Mostrar solo cuando hay reacciones
+            if (total > 0) {
+                counterElement.innerHTML = displayText;
+                counterElement.title = tooltip.trim();
+                counterElement.style.display = 'inline-block';
+            } else {
+                counterElement.innerHTML = '';
+                counterElement.title = '';
+                counterElement.style.display = 'none';
+            }
         }
 
         function updateCommentsSummary(total, comentarios, postId) {
             const counterElement = document.getElementById(`comment_counter_${postId}`);
             
             if (total === 0) {
-                counterElement.textContent = '';
-                counterElement.title = '';
+                counterElement.textContent = '(0)';
+                counterElement.title = 'Sin comentarios';
                 return;
             }
 
-            let tooltip = 'Comentarios de:\n';
-            comentarios.slice(0, 5).forEach(comment => {
-                tooltip += `${comment.usuario}: ${comment.comentario.substring(0, 50)}...\n`;
-            });
+            // Obtener nombres únicos de usuarios que comentaron
+            const usuarios = [...new Set(comentarios.map(comment => comment.usuario))];
+            
+            let tooltip = '';
+            if (usuarios.length === 1) {
+                tooltip = `${usuarios[0]} comentó esto`;
+            } else if (usuarios.length === 2) {
+                tooltip = `${usuarios[0]} y ${usuarios[1]} comentaron esto`;
+            } else if (usuarios.length > 2) {
+                tooltip = `${usuarios[0]}, ${usuarios[1]} y ${usuarios.length - 2} más comentaron esto`;
+            }
 
             counterElement.textContent = `(${total})`;
             counterElement.title = tooltip;

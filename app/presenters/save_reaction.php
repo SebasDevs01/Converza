@@ -31,7 +31,7 @@ if (!$id_usuario || !$id_publicacion || !$tipo_reaccion) {
     exit;
 }
 
-// Validar que el tipo de reacción sea válido
+// Validar que el tipo de reacción sea válido (ortografía corregida)
 $validReactions = ['me_gusta', 'me_encanta', 'me_divierte', 'me_asombra', 'me_entristece', 'me_enoja'];
 error_log("Validando tipo_reaccion: '$tipo_reaccion' contra: " . implode(', ', $validReactions));
 
