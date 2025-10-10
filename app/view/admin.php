@@ -6,6 +6,54 @@ if (!isset($_SESSION['id']) || !isset($_SESSION['usuario']) || ($_SESSION['tipo'
 }
 require_once __DIR__.'/../models/config.php';
 
+// Función para determinar el tipo de publicación
+function determinarTipoPublicacion($contenido, $imagenes, $totalImagenes) {
+    $tieneTexto = !empty(trim($contenido));
+    $tieneImagenes = !empty($imagenes) && $totalImagenes > 0;
+    $tieneVideo = false;
+    
+    // Detectar videos en contenido
+    if ($tieneTexto) {
+        $patronesVideo = [
+            '/youtube\.com\/watch\?v=/',
+            '/youtu\.be\//',
+            '/vimeo\.com\//',
+            '/\.mp4(\?|$|&)/',
+            '/\.webm(\?|$|&)/',
+            '/\.avi(\?|$|&)/',
+            '/\.mov(\?|$|&)/',
+            '/\.mkv(\?|$|&)/'
+        ];
+        
+        foreach ($patronesVideo as $patron) {
+            if (preg_match($patron, $contenido)) {
+                $tieneVideo = true;
+                break;
+            }
+        }
+    }
+    
+    // Detectar videos en nombres de archivo
+    if ($tieneImagenes) {
+        $archivos = explode(',', $imagenes);
+        foreach ($archivos as $archivo) {
+            $extension = strtolower(pathinfo(trim($archivo), PATHINFO_EXTENSION));
+            if (in_array($extension, ['mp4', 'webm', 'avi', 'mov', 'mkv', 'flv', '3gp'])) {
+                $tieneVideo = true;
+                break;
+            }
+        }
+    }
+    
+    // Retornar tipo con información detallada
+    return [
+        'tieneTexto' => $tieneTexto,
+        'tieneImagenes' => $tieneImagenes,
+        'tieneVideo' => $tieneVideo,
+        'totalImagenes' => $totalImagenes
+    ];
+}
+
 $mensaje = '';
 $error = '';
 
@@ -166,10 +214,48 @@ $stmt = $conexion->prepare("SELECT id_use, usuario, avatar, tipo, fecha_reg FROM
 $stmt->execute();
 $usuarios = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Obtener publicaciones recientes
+// Obtener publicaciones recientes (usando solo la tabla publicaciones por ahora)
 $stmtPubs = $conexion->prepare("SELECT p.*, u.usuario FROM publicaciones p JOIN usuarios u ON p.usuario = u.id_use ORDER BY p.id_pub DESC LIMIT 10");
 $stmtPubs->execute();
 $publicaciones = $stmtPubs->fetchAll(PDO::FETCH_ASSOC);
+
+// Agregar información de imágenes manualmente de forma robusta
+foreach ($publicaciones as &$pub) {
+    $pub['imagenes'] = '';
+    $pub['total_imagenes'] = 0;
+    
+    // Método 1: Campo imagen en publicaciones
+    if (isset($pub['imagen']) && !empty(trim($pub['imagen']))) {
+        $pub['imagenes'] = trim($pub['imagen']);
+        $pub['total_imagenes'] = 1;
+    }
+    
+    // Método 2: Tabla imagenes_publicacion
+    try {
+        $stmtImg = $conexion->prepare("SELECT COUNT(*) FROM imagenes_publicacion WHERE publicacion_id = ?");
+        $stmtImg->execute([$pub['id_pub']]);
+        $imgCount = $stmtImg->fetchColumn();
+        
+        if ($imgCount > 0) {
+            $pub['total_imagenes'] = $imgCount;
+            
+            // Obtener nombres de archivos
+            try {
+                $stmtNames = $conexion->prepare("SELECT nombre_imagen FROM imagenes_publicacion WHERE publicacion_id = ? LIMIT 3");
+                $stmtNames->execute([$pub['id_pub']]);
+                $nombres = $stmtNames->fetchAll(PDO::FETCH_COLUMN);
+                
+                if (!empty($nombres)) {
+                    $pub['imagenes'] = implode(',', array_filter($nombres));
+                }
+            } catch (Exception $e) {
+                // Ignorar errores al obtener nombres
+            }
+        }
+    } catch (Exception $e) {
+        // Tabla imagenes_publicacion no existe, usar solo campo imagen
+    }
+}
 
 // Obtener comentarios recientes
 $stmtComs = $conexion->prepare("SELECT c.*, u.usuario, p.contenido as pub_contenido FROM comentarios c JOIN usuarios u ON c.usuario = u.id_use JOIN publicaciones p ON c.publicacion = p.id_pub ORDER BY c.id_com DESC LIMIT 10");
@@ -371,6 +457,7 @@ $comentarios = $stmtComs->fetchAll(PDO::FETCH_ASSOC);
               <thead class="table-dark sticky-top">
                 <tr>
                   <th>Usuario</th>
+                  <th>Tipo</th>
                   <th>Contenido</th>
                   <th>Acciones</th>
                 </tr>
@@ -384,19 +471,58 @@ $comentarios = $stmtComs->fetchAll(PDO::FETCH_ASSOC);
                   </td>
                   <td>
                     <?php 
-                      $contenido = htmlspecialchars($pub['contenido']);
-                      if (empty($contenido) && !empty($pub['imagenes'])) {
-                        // Si no hay contenido texto pero hay imágenes, mostrar el nombre del archivo
-                        $imagenes = explode(',', $pub['imagenes']);
-                        $nombreArchivo = basename($imagenes[0]);
-                        echo "<i class='bi bi-image'></i> " . $nombreArchivo;
-                        if (count($imagenes) > 1) {
-                          echo " <small class='text-muted'>+" . (count($imagenes)-1) . " más</small>";
-                        }
-                      } elseif (!empty($contenido)) {
-                        echo strlen($contenido) > 50 ? substr($contenido, 0, 50) . '...' : $contenido;
+                      $tipo = determinarTipoPublicacion($pub['contenido'], $pub['imagenes'], $pub['total_imagenes']);
+                      
+                      // Mostrar tipo con iconos y colores
+                      if ($tipo['tieneTexto'] && $tipo['tieneImagenes'] && $tipo['tieneVideo']) {
+                          echo '<span class="badge bg-info text-white"><i class="bi bi-collection"></i> Completo</span>';
+                      } elseif ($tipo['tieneTexto'] && $tipo['tieneImagenes']) {
+                          echo '<span class="badge bg-primary text-white"><i class="bi bi-image-fill"></i> Texto + Imagen</span>';
+                      } elseif ($tipo['tieneTexto'] && $tipo['tieneVideo']) {
+                          echo '<span class="badge bg-warning text-dark"><i class="bi bi-play-circle"></i> Texto + Video</span>';
+                      } elseif ($tipo['tieneImagenes'] && !$tipo['tieneTexto']) {
+                          $cantidadTexto = $tipo['totalImagenes'] > 1 ? "Imágenes ({$tipo['totalImagenes']})" : "Imagen";
+                          echo '<span class="badge bg-success text-white"><i class="bi bi-image"></i> Solo ' . $cantidadTexto . '</span>';
+                      } elseif ($tipo['tieneVideo'] && !$tipo['tieneTexto']) {
+                          echo '<span class="badge bg-danger text-white"><i class="bi bi-play-circle-fill"></i> Solo Video</span>';
+                      } elseif ($tipo['tieneTexto'] && !$tipo['tieneImagenes'] && !$tipo['tieneVideo']) {
+                          echo '<span class="badge bg-secondary text-white"><i class="bi bi-text-paragraph"></i> Solo Texto</span>';
                       } else {
-                        echo "<span class='text-muted'>Sin contenido</span>";
+                          echo '<span class="badge bg-light text-dark"><i class="bi bi-question-circle"></i> Vacío</span>';
+                      }
+                    ?>
+                  </td>
+                  <td>
+                    <?php 
+                      $tipo = determinarTipoPublicacion($pub['contenido'], $pub['imagenes'], $pub['total_imagenes']);
+                      $contenido = htmlspecialchars($pub['contenido']);
+                      
+                      // Mostrar contenido según el tipo
+                      if ($tipo['tieneTexto'] && $tipo['tieneImagenes']) {
+                          // Texto + imágenes
+                          $textoCorto = strlen($contenido) > 30 ? substr($contenido, 0, 30) . '...' : $contenido;
+                          echo "<div>$textoCorto</div>";
+                          echo "<small class='text-muted'><i class='bi bi-images'></i> {$tipo['totalImagenes']} archivo(s)</small>";
+                      } elseif ($tipo['tieneTexto'] && !$tipo['tieneImagenes']) {
+                          // Solo texto
+                          echo strlen($contenido) > 50 ? substr($contenido, 0, 50) . '...' : $contenido;
+                      } elseif (!$tipo['tieneTexto'] && $tipo['tieneImagenes']) {
+                          // Solo imágenes
+                          $imagenes = explode(',', $pub['imagenes']);
+                          $primerArchivo = trim($imagenes[0]);
+                          $extension = strtolower(pathinfo($primerArchivo, PATHINFO_EXTENSION));
+                          
+                          if (in_array($extension, ['mp4', 'webm', 'avi', 'mov'])) {
+                              echo "<i class='bi bi-play-circle text-danger'></i> " . basename($primerArchivo);
+                          } else {
+                              echo "<i class='bi bi-image text-primary'></i> " . basename($primerArchivo);
+                          }
+                          
+                          if (count($imagenes) > 1) {
+                              echo "<br><small class='text-muted'>+" . (count($imagenes)-1) . " archivo(s) más</small>";
+                          }
+                      } else {
+                          echo "<span class='text-muted'><i class='bi bi-dash-circle'></i> Sin contenido</span>";
                       }
                     ?>
                   </td>

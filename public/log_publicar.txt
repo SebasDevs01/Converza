@@ -1361,3 +1361,12 @@ Log de depuración de publicaciones y subida de imágenes.
 2025-10-10 07:01:12 - Imagen subida correctamente: 68e8931801bc3.jpg
 2025-10-10 07:01:12 - Publicación creada por usuario 14 (sebas#1505) con 1 imagen(es) y 0 video(s).
 2025-10-10 07:01:12 - LLEGA AL INICIO
+2025-10-10 07:14:07 - LLEGA AL INICIO
+2025-10-10 07:15:10 - LLEGA AL INICIO
+2025-10-10 07:48:56 - LLEGA AL INICIO
+2025-10-10 07:49:04 - LLEGA AL INICIO
+2025-10-10 07:49:04 - POST recibido. Campos: {"publicacion":"hola"}
+2025-10-10 07:49:04 - FILES['fotos']: {"name":[""],"type":[""],"tmp_name":[""],"error":[4],"size":[0]}
+2025-10-10 07:49:04 - Intento de publicación: usuario_id=16, texto=hola
+2025-10-10 07:49:04 - Publicación creada por usuario 16 (admin1) con 0 imagen(es) y 0 video(s).
+2025-10-10 07:49:04 - LLEGA AL INICIO
