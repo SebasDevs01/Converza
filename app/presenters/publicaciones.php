@@ -336,7 +336,7 @@ $publicaciones = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 <span class="like-icon">👍</span> <span class="like-text">Me gusta</span>
                             </button>
                             <?php endif; ?>
-                            <span class="reaction-counter ms-2" id="reaction_counter_<?php echo (int)$pub['id_pub']; ?>" style="display: none;"></span>
+                            <span class="reaction-counter ms-2" id="reaction_counter_<?php echo (int)$pub['id_pub']; ?>" data-tooltip="Sin reacciones">(0)</span>
                             
                             <!-- Menú de reacciones -->
                             <?php if (!$isUserBlocked): ?>
@@ -870,11 +870,13 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             if (!reactionsArray || reactionsArray.length === 0) {
-                console.log('  - Sin reacciones, ocultando contador');
-                counterElement.innerHTML = '';
-                counterElement.removeAttribute('title');
-                counterElement.removeAttribute('data-tooltip');
-                counterElement.style.display = 'none';
+                console.log('  - Sin reacciones, mostrando (0)');
+                console.log('  - Elemento antes del cambio:', counterElement.innerHTML, counterElement.style.display);
+                counterElement.innerHTML = '(0)';
+                counterElement.setAttribute('data-tooltip', 'Sin reacciones');
+                counterElement.style.display = 'inline-block';
+                counterElement.style.cursor = 'default';
+                console.log('  - Elemento después del cambio:', counterElement.innerHTML, counterElement.style.display);
                 return;
             }
 
@@ -940,7 +942,7 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log('Texto final del contador:', displayText);
             console.log('Tooltip:', tooltip.trim());
 
-            // Mostrar solo cuando hay reacciones
+            // Mostrar siempre el contador
             if (total > 0) {
                 console.log(`✅ Actualizando contador de reacciones:`, {
                     postId,
@@ -950,15 +952,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
                 counterElement.innerHTML = displayText;
                 counterElement.setAttribute('data-tooltip', tooltip.trim());
-                counterElement.style.display = 'inline-block';
                 counterElement.style.cursor = 'pointer';
             } else {
-                console.log(`⚪ Ocultando contador vacío para post ${postId}`);
-                counterElement.innerHTML = '';
-                counterElement.removeAttribute('title');
-                counterElement.removeAttribute('data-tooltip');
-                counterElement.style.display = 'none';
+                console.log(`⚪ Mostrando contador en 0 para post ${postId}`);
+                counterElement.innerHTML = '(0)';
+                counterElement.setAttribute('data-tooltip', 'Sin reacciones');
+                counterElement.style.cursor = 'default';
             }
+            counterElement.style.display = 'inline-block';
         }
 
         function updateCommentsSummary(total, comentarios, postId) {
@@ -1100,35 +1101,27 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('CSS tooltip detectado:', styles.content);
     document.body.removeChild(testElement);
     
+    // Inicializar contadores de comentarios
+    commentCounters.forEach((counter) => {
+        counter.textContent = '(0)';
+        counter.setAttribute('data-tooltip', 'Sin comentarios');
+        counter.style.display = 'inline-block';
+    });
+
     reactionCounters.forEach((counter, index) => {
         const postId = counter.id.replace('reaction_counter_', '');
         console.log(`🔄 Inicializando contadores para post: ${postId} (${index + 1}/${reactionCounters.length})`);
         
-        // Agregar tooltip de prueba temporal
-        counter.setAttribute('data-tooltip', `Cargando reacciones... Post ${postId}`);
-        counter.style.cursor = 'pointer';
-        counter.textContent = '(...)';
+        // Inicializar con estado vacío
+        counter.textContent = '(0)';
+        counter.setAttribute('data-tooltip', 'Sin reacciones');
+        counter.style.cursor = 'default';
         counter.style.display = 'inline-block';
         
         loadReactionsData(postId);
     });
 
-    // Función de prueba para verificar tooltips
-    setTimeout(() => {
-        console.log('🧪 Probando tooltips básicos...');
-        
-        const testCounter = document.querySelector('[id^="reaction_counter_"]');
-        if (testCounter) {
-            testCounter.setAttribute('data-tooltip', '🧪 Tooltip de prueba\nSegunda línea');
-            testCounter.textContent = '(TEST)';
-            testCounter.style.display = 'inline-block';
-            testCounter.style.cursor = 'pointer';
-            testCounter.style.background = '#ffeb3b';
-            testCounter.style.padding = '2px 6px';
-            testCounter.style.borderRadius = '3px';
-            console.log('Tooltip de prueba aplicado al primer contador');
-        }
-    }, 2000);
+
 });
 </script>
 

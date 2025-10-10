@@ -173,7 +173,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['publicacion']) || (i
             border: 2px solid white;
             box-shadow: 0 2px 6px rgba(0,0,0,0.3);
             top: -5px !important;
-            right: -8px !important;
+            right: 5px !important;
             transform: none !important;
             z-index: 10;
         }

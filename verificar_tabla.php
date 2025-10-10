@@ -1,23 +1,14 @@
 <?php
 require_once(__DIR__.'/app/models/config.php');
 
-echo "🔍 Verificando estructura de la base de datos...\n\n";
-
 try {
-    // Verificar si la tabla imagenes_publicacion existe
-    $stmt = $conexion->query("SHOW TABLES LIKE 'imagenes_publicacion'");
-    $tabla_existe = $stmt->fetch();
+    echo "Estructura de la tabla 'chats':\n";
+    $stmt = $conexion->query("DESCRIBE chats");
+    $columns = $stmt->fetchAll();
     
-    if (!$tabla_existe) {
-        echo "❌ Tabla 'imagenes_publicacion' NO existe. Creando...\n";
-        
-        // Crear la tabla
-        $sql_create = "
-        CREATE TABLE IF NOT EXISTS imagenes_publicacion (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            publicacion_id INT NOT NULL,
-            nombre_imagen VARCHAR(255) NOT NULL,
-            FOREIGN KEY (publicacion_id) REFERENCES publicaciones(id_pub) ON DELETE CASCADE
+    foreach($columns as $column) {
+        echo "- {$column['Field']} ({$column['Type']}) Key:{$column['Key']} Null:{$column['Null']}\n";
+    }
         )";
         
         $conexion->exec($sql_create);

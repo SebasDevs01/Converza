@@ -1,0 +1,22 @@
+# Permitir acceso a archivos de audio
+<Files *.wav>
+    Header set Content-Type "audio/wav"
+</Files>
+
+<Files *.mp3>
+    Header set Content-Type "audio/mpeg"
+</Files>
+
+# Prevenir listado de directorio
+Options -Indexes
+
+# Permitir solo archivos de audio
+<FilesMatch "\.(wav|mp3|ogg|m4a)$">
+    Order allow,deny
+    Allow from all
+</FilesMatch>
+
+<FilesMatch "^(?!.*\.(wav|mp3|ogg|m4a)$).*$">
+    Order deny,allow
+    Deny from all
+</FilesMatch>
