@@ -50,6 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['publicacion']) || (i
         logPublicar('Error: Conexión PDO no disponible.');
     } else {
         $imagenesGuardadas = [];
+        $videosGuardados = [];
         if (isset($_FILES['fotos']) && is_array($_FILES['fotos']['name'])) {
             $permitidas = ['jpg', 'jpeg', 'png', 'gif'];
             foreach ($_FILES['fotos']['name'] as $i => $name) {
@@ -76,7 +77,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['publicacion']) || (i
                 }
             }
         }
-        if (!$error && ($publicacion !== '' || count($imagenesGuardadas) > 0)) {
+        
+        // Procesar videos antes de la validación
+        if (!$error && isset($_FILES['videos']) && is_array($_FILES['videos']['name'])) {
+            $permitidas = ['mp4', 'webm', 'ogg'];
+            foreach ($_FILES['videos']['name'] as $i => $name) {
+                if (!$_FILES['videos']['error'][$i] && $_FILES['videos']['tmp_name'][$i] && $_FILES['videos']['name'][$i] !== '') {
+                    $ext = strtolower(pathinfo($name, PATHINFO_EXTENSION));
+                    if (in_array($ext, $permitidas)) {
+                        $nombreVideo = uniqid().'.'.$ext;
+                        $carpeta = __DIR__.'/../../public/publicaciones/';
+                        if (!is_dir($carpeta)) {
+                            mkdir($carpeta, 0777, true);
+                        }
+                        $destino = $carpeta.$nombreVideo;
+                        if (move_uploaded_file($_FILES['videos']['tmp_name'][$i], $destino)) {
+                            $videosGuardados[] = $nombreVideo;
+                            logPublicar('Video subido correctamente: '.$nombreVideo);
+                        } else {
+                            $error = 'No se pudo guardar el video '.$name.' en el servidor.';
+                            logPublicar('Error: No se pudo guardar el video '.$name.' en el servidor.');
+                        }
+                    } else {
+                        $error = 'Formato de video no permitido: '.$name;
+                        logPublicar('Error: Formato de video no permitido: '.$name);
+                    }
+                }
+            }
+        }
+        
+        if (!$error && ($publicacion !== '' || count($imagenesGuardadas) > 0 || count($videosGuardados) > 0)) {
             try {
                 $stmtPub = $conexion->prepare("INSERT INTO publicaciones (usuario, contenido, imagen, album, fecha) VALUES (:usuario, :contenido, NULL, :album, NOW())");
                 $stmtPub->bindParam(':usuario', $_SESSION['id'], PDO::PARAM_INT);
@@ -91,35 +121,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['publicacion']) || (i
                     $stmtImg->bindParam(':img', $img, PDO::PARAM_STR);
                     $stmtImg->execute();
                 }
-                // Manejo de videos
-                if (isset($_FILES['videos']) && is_array($_FILES['videos']['name'])) {
-                    $permitidas = ['mp4', 'webm', 'ogg'];
-                    foreach ($_FILES['videos']['name'] as $i => $name) {
-                        if (!$_FILES['videos']['error'][$i] && $_FILES['videos']['tmp_name'][$i] && $_FILES['videos']['name'][$i] !== '') {
-                            $ext = strtolower(pathinfo($name, PATHINFO_EXTENSION));
-                            if (in_array($ext, $permitidas)) {
-                                $nombreVideo = uniqid().'.'.$ext;
-                                $carpeta = __DIR__.'/../../public/publicaciones/';
-                                if (!is_dir($carpeta)) {
-                                    mkdir($carpeta, 0777, true);
-                                }
-                                $destino = $carpeta.$nombreVideo;
-                                if (move_uploaded_file($_FILES['videos']['tmp_name'][$i], $destino)) {
-                                    $stmtVideo = $conexion->prepare("UPDATE publicaciones SET video = :video WHERE id_pub = :pubid");
-                                    $stmtVideo->bindParam(':video', $nombreVideo, PDO::PARAM_STR);
-                                    $stmtVideo->bindParam(':pubid', $pubId, PDO::PARAM_INT);
-                                    $stmtVideo->execute();
-                                } else {
-                                    echo "Error: No se pudo guardar el video $name en el servidor.";
-                                }
-                            } else {
-                                echo "Error: Formato de video no permitido: $name.";
-                            }
-                        }
-                    }
+                
+                // Guardar videos ya procesados
+                foreach ($videosGuardados as $video) {
+                    $stmtVideo = $conexion->prepare("UPDATE publicaciones SET video = :video WHERE id_pub = :pubid");
+                    $stmtVideo->bindParam(':video', $video, PDO::PARAM_STR);
+                    $stmtVideo->bindParam(':pubid', $pubId, PDO::PARAM_INT);
+                    $stmtVideo->execute();
                 }
                 $mensaje = "¡Publicación creada exitosamente!";
-                logPublicar('Publicación creada por usuario '.$_SESSION['id'].' ('.$_SESSION['usuario'].') con '.count($imagenesGuardadas).' imagen(es).');
+                logPublicar('Publicación creada por usuario '.$_SESSION['id'].' ('.$_SESSION['usuario'].') con '.count($imagenesGuardadas).' imagen(es) y '.count($videosGuardados).' video(s).');
                 header("Location: " . $_SERVER['PHP_SELF']);
                 exit();
             } catch (PDOException $e) {

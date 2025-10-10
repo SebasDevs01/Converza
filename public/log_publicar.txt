@@ -1284,3 +1284,34 @@ Log de depuración de publicaciones y subida de imágenes.
 2025-10-10 05:10:04 - Intento de publicación: usuario_id=14, texto=ONE PIECE
 2025-10-10 05:10:04 - Publicación creada por usuario 14 (sebas#1505) con 0 imagen(es).
 2025-10-10 05:10:04 - LLEGA AL INICIO
+2025-10-10 05:14:20 - LLEGA AL INICIO
+2025-10-10 05:14:31 - LLEGA AL INICIO
+2025-10-10 05:15:14 - LLEGA AL INICIO
+2025-10-10 05:15:32 - LLEGA AL INICIO
+2025-10-10 05:15:53 - LLEGA AL INICIO
+2025-10-10 05:15:55 - LLEGA AL INICIO
+2025-10-10 05:29:38 - LLEGA AL INICIO
+2025-10-10 05:29:40 - LLEGA AL INICIO
+2025-10-10 05:29:44 - LLEGA AL INICIO
+2025-10-10 05:29:44 - POST recibido. Campos: {"publicacion":""}
+2025-10-10 05:29:44 - FILES['fotos']: {"name":["68e871a3dc62d.gif"],"type":["image\/gif"],"tmp_name":["C:\\xampp\\tmp\\phpE73E.tmp"],"error":[0],"size":[490448]}
+2025-10-10 05:29:44 - Intento de publicación: usuario_id=14, texto=
+2025-10-10 05:29:44 - Imagen subida correctamente: 68e87da819bc3.gif
+2025-10-10 05:29:44 - Publicación creada por usuario 14 (sebas#1505) con 1 imagen(es) y 0 video(s).
+2025-10-10 05:29:44 - LLEGA AL INICIO
+2025-10-10 05:29:49 - LLEGA AL INICIO
+2025-10-10 05:30:01 - LLEGA AL INICIO
+2025-10-10 05:30:01 - POST recibido. Campos: {"publicacion":""}
+2025-10-10 05:30:01 - FILES['fotos']: NO RECIBIDO
+2025-10-10 05:30:01 - Intento de publicación: usuario_id=14, texto=
+2025-10-10 05:30:01 - Video subido correctamente: 68e87db9ec782.mp4
+2025-10-10 05:30:01 - Publicación creada por usuario 14 (sebas#1505) con 0 imagen(es) y 1 video(s).
+2025-10-10 05:30:01 - LLEGA AL INICIO
+2025-10-10 05:30:06 - LLEGA AL INICIO
+2025-10-10 05:30:13 - LLEGA AL INICIO
+2025-10-10 05:30:13 - POST recibido. Campos: {"publicacion":""}
+2025-10-10 05:30:13 - FILES['fotos']: NO RECIBIDO
+2025-10-10 05:30:13 - Intento de publicación: usuario_id=14, texto=
+2025-10-10 05:30:13 - Video subido correctamente: 68e87dc51c8a0.mp4
+2025-10-10 05:30:13 - Publicación creada por usuario 14 (sebas#1505) con 0 imagen(es) y 1 video(s).
+2025-10-10 05:30:13 - LLEGA AL INICIO

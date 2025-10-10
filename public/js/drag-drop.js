@@ -3,20 +3,14 @@ $(document).ready(function() {
     let selectedFiles = [];
     
     function renderPreviews() {
-        console.log('🔄 Ejecutando renderPreviews() con', selectedFiles.length, 'archivos');
-        console.log('📋 Archivos a renderizar:', selectedFiles.map(f => f.name + ' (' + f.type + ')'));
-        
         const container = $('#preview-container');
-        console.log('📦 Container encontrado:', container.length > 0);
         container.empty();
         
         if (selectedFiles.length === 0) {
-            console.log('📭 No hay archivos, ocultando container');
             container.hide();
             return;
         }
         
-        console.log('📂 Mostrando container con archivos');
         container.show();
         
         selectedFiles.forEach((file, idx) => {
@@ -202,21 +196,12 @@ $(document).ready(function() {
     
     // Manejador para input de videos
     $('#video-input').on('change', function(e) {
-        console.log('🎥 Botón de videos usado - archivos seleccionados:', this.files.length);
-        console.log('🎥 Archivos recibidos:', Array.from(this.files).map(f => f.name + ' (' + f.type + ')'));
-        
         const newFiles = Array.from(this.files);
         newFiles.forEach(f => {
             if (!selectedFiles.some(sf => sf.name === f.name && sf.size === f.size)) {
                 selectedFiles.push(f);
-                console.log('🎥 Video añadido:', f.name, f.type);
-            } else {
-                console.log('🎥 Video duplicado omitido:', f.name);
             }
         });
-        console.log('🎥 Total archivos después de videos:', selectedFiles.length);
-        console.log('🎥 Array completo:', selectedFiles.map(f => f.name + ' (' + f.type + ')'));
-        console.log('🎥 Llamando a renderPreviews...');
         renderPreviews();
         this.value = ''; // Limpiar para permitir reselección
     });
