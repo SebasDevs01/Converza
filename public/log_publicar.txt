@@ -1370,3 +1370,27 @@ Log de depuración de publicaciones y subida de imágenes.
 2025-10-10 07:49:04 - Intento de publicación: usuario_id=16, texto=hola
 2025-10-10 07:49:04 - Publicación creada por usuario 16 (admin1) con 0 imagen(es) y 0 video(s).
 2025-10-10 07:49:04 - LLEGA AL INICIO
+2025-10-10 08:12:41 - LLEGA AL INICIO
+2025-10-10 08:12:47 - LLEGA AL INICIO
+2025-10-10 08:12:47 - POST recibido. Campos: {"publicacion":"prueba"}
+2025-10-10 08:12:47 - FILES['fotos']: {"name":[""],"type":[""],"tmp_name":[""],"error":[4],"size":[0]}
+2025-10-10 08:12:47 - Intento de publicación: usuario_id=16, texto=prueba
+2025-10-10 08:12:47 - Publicación creada por usuario 16 (admin1) con 0 imagen(es) y 0 video(s).
+2025-10-10 08:12:47 - LLEGA AL INICIO
+2025-10-10 08:13:19 - LLEGA AL INICIO
+2025-10-10 08:13:32 - LLEGA AL INICIO
+2025-10-10 08:13:42 - LLEGA AL INICIO
+2025-10-10 08:14:16 - LLEGA AL INICIO
+2025-10-10 08:38:21 - LLEGA AL INICIO
+2025-10-10 08:38:36 - LLEGA AL INICIO
+2025-10-10 08:38:59 - LLEGA AL INICIO
+2025-10-10 08:39:20 - LLEGA AL INICIO
+2025-10-10 08:39:28 - LLEGA AL INICIO
+2025-10-10 08:39:28 - POST recibido. Campos: {"publicacion":"perfil"}
+2025-10-10 08:39:28 - FILES['fotos']: {"name":["defect.jpg"],"type":["image\/jpeg"],"tmp_name":["C:\\xampp\\tmp\\php9D8C.tmp"],"error":[0],"size":[7088]}
+2025-10-10 08:39:28 - Intento de publicación: usuario_id=16, texto=perfil
+2025-10-10 08:39:28 - Imagen subida correctamente: 68e8aa2074d49.jpg
+2025-10-10 08:39:28 - Publicación creada por usuario 16 (admin1) con 1 imagen(es) y 0 video(s).
+2025-10-10 08:39:28 - LLEGA AL INICIO
+2025-10-10 08:39:45 - LLEGA AL INICIO
+2025-10-10 08:39:52 - LLEGA AL INICIO
