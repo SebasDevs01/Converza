@@ -1315,3 +1315,49 @@ Log de depuración de publicaciones y subida de imágenes.
 2025-10-10 05:30:13 - Video subido correctamente: 68e87dc51c8a0.mp4
 2025-10-10 05:30:13 - Publicación creada por usuario 14 (sebas#1505) con 0 imagen(es) y 1 video(s).
 2025-10-10 05:30:13 - LLEGA AL INICIO
+2025-10-10 05:33:53 - LLEGA AL INICIO
+2025-10-10 05:34:05 - LLEGA AL INICIO
+2025-10-10 05:53:38 - LLEGA AL INICIO
+2025-10-10 05:54:04 - LLEGA AL INICIO
+2025-10-10 05:55:12 - LLEGA AL INICIO
+2025-10-10 05:55:25 - LLEGA AL INICIO
+2025-10-10 05:55:37 - LLEGA AL INICIO
+2025-10-10 05:55:37 - POST recibido. Campos: {"publicacion":""}
+2025-10-10 05:55:37 - FILES['fotos']: {"name":["14.jpg"],"type":["image\/jpeg"],"tmp_name":["C:\\xampp\\tmp\\php9AE3.tmp"],"error":[0],"size":[715866]}
+2025-10-10 05:55:37 - Intento de publicación: usuario_id=14, texto=
+2025-10-10 05:55:37 - Imagen subida correctamente: 68e883b963745.jpg
+2025-10-10 05:55:37 - Publicación creada por usuario 14 (sebas#1505) con 1 imagen(es) y 0 video(s).
+2025-10-10 05:55:37 - LLEGA AL INICIO
+2025-10-10 05:55:56 - LLEGA AL INICIO
+2025-10-10 05:57:58 - LLEGA AL INICIO
+2025-10-10 05:58:41 - LLEGA AL INICIO
+2025-10-10 05:59:15 - LLEGA AL INICIO
+2025-10-10 05:59:31 - LLEGA AL INICIO
+2025-10-10 06:09:27 - LLEGA AL INICIO
+2025-10-10 06:10:14 - LLEGA AL INICIO
+2025-10-10 06:10:24 - LLEGA AL INICIO
+2025-10-10 06:10:29 - LLEGA AL INICIO
+2025-10-10 06:20:06 - LLEGA AL INICIO
+2025-10-10 06:20:13 - LLEGA AL INICIO
+2025-10-10 06:20:24 - LLEGA AL INICIO
+2025-10-10 06:37:06 - LLEGA AL INICIO
+2025-10-10 06:37:49 - LLEGA AL INICIO
+2025-10-10 06:38:11 - LLEGA AL INICIO
+2025-10-10 06:38:15 - LLEGA AL INICIO
+2025-10-10 06:38:15 - POST recibido. Campos: {"publicacion":""}
+2025-10-10 06:38:15 - FILES['fotos']: {"name":["14.jpg"],"type":["image\/jpeg"],"tmp_name":["C:\\xampp\\tmp\\phpA2C5.tmp"],"error":[0],"size":[715866]}
+2025-10-10 06:38:15 - Intento de publicación: usuario_id=16, texto=
+2025-10-10 06:38:15 - Imagen subida correctamente: 68e88db783110.jpg
+2025-10-10 06:38:15 - Publicación creada por usuario 16 (admin1) con 1 imagen(es) y 0 video(s).
+2025-10-10 06:38:15 - LLEGA AL INICIO
+2025-10-10 06:50:41 - LLEGA AL INICIO
+2025-10-10 06:50:45 - LLEGA AL INICIO
+2025-10-10 07:00:07 - LLEGA AL INICIO
+2025-10-10 07:01:03 - LLEGA AL INICIO
+2025-10-10 07:01:11 - LLEGA AL INICIO
+2025-10-10 07:01:11 - POST recibido. Campos: {"publicacion":""}
+2025-10-10 07:01:11 - FILES['fotos']: {"name":["14.jpg"],"type":["image\/jpeg"],"tmp_name":["C:\\xampp\\tmp\\phpA466.tmp"],"error":[0],"size":[715866]}
+2025-10-10 07:01:12 - Intento de publicación: usuario_id=14, texto=
+2025-10-10 07:01:12 - Imagen subida correctamente: 68e8931801bc3.jpg
+2025-10-10 07:01:12 - Publicación creada por usuario 14 (sebas#1505) con 1 imagen(es) y 0 video(s).
+2025-10-10 07:01:12 - LLEGA AL INICIO

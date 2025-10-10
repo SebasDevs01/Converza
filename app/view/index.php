@@ -31,6 +31,13 @@ if (!isset($_SESSION['id']) || !isset($_SESSION['usuario']) || !isset($_SESSION[
     header("Location: login.php");
     exit();
 }
+
+// Verificar si el usuario está bloqueado
+if (isUserBlocked($_SESSION['id'], $conexion)) {
+    session_destroy();
+    header("Location: login.php?error=blocked");
+    exit();
+}
 $mensaje = '';
 $error = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['publicacion']) || (isset($_FILES['fotos']) && isset($_FILES['fotos']['name']) && $_FILES['fotos']['name'][0] !== ''))) {

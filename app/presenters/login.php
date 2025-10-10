@@ -57,7 +57,12 @@ if (isset($_SESSION['id']) && isset($_SESSION['usuario'])) {
                 $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
 
                 if ($resultado) {
-                    if (password_verify($contrasena, $resultado['contrasena'])) {
+                    // Verificar si el usuario está bloqueado
+                    if ($resultado['tipo'] === 'blocked') {
+                        echo "<div class='alert alert-warning mt-3 text-center' role='alert'>
+                                <i class='bi bi-shield-lock'></i> Tu cuenta ha sido suspendida. Contacta al administrador.
+                              </div>";
+                    } elseif (password_verify($contrasena, $resultado['contrasena'])) {
                         $_SESSION['id'] = $resultado['id_use'];
                         $_SESSION['usuario'] = $resultado['usuario'];
                         $_SESSION['avatar'] = !empty($resultado['avatar']) ? $resultado['avatar'] : 'defect.jpg';
@@ -75,6 +80,13 @@ if (isset($_SESSION['id']) && isset($_SESSION['usuario'])) {
                 } else {
                     echo "<div class='alert alert-danger mt-3 text-center' role='alert'>Usuario o contraseña incorrectos.</div>";
                 }
+            }
+            
+            // Mostrar mensaje si viene de un redirect por bloqueo
+            if (isset($_GET['error']) && $_GET['error'] === 'blocked') {
+                echo "<div class='alert alert-warning mt-3 text-center' role='alert'>
+                        <i class='bi bi-shield-lock'></i> Tu sesión ha sido suspendida. Tu cuenta fue bloqueada.
+                      </div>";
             }
             ?>
             <div class="text-center mt-3">

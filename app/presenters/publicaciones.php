@@ -15,7 +15,10 @@ $stmt->execute();
 $publicaciones = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 <div class="d-flex flex-column gap-4">
-<?php foreach ($publicaciones as $pub): ?>
+<?php foreach ($publicaciones as $pub): 
+    // Verificar si el usuario actual está bloqueado
+    $isUserBlocked = $sessionUserId && isUserBlocked($sessionUserId, $conexion);
+?>
     <div class="card shadow-sm border-0 mb-2">
         <div class="card-body">
             <div class="d-flex align-items-center mb-2">
@@ -37,14 +40,29 @@ $publicaciones = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <span class="text-muted small"><?php echo htmlspecialchars($pub['fecha']);?></span>
                 </div>
                 <div class="ms-auto">
-                    <?php if ($sessionUserId && isset($pub['usuario_id']) && (int)$pub['usuario_id'] === $sessionUserId): ?>
+                    <?php 
+                    $isOwner = $sessionUserId && isset($pub['usuario_id']) && (int)$pub['usuario_id'] === $sessionUserId;
+                    $isAdmin = isset($_SESSION['tipo']) && $_SESSION['tipo'] === 'admin';
+                    
+                    if ($isOwner || $isAdmin): ?>
                         <div class="custom-menu-wrapper position-relative d-inline-block">
-                            <button class="btn btn-light btn-sm rounded-circle custom-menu-btn" type="button" data-pub-id="<?php echo (int)$pub['id_pub']; ?>" style="width:36px;height:36px;display:flex;align-items:center;justify-content:center;">
-                                <i class="bi bi-three-dots-vertical"></i>
+                            <button class="btn <?php echo $isAdmin && !$isOwner ? 'btn-warning' : 'btn-light'; ?> btn-sm rounded-circle custom-menu-btn" type="button" data-pub-id="<?php echo (int)$pub['id_pub']; ?>" style="width:36px;height:36px;display:flex;align-items:center;justify-content:center;" title="<?php echo $isAdmin && !$isOwner ? 'Acciones de administrador' : 'Mis acciones'; ?>">
+                                <i class="bi <?php echo $isAdmin && !$isOwner ? 'bi-shield-lock' : 'bi-three-dots-vertical'; ?>"></i>
                             </button>
-                            <div class="custom-menu shadow" id="customMenu-<?php echo (int)$pub['id_pub']; ?>" style="display:none;position:absolute;top:40px;right:0;z-index:1000;min-width:140px;background:#fff;border-radius:12px;box-shadow:0 4px 24px rgba(0,0,0,0.10);">
-                                <a href="#" class="d-block px-4 py-2 text-dark custom-edit" data-pub-id="<?php echo (int)$pub['id_pub']; ?>" style="text-decoration:none;font-size:1rem;">✏️ Editar</a>
-                                <a href="#" class="d-block px-4 py-2 text-danger custom-delete" data-pub-id="<?php echo (int)$pub['id_pub']; ?>" style="text-decoration:none;font-size:1rem;">🗑️ Eliminar</a>
+                            <div class="custom-menu shadow" id="customMenu-<?php echo (int)$pub['id_pub']; ?>" style="display:none;position:absolute;top:40px;right:0;z-index:1000;min-width:<?php echo $isAdmin && !$isOwner ? '180px' : '140px'; ?>;background:#fff;border-radius:12px;box-shadow:0 4px 24px rgba(0,0,0,0.10);">
+                                <?php if ($isOwner || $isAdmin): ?>
+                                    <a href="#" class="d-block px-4 py-2 text-dark custom-edit" data-pub-id="<?php echo (int)$pub['id_pub']; ?>" style="text-decoration:none;font-size:1rem;">✏️ Editar<?php echo $isAdmin && !$isOwner ? ' (Admin)' : ''; ?></a>
+                                <?php endif; ?>
+                                
+                                <?php if ($isOwner): ?>
+                                    <a href="#" class="d-block px-4 py-2 text-danger custom-delete" data-pub-id="<?php echo (int)$pub['id_pub']; ?>" style="text-decoration:none;font-size:1rem;">🗑️ Eliminar</a>
+                                <?php elseif ($isAdmin): ?>
+                                    <a href="#" class="d-block px-4 py-2 text-danger admin-delete" data-pub-id="<?php echo (int)$pub['id_pub']; ?>" style="text-decoration:none;font-size:1rem;">🗑️ Eliminar (Admin)</a>
+                                <?php endif; ?>
+                                
+                                <?php if ($isAdmin): ?>
+                                    <a href="admin.php" class="d-block px-4 py-2 text-primary" style="text-decoration:none;font-size:1rem;">⚙️ Panel Admin</a>
+                                <?php endif; ?>
                             </div>
                         </div>
 <!-- Estilos para el menú de los tres puntos -->
@@ -233,7 +251,9 @@ $publicaciones = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 // Mostrar videos de YouTube embebidos
                 if (!empty($pub['youtube_link'])) {
                     echo '<div class="mb-2">
-                            <iframe width="560" height="315" src="https://www.youtube.com/embed/'.htmlspecialchars($pub['youtube_link']).'" frameborder="0" allowfullscreen></iframe>
+                            <div class="ratio ratio-16x9">
+                                <iframe src="https://www.youtube.com/embed/'.htmlspecialchars($pub['youtube_link']).'" frameborder="0" allowfullscreen class="rounded-3"></iframe>
+                            </div>
                           </div>';
                 }
                 ?>
@@ -243,12 +263,19 @@ $publicaciones = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <div class="d-flex justify-content-around">
                         <!-- Botón Me gusta con menú hover -->
                         <div class="like-container position-relative d-flex align-items-center">
+                            <?php if ($isUserBlocked): ?>
+                                <button class="btn btn-outline-secondary btn-sm disabled" disabled>
+                                    <span class="like-icon">👍</span> <span class="like-text">Me gusta</span>
+                                </button>
+                            <?php else: ?>
                             <button class="btn btn-outline-secondary btn-sm like-main-btn" data-post-id="<?php echo (int)$pub['id_pub']; ?>" id="like_btn_<?php echo (int)$pub['id_pub']; ?>">
                                 <span class="like-icon">👍</span> <span class="like-text">Me gusta</span>
                             </button>
+                            <?php endif; ?>
                             <span class="reaction-counter ms-2" id="reaction_counter_<?php echo (int)$pub['id_pub']; ?>" style="display: none;"></span>
                             
                             <!-- Menú de reacciones -->
+                            <?php if (!$isUserBlocked): ?>
                             <div class="reactions-popup" style="display: none; position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); margin-bottom: 10px; background: white; border: 1px solid #ccc; border-radius: 25px; padding: 5px 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 1000;">
                                 <div class="d-flex gap-5px">
                                     <span class="reaction-btn" data-reaction="me_gusta" data-post="<?php echo (int)$pub['id_pub']; ?>" title="Me gusta">👍</span>
@@ -259,6 +286,7 @@ $publicaciones = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                     <span class="reaction-btn" data-reaction="me_enoja" data-post="<?php echo (int)$pub['id_pub']; ?>" title="Me enoja">😡</span>
                                 </div>
                             </div>
+                            <?php endif; ?>
                         </div>
                         
                         <div class="comment-container d-flex align-items-center">
@@ -325,9 +353,6 @@ $publicaciones = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 <?php echo nl2br(htmlspecialchars($com['comentario']));?>
                             </div>
                             <?php 
-                            // Debug temporal - quitar después
-                            echo "<!-- DEBUG: sessionUserId=$sessionUserId, com[usuario]={$com['usuario']}, nombre={$com['nombre_usuario']} -->";
-                            
                             // Verificar si el usuario puede eliminar el comentario (dueño o admin)
                             $canDelete = false;
                             
@@ -338,15 +363,11 @@ $publicaciones = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                     $canDelete = true;
                                 }
                                 
-                                // Es admin (verificar si existe rol de admin en sesión o BD)
-                                if (isset($_SESSION['rol']) && $_SESSION['rol'] === 'admin') {
-                                    $canDelete = true;
-                                } elseif (isset($_SESSION['es_admin']) && $_SESSION['es_admin'] == 1) {
+                                // Es admin (usar $_SESSION['tipo'] que es el campo correcto en Converza)
+                                if (isset($_SESSION['tipo']) && $_SESSION['tipo'] === 'admin') {
                                     $canDelete = true;
                                 }
                             }
-                            
-                            echo "<!-- DEBUG: canDelete=" . ($canDelete ? 'true' : 'false') . " -->";
                             
                             if ($canDelete): 
                             ?>
@@ -355,7 +376,11 @@ $publicaciones = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                         <i class="bi bi-three-dots-vertical"></i>
                                     </button>
                                     <div class="comment-menu shadow" id="commentMenu-<?php echo (int)$com['id_com']; ?>" style="display:none;position:absolute;top:30px;right:0;z-index:1000;min-width:120px;background:#fff;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.15);">
-                                        <a href="#" class="d-block px-3 py-2 text-danger comment-delete" data-comment-id="<?php echo (int)$com['id_com']; ?>" style="text-decoration:none;font-size:0.9rem;">🗑️ Eliminar</a>
+                                        <?php if ((int)$com['usuario'] === $sessionUserId): ?>
+                                            <a href="#" class="d-block px-3 py-2 text-danger comment-delete" data-comment-id="<?php echo (int)$com['id_com']; ?>" style="text-decoration:none;font-size:0.9rem;">🗑️ Eliminar</a>
+                                        <?php elseif (isset($_SESSION['tipo']) && $_SESSION['tipo'] === 'admin'): ?>
+                                            <a href="#" class="d-block px-3 py-2 text-warning comment-admin-delete" data-comment-id="<?php echo (int)$com['id_com']; ?>" style="text-decoration:none;font-size:0.9rem;">⚠️ Eliminar (Admin)</a>
+                                        <?php endif; ?>
                                     </div>
                                 </div>
                             <?php endif; ?>
@@ -363,12 +388,18 @@ $publicaciones = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     </div>
                 </div>
                 <?php endforeach; ?>
+                <?php if ($isUserBlocked): ?>
+                    <div class="alert alert-warning text-center mt-2" role="alert">
+                        <i class="bi bi-shield-lock"></i> Tu cuenta está suspendida. No puedes comentar.
+                    </div>
+                <?php else: ?>
                 <form id="comment_form_<?php echo (int)$pub['id_pub']; ?>" action="/Converza/app/presenters/agregarcomentario.php" method="POST">
                     <input type="text" class="enviar-btn form-control" placeholder="Escribe un comentario" name="comentario" required>
                     <input type="hidden" name="usuario" value="<?php echo $sessionUserId; ?>">
                     <input type="hidden" name="publicacion" value="<?php echo (int)$pub['id_pub'];?>">
                     <button type="submit" class="btn btn-primary btn-sm"><i class="bi bi-send"></i></button>
                 </form>
+                <?php endif; ?>
             </div>
         </div>
     </div>
@@ -377,8 +408,9 @@ $publicaciones = $stmt->fetchAll(PDO::FETCH_ASSOC);
 </div>
 <!-- Bootstrap JS para dropdowns -->
 <script>
-// Menú personalizado de los tres puntos
+// JavaScript consolidado - Menús y acciones
 document.addEventListener('DOMContentLoaded', function() {
+    // Menú personalizado de los tres puntos (publicaciones)
     document.querySelectorAll('.custom-menu-btn').forEach(function(btn) {
         btn.addEventListener('click', function(e) {
             e.stopPropagation();
@@ -387,10 +419,6 @@ document.addEventListener('DOMContentLoaded', function() {
             let menu = document.getElementById('customMenu-' + pubId);
             if (menu) menu.style.display = 'block';
         });
-    });
-    document.addEventListener('click', function() {
-        document.querySelectorAll('.custom-menu').forEach(m => m.style.display = 'none');
-        document.querySelectorAll('.comment-menu').forEach(m => m.style.display = 'none');
     });
 
     // Menú de comentarios (3 puntos)
@@ -404,7 +432,13 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Eliminar comentario
+    // Cerrar menús al hacer click fuera
+    document.addEventListener('click', function() {
+        document.querySelectorAll('.custom-menu').forEach(m => m.style.display = 'none');
+        document.querySelectorAll('.comment-menu').forEach(m => m.style.display = 'none');
+    });
+
+    // Eliminar comentario normal
     document.querySelectorAll('.comment-delete').forEach(function(delBtn) {
         delBtn.addEventListener('click', function(e) {
             e.preventDefault();
@@ -422,7 +456,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 .then(response => response.json())
                 .then(data => {
                     if (data.status === 'success') {
-                        location.reload(); // Recargar para actualizar los comentarios
+                        location.reload();
                     } else {
                         alert('Error al eliminar el comentario: ' + data.message);
                     }
@@ -434,7 +468,36 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-    // Eliminar publicación AJAX
+    
+    // Eliminar comentario como ADMIN
+    document.querySelectorAll('.comment-admin-delete').forEach(function(delBtn) {
+        delBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            let commentId = delBtn.getAttribute('data-comment-id');
+            if (confirm('¿ADMIN: Seguro que deseas eliminar este comentario de otro usuario?')) {
+                let form = new FormData();
+                form.append('eliminar_comentario', commentId);
+                
+                fetch('../view/admin.php', {
+                    method: 'POST',
+                    body: form
+                })
+                .then(response => {
+                    if (response.ok) {
+                        location.reload();
+                    } else {
+                        alert('Error al eliminar el comentario');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error de conexión');
+                });
+            }
+        });
+    });
+    
+    // Eliminar publicación normal
     document.querySelectorAll('.custom-delete').forEach(function(delBtn) {
         delBtn.addEventListener('click', function(e) {
             e.preventDefault();
@@ -445,12 +508,40 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+    
+    // Eliminar publicación como ADMIN
+    document.querySelectorAll('.admin-delete').forEach(function(delBtn) {
+        delBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            let pubId = delBtn.getAttribute('data-pub-id');
+            if (confirm('¿ADMIN: Seguro que deseas eliminar esta publicación de otro usuario?')) {
+                let form = new FormData();
+                form.append('eliminar_publicacion', pubId);
+                
+                fetch('../view/admin.php', {
+                    method: 'POST',
+                    body: form
+                })
+                .then(response => {
+                    if (response.ok) {
+                        location.reload();
+                    } else {
+                        alert('Error al eliminar la publicación');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error de conexión');
+                });
+            }
+        });
+    });
+    
     // Editar publicación (modal)
     document.querySelectorAll('.custom-edit').forEach(function(editBtn) {
         editBtn.addEventListener('click', function(e) {
             e.preventDefault();
             let pubId = editBtn.getAttribute('data-pub-id');
-            // Mostrar modal con AJAX (simple)
             fetch('../presenters/editar_pub.php?id=' + pubId + '&modal=1')
                 .then(r => r.text())
                 .then(html => {
@@ -993,39 +1084,4 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 </style>
 
-<script>
-// Manejar eliminación de comentarios
-document.addEventListener('DOMContentLoaded', function() {
-    document.querySelectorAll('.eliminar-comentario').forEach(button => {
-        button.addEventListener('click', function() {
-            const comentarioId = this.dataset.comentarioId;
-            
-            if (confirm('¿Estás seguro de que quieres eliminar este comentario?')) {
-                fetch('/Converza/app/presenters/eliminar_comentario.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({comentario_id: comentarioId})
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        // Eliminar el comentario del DOM
-                        this.closest('.d-flex.align-items-center.mb-2').remove();
-                        
-                        // Mostrar mensaje de éxito (opcional)
-                        // alert(data.message);
-                    } else {
-                        alert('Error: ' + data.message);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Ocurrió un error al eliminar el comentario');
-                });
-            }
-        });
-    });
-});
-</script>
+

@@ -9,6 +9,13 @@ if (!isset($_SESSION['id']) || !isset($_SESSION['usuario'])) {
     exit();
 }
 
+// Verificar si el usuario está bloqueado
+if (isUserBlocked($_SESSION['id'], $conexion)) {
+    session_destroy();
+    header("Location: login.php?error=blocked");
+    exit();
+}
+
 // Obtener el ID de la publicación desde GET
 $publicacion_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 if ($publicacion_id <= 0) {

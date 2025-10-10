@@ -24,3 +24,24 @@ $conn = mysqli_connect($host, $user, $pass, $db);
 if (!$conn) {
     die("Error de conexión mysqli: " . mysqli_connect_error());
 }
+
+// Función para verificar si el usuario está bloqueado
+function isUserBlocked($userId, $conexion) {
+    try {
+        $stmt = $conexion->prepare("SELECT tipo FROM usuarios WHERE id_use = :id");
+        $stmt->execute([':id' => $userId]);
+        $tipo = $stmt->fetchColumn();
+        return $tipo === 'blocked';
+    } catch (Exception $e) {
+        return false;
+    }
+}
+
+// Función para verificar permisos del usuario
+function checkUserPermissions($userId, $conexion) {
+    if (!isset($_SESSION['id']) || $_SESSION['id'] != $userId) {
+        return false;
+    }
+    
+    return !isUserBlocked($userId, $conexion);
+}

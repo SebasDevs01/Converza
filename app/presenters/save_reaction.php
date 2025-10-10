@@ -4,6 +4,12 @@ session_start();
 
 header('Content-Type: application/json');
 
+// Verificar si el usuario está bloqueado antes de permitir reacciones
+if (isset($_SESSION['id']) && isUserBlocked($_SESSION['id'], $conexion)) {
+    echo json_encode(['success' => false, 'message' => 'Usuario bloqueado. No puedes realizar esta acción.']);
+    exit();
+}
+
 $id_usuario = $_POST['id_usuario'] ?? null;
 $id_publicacion = $_POST['id_publicacion'] ?? null;
 $tipo_reaccion = $_POST['tipo_reaccion'] ?? null;

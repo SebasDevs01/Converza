@@ -16,17 +16,27 @@ if (!isset($_GET['id'])) {
 
 $id_pub = (int)$_GET['id'];
 
-// Traer la publicación del usuario logueado
-$stmt = $conexion->prepare('SELECT * FROM publicaciones WHERE id_pub = :id_pub AND usuario = :usuario');
-$stmt->execute([
-  ':id_pub'  => $id_pub,
-  ':usuario' => $_SESSION['id']
-]);
+// Traer la publicación - permitir al dueño y admins
+$isAdmin = isset($_SESSION['tipo']) && $_SESSION['tipo'] === 'admin';
+
+if ($isAdmin) {
+    // Admin puede editar cualquier publicación
+    $stmt = $conexion->prepare('SELECT * FROM publicaciones WHERE id_pub = :id_pub');
+    $stmt->execute([':id_pub' => $id_pub]);
+} else {
+    // Usuario normal solo puede editar sus publicaciones
+    $stmt = $conexion->prepare('SELECT * FROM publicaciones WHERE id_pub = :id_pub AND usuario = :usuario');
+    $stmt->execute([
+        ':id_pub'  => $id_pub,
+        ':usuario' => $_SESSION['id']
+    ]);
+}
+
 $pub = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if (!$pub) {
-  echo '<div class="alert alert-danger">No tienes permiso para editar esta publicación.</div>';
-  exit();
+    echo '<div class="alert alert-danger">No tienes permiso para editar esta publicación.</div>';
+    exit();
 }
 
 // Obtener imágenes

@@ -10,9 +10,18 @@ if (!isset($_SESSION['id'])) {
 if (isset($_GET['id'])) {
     $id_pub = intval($_GET['id']);
 
-    // Validar que la publicación sea del usuario logueado
-    $stmt = $conexion->prepare("DELETE FROM publicaciones WHERE id_pub = ? AND usuario = ?");
-    $stmt->execute([$id_pub, $_SESSION['id']]);
+    // Validar permisos - dueño o admin pueden eliminar
+    $isAdmin = isset($_SESSION['tipo']) && $_SESSION['tipo'] === 'admin';
+    
+    if ($isAdmin) {
+        // Admin puede eliminar cualquier publicación
+        $stmt = $conexion->prepare("DELETE FROM publicaciones WHERE id_pub = ?");
+        $stmt->execute([$id_pub]);
+    } else {
+        // Usuario normal solo puede eliminar sus publicaciones
+        $stmt = $conexion->prepare("DELETE FROM publicaciones WHERE id_pub = ? AND usuario = ?");
+        $stmt->execute([$id_pub, $_SESSION['id']]);
+    }
 
 
     header("Location: index.php");

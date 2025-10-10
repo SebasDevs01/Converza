@@ -13,11 +13,22 @@ if (!isset($_POST['id_pub'])) {
 $id_pub = (int)$_POST['id_pub'];
 $contenido = trim($_POST['contenido'] ?? '');
 
-$stmt = $conexion->prepare("SELECT * FROM publicaciones WHERE id_pub = :id_pub AND usuario = :usuario");
-$stmt->execute([
-    ':id_pub'  => $id_pub,
-    ':usuario' => $_SESSION['id']
-]);
+// Verificar permisos - dueño o admin
+$isAdmin = isset($_SESSION['tipo']) && $_SESSION['tipo'] === 'admin';
+
+if ($isAdmin) {
+    // Admin puede editar cualquier publicación
+    $stmt = $conexion->prepare("SELECT * FROM publicaciones WHERE id_pub = :id_pub");
+    $stmt->execute([':id_pub' => $id_pub]);
+} else {
+    // Usuario normal solo puede editar sus publicaciones
+    $stmt = $conexion->prepare("SELECT * FROM publicaciones WHERE id_pub = :id_pub AND usuario = :usuario");
+    $stmt->execute([
+        ':id_pub'  => $id_pub,
+        ':usuario' => $_SESSION['id']
+    ]);
+}
+
 $pub = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if (!$pub) {

@@ -4,6 +4,13 @@ require(__DIR__.'/../models/config.php'); // Aquí tienes tu conexión PDO en $c
 // Verificar si el usuario está logueado (opcional, depende de tu sistema)
 session_start();
 
+// Verificar si el usuario está bloqueado antes de permitir comentarios
+if (isset($_SESSION['id']) && isUserBlocked($_SESSION['id'], $conexion)) {
+    http_response_code(403);
+    echo json_encode(['success' => false, 'message' => 'Usuario bloqueado. No puedes realizar esta acción.']);
+    exit();
+}
+
 // Cambiar la ruta base para reflejar la URL correcta del proyecto
 if (!defined('BASE_URL')) {
     define('BASE_URL', '/converza/app/view/');

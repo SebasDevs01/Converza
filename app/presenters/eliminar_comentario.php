@@ -47,10 +47,8 @@ try {
         $canDelete = true;
     }
     
-    // Es admin
-    if (isset($_SESSION['rol']) && $_SESSION['rol'] === 'admin') {
-        $canDelete = true;
-    } elseif (isset($_SESSION['es_admin']) && $_SESSION['es_admin'] == 1) {
+    // Es admin (usar $_SESSION['tipo'] que es el campo correcto en Converza)
+    if (isset($_SESSION['tipo']) && $_SESSION['tipo'] === 'admin') {
         $canDelete = true;
     }
     
