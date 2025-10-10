@@ -1,5 +1,6 @@
 <?php
 require(__DIR__.'/../models/config.php'); // Aquí tienes tu conexión PDO en $conexion
+require_once(__DIR__.'/../models/bloqueos-helper.php');
 
 // Verificar si el usuario está logueado (opcional, depende de tu sistema)
 session_start();
@@ -38,12 +39,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Validar que los IDs sean válidos
         if ($usuario > 0 && $publicacion > 0 && strlen($comentario) > 0) {
             try {
-                // Verificar que la publicación existe
-                $stmt_check = $conexion->prepare("SELECT id_pub FROM publicaciones WHERE id_pub = :id_pub");
+                // Verificar que la publicación existe y obtener su autor
+                $stmt_check = $conexion->prepare("SELECT id_pub, usuario FROM publicaciones WHERE id_pub = :id_pub");
                 $stmt_check->execute([':id_pub' => $publicacion]);
+                $pub_data = $stmt_check->fetch();
                 
-                if (!$stmt_check->fetch()) {
+                if (!$pub_data) {
                     throw new Exception("La publicación no existe.");
+                }
+                
+                // Verificar bloqueo con el autor de la publicación
+                $bloqueoInfo = verificarBloqueoMutuo($conexion, $usuario, $pub_data['usuario']);
+                if ($bloqueoInfo['bloqueado']) {
+                    throw new Exception("No puedes comentar en esta publicación.");
                 }
 
                 // Insertar comentario

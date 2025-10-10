@@ -57,6 +57,24 @@ function determinarTipoPublicacion($contenido, $imagenes, $totalImagenes) {
 $mensaje = '';
 $error = '';
 
+// Crear tabla seguidores si no existe
+try {
+    $conexion->exec("CREATE TABLE IF NOT EXISTS seguidores (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        seguidor_id INT NOT NULL,
+        seguido_id INT NOT NULL,
+        fecha_seguimiento DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (seguidor_id) REFERENCES usuarios(id_use) ON DELETE CASCADE,
+        FOREIGN KEY (seguido_id) REFERENCES usuarios(id_use) ON DELETE CASCADE,
+        INDEX idx_seguidor (seguidor_id),
+        INDEX idx_seguido (seguido_id),
+        INDEX idx_seguimiento (seguidor_id, seguido_id),
+        UNIQUE KEY unique_seguimiento (seguidor_id, seguido_id)
+    )");
+} catch (Exception $e) {
+    // Tabla ya existe o error menor, continuar
+}
+
 // Verificar mensajes temporales
 if (isset($_SESSION['mensaje_temp'])) {
     $mensaje = $_SESSION['mensaje_temp'];
@@ -278,6 +296,24 @@ $stmtComs = $conexion->prepare("
 ");
 $stmtComs->execute();
 $comentarios = $stmtComs->fetchAll(PDO::FETCH_ASSOC);
+
+// Obtener estadísticas de seguimiento
+try {
+    $stmtSeguidores = $conexion->prepare("SELECT COUNT(*) as total FROM seguidores");
+    $stmtSeguidores->execute();
+    $totalSeguimientos = $stmtSeguidores->fetch()['total'];
+    
+    $stmtUsuariosActivos = $conexion->prepare("
+        SELECT COUNT(DISTINCT seguidor_id) as total 
+        FROM seguidores 
+        WHERE DATE(fecha_seguimiento) >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+    ");
+    $stmtUsuariosActivos->execute();
+    $usuariosActivosSeguimiento = $stmtUsuariosActivos->fetch()['total'];
+} catch (Exception $e) {
+    $totalSeguimientos = 0;
+    $usuariosActivosSeguimiento = 0;
+}
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -358,6 +394,28 @@ $comentarios = $stmtComs->fetchAll(PDO::FETCH_ASSOC);
               <i class="bi bi-shield-lock fs-1"></i>
               <h3><?php echo count(array_filter($usuarios, fn($u) => $u['tipo'] === 'blocked')); ?></h3>
               <small>Usuarios bloqueados</small>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Segunda fila de estadísticas: Seguimiento -->
+      <div class="row g-3 mt-2">
+        <div class="col-md-6">
+          <div class="card bg-purple text-white" style="background-color: #6f42c1;">
+            <div class="card-body text-center">
+              <i class="bi bi-person-hearts fs-1"></i>
+              <h3><?php echo $totalSeguimientos; ?></h3>
+              <small>Conexiones de seguimiento</small>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="card bg-dark text-white">
+            <div class="card-body text-center">
+              <i class="bi bi-activity fs-1"></i>
+              <h3><?php echo $usuariosActivosSeguimiento; ?></h3>
+              <small>Usuarios activos (7 días)</small>
             </div>
           </div>
         </div>

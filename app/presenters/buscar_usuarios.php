@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once __DIR__.'/../models/config.php';
+require_once __DIR__.'/../models/bloqueos-helper.php';
 
 
 $q = isset($_GET['q']) ? trim($_GET['q']) : '';
@@ -8,8 +9,9 @@ if ($q === '') {
     exit;
 }
 
-// Buscar usuarios en línea (simulación: usuarios con sesión activa y nombre/usuario que coincida)
-$stmt = $conexion->prepare("SELECT id_use, usuario, avatar, sexo FROM usuarios WHERE (usuario LIKE :usuario OR nombre LIKE :nombre) AND id_use != :id LIMIT 10");
+// Buscar usuarios en línea excluyendo usuarios bloqueados
+$filtroBloqueos = generarFiltroBloqueos($conexion, $_SESSION['id'], 'id_use');
+$stmt = $conexion->prepare("SELECT id_use, usuario, avatar, sexo FROM usuarios WHERE (usuario LIKE :usuario OR nombre LIKE :nombre) AND id_use != :id AND ($filtroBloqueos) LIMIT 10");
 $like = "%$q%";
 $stmt->bindParam(':usuario', $like, PDO::PARAM_STR);
 $stmt->bindParam(':nombre', $like, PDO::PARAM_STR);

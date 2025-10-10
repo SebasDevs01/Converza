@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Test Tooltips</title>
+    <style>
+        .test-tooltip {
+            position: relative;
+            display: inline-block;
+            padding: 10px;
+            background: #f0f0f0;
+            margin: 10px;
+            cursor: pointer;
+        }
+        
+        .test-tooltip[data-tooltip]:hover::after {
+            content: attr(data-tooltip) !important;
+            position: absolute !important;
+            top: 100% !important;
+            left: 50% !important;
+            transform: translateX(-50%) !important;
+            background: #333 !important;
+            color: white !important;
+            padding: 8px 12px !important;
+            border-radius: 6px !important;
+            font-size: 0.8rem !important;
+            white-space: pre-line !important;
+            z-index: 9999 !important;
+            margin-top: 8px !important;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;
+            max-width: 200px !important;
+            text-align: center !important;
+            line-height: 1.3 !important;
+            display: block !important;
+            pointer-events: none !important;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test de Tooltips</h1>
+    
+    <div class="test-tooltip" data-tooltip="👍 Juan, María y 3 más">
+        Hover aquí (5)
+    </div>
+    
+    <div class="test-tooltip" data-tooltip="💬 Pedro comentó">
+        Comentarios (1)
+    </div>
+    
+    <div class="test-tooltip" data-tooltip="❤️ Ana y Luis
+👍 Pedro, Juan y 2 más">
+        Múltiples líneas (6)
+    </div>
+</body>
+</html>

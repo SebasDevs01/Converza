@@ -1,5 +1,6 @@
 <?php
 require_once(__DIR__.'/../models/config.php');
+require_once(__DIR__.'/../models/bloqueos-helper.php');
 session_start();
 
 header('Content-Type: application/json');
@@ -35,6 +36,24 @@ if (!$id_usuario || !$id_publicacion || !$tipo_reaccion) {
         ]
     ]);
     exit;
+}
+
+// Verificar bloqueo con el autor de la publicación
+try {
+    $stmtAutor = $conexion->prepare("SELECT usuario FROM publicaciones WHERE id_pub = :id_pub");
+    $stmtAutor->bindParam(':id_pub', $id_publicacion, PDO::PARAM_INT);
+    $stmtAutor->execute();
+    $publicacion = $stmtAutor->fetch();
+    
+    if ($publicacion) {
+        $bloqueoInfo = verificarBloqueoMutuo($conexion, $id_usuario, $publicacion['usuario']);
+        if ($bloqueoInfo['bloqueado']) {
+            echo json_encode(['success' => false, 'message' => 'No puedes reaccionar a esta publicación']);
+            exit;
+        }
+    }
+} catch (Exception $e) {
+    error_log("Error verificando bloqueo en reacción: " . $e->getMessage());
 }
 
 // Validar que el tipo de reacción sea válido (ortografía corregida)

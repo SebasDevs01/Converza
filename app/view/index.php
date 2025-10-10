@@ -163,6 +163,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['publicacion']) || (i
     <link rel="stylesheet" href="/Converza/public/css/component.css" />
     <link rel="stylesheet" href="/Converza/public/css/navbar-animations.css" />
     <style>
+        /* Estilo para contador de notificaciones estilo Facebook */
+        .notification-badge {
+            min-width: 16px;
+            height: 16px;
+            font-size: 0.55rem;
+            line-height: 1.2;
+            padding: 2px 4px;
+            border: 2px solid white;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+            top: -5px !important;
+            right: -8px !important;
+            transform: none !important;
+            z-index: 10;
+        }
+        
+        /* Asegurar que los enlaces tengan posición relativa */
+        .nav-link.position-relative {
+            position: relative !important;
+            display: inline-block !important;
+        }
+        
         /* Estilos para drag & drop */
         #form-publicar {
             transition: all 0.3s ease;
@@ -219,10 +240,61 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['publicacion']) || (i
             <ul class="navbar-nav ms-auto align-items-center">
                 <li class="nav-item"><a class="nav-link active" href="index.php" aria-current="page"><i class="bi bi-house-door"></i> Inicio</a></li>
                 <li class="nav-item"><a class="nav-link" href="../presenters/perfil.php?id=<?php echo (int)$_SESSION['id']; ?>"><i class="bi bi-person-circle"></i> Perfil</a></li>
-                <li class="nav-item"><a class="nav-link" href="../presenters/chat.php"><i class="bi bi-chat-dots"></i> Mensajes</a></li>
+                <li class="nav-item">
+                    <a class="nav-link position-relative" href="../presenters/chat.php">
+                        <i class="bi bi-chat-dots"></i> Mensajes
+                        <?php
+                        // Contar mensajes no leídos (verificar si la tabla existe)
+                        $countMensajes = 0;
+                        try {
+                            $stmtCheckTable = $conexion->query("SHOW TABLES LIKE 'chats'");
+                            if ($stmtCheckTable->rowCount() > 0) {
+                                // Contar solo mensajes no leídos de amigos confirmados
+                                $stmtMensajes = $conexion->prepare("
+                                    SELECT COUNT(*) as total 
+                                    FROM chats c
+                                    INNER JOIN amigos a ON (a.de = c.de AND a.para = :usuario_id) OR (a.para = c.de AND a.de = :usuario_id2)
+                                    WHERE c.para = :usuario_id3 
+                                    AND c.leido = 0 
+                                    AND a.estado = 1
+                                ");
+                                $stmtMensajes->bindParam(':usuario_id', $_SESSION['id'], PDO::PARAM_INT);
+                                $stmtMensajes->bindParam(':usuario_id2', $_SESSION['id'], PDO::PARAM_INT);
+                                $stmtMensajes->bindParam(':usuario_id3', $_SESSION['id'], PDO::PARAM_INT);
+                                $stmtMensajes->execute();
+                                $countMensajes = $stmtMensajes->fetch(PDO::FETCH_ASSOC)['total'];
+                            }
+                        } catch (Exception $e) {
+                            // Si hay error, simplemente no mostrar contador
+                            $countMensajes = 0;
+                        }
+                        if ($countMensajes > 0):
+                        ?>
+                        <span class="position-absolute badge rounded-pill bg-danger notification-badge">
+                            <?php echo $countMensajes > 9 ? '9+' : $countMensajes; ?>
+                        </span>
+                        <?php endif; ?>
+                    </a>
+                </li>
                 <li class="nav-item"><a class="nav-link" href="../presenters/albumes.php?id=<?php echo (int)$_SESSION['id']; ?>"><i class="bi bi-images"></i> Álbumes</a></li>
                 <li class="nav-item"><a class="nav-link" href="#" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSearch" title="Buscar usuarios"><i class="bi bi-search"></i></a></li>
-                <li class="nav-item"><a class="nav-link" href="#" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSolicitudes" title="Solicitudes de amistad"><i class="bi bi-person-plus"></i></a></li>
+                <li class="nav-item">
+                    <a class="nav-link position-relative" href="#" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSolicitudes" title="Solicitudes de amistad">
+                        <i class="bi bi-person-plus"></i>
+                        <?php
+                        // Contar solicitudes pendientes
+                        $stmtCount = $conexion->prepare("SELECT COUNT(*) as total FROM amigos WHERE para = :usuario_id AND estado = 0");
+                        $stmtCount->bindParam(':usuario_id', $_SESSION['id'], PDO::PARAM_INT);
+                        $stmtCount->execute();
+                        $countSolicitudes = $stmtCount->fetch(PDO::FETCH_ASSOC)['total'];
+                        if ($countSolicitudes > 0):
+                        ?>
+                        <span class="position-absolute badge rounded-pill bg-danger notification-badge">
+                            <?php echo $countSolicitudes > 9 ? '9+' : $countSolicitudes; ?>
+                        </span>
+                        <?php endif; ?>
+                    </a>
+                </li>
                 <li class="nav-item"><a class="nav-link" href="#" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNuevos" title="Nuevos usuarios"><i class="bi bi-people"></i></a></li>
                 <li class="nav-item"><a class="nav-link" href="../presenters/logout.php"><i class="bi bi-box-arrow-right"></i> Cerrar sesión</a></li>
                 <?php if (isset($_SESSION['tipo']) && $_SESSION['tipo'] === 'admin'): ?>

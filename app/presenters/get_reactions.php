@@ -1,5 +1,6 @@
 <?php
 require_once(__DIR__.'/../models/config.php');
+require_once(__DIR__.'/../models/bloqueos-helper.php');
 session_start();
 
 // Obtener datos enviados por AJAX
@@ -15,12 +16,14 @@ if (!$postId) {
 }
 
 try {
-    // Obtener las reacciones agrupadas por tipo con usuarios
+    // Obtener las reacciones agrupadas por tipo con usuarios, excluyendo usuarios bloqueados
+    $filtroBloqueos = $userId ? generarFiltroBloqueos($conexion, $userId, 'r.id_usuario') : '1=1';
+    
     $stmt = $conexion->prepare("
         SELECT r.tipo_reaccion, COUNT(*) as total, GROUP_CONCAT(u.usuario SEPARATOR ', ') as usuarios 
         FROM reacciones r 
         JOIN usuarios u ON r.id_usuario = u.id_use 
-        WHERE r.id_publicacion = :postId 
+        WHERE r.id_publicacion = :postId AND ($filtroBloqueos)
         GROUP BY r.tipo_reaccion 
         ORDER BY total DESC
     ");

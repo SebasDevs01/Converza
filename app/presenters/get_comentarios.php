@@ -1,5 +1,7 @@
 <?php
+session_start();
 require_once(__DIR__.'/../models/config.php');
+require_once(__DIR__.'/../models/bloqueos-helper.php');
 
 header('Content-Type: application/json');
 
@@ -11,12 +13,15 @@ if (!$postId) {
 }
 
 try {
-    // Obtener comentarios con información de usuarios
+    // Obtener comentarios con información de usuarios, excluyendo usuarios bloqueados
+    $sessionUserId = $_SESSION['id'] ?? 0;
+    $filtroBloqueos = $sessionUserId ? generarFiltroBloqueos($conexion, $sessionUserId, 'c.usuario') : '1=1';
+    
     $stmt = $conexion->prepare("
         SELECT c.*, u.usuario, u.avatar 
         FROM comentarios c 
         JOIN usuarios u ON c.usuario = u.id_use 
-        WHERE c.publicacion = :postId 
+        WHERE c.publicacion = :postId AND ($filtroBloqueos)
         ORDER BY c.fecha DESC
     ");
     $stmt->bindParam(':postId', $postId, PDO::PARAM_INT);

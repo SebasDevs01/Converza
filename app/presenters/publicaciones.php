@@ -3,14 +3,54 @@ if (session_status() === PHP_SESSION_NONE) {
         session_start();
 }
 require_once(__DIR__.'/../models/config.php');
+require_once(__DIR__.'/../models/bloqueos-helper.php');
 $sessionUserId = isset($_SESSION['id']) ? (int)$_SESSION['id'] : 0;
 $CantidadMostrar = 5;
 $compag = isset($_GET['pag']) ? max(1, intval($_GET['pag'])) : 1;
 $offset = ($compag - 1) * $CantidadMostrar;
-// Detectar nombre correcto de columna de usuario en publicaciones
-$stmt = $conexion->prepare("SELECT p.*, u.usuario, u.avatar, u.id_use AS usuario_id FROM publicaciones p JOIN usuarios u ON p.usuario = u.id_use ORDER BY p.id_pub DESC LIMIT :offset, :limit");
-$stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
-$stmt->bindParam(':limit', $CantidadMostrar, PDO::PARAM_INT);
+// Consulta mejorada para incluir publicaciones de usuarios seguidos Y amigos
+if ($sessionUserId) {
+    // Obtener el filtro de bloqueos
+    $filtroBloqueos = generarFiltroBloqueos($conexion, $sessionUserId, 'p.usuario');
+    
+    // Si el usuario está logueado, mostrar sus publicaciones + las de usuarios que sigue + amigos (excluyendo bloqueados)
+    $stmt = $conexion->prepare("
+        SELECT DISTINCT p.*, u.usuario, u.avatar, u.id_use AS usuario_id 
+        FROM publicaciones p 
+        JOIN usuarios u ON p.usuario = u.id_use 
+        WHERE ($filtroBloqueos) AND (
+            p.usuario = :user_id 
+            OR p.usuario IN (
+                SELECT s.seguido_id 
+                FROM seguidores s 
+                WHERE s.seguidor_id = :user_id2
+            )
+            OR p.usuario IN (
+                SELECT CASE 
+                    WHEN a.de = :user_id3 THEN a.para 
+                    ELSE a.de 
+                END as amigo_id
+                FROM amigos a 
+                WHERE (a.de = :user_id4 OR a.para = :user_id5) 
+                AND a.estado = 1
+            )
+        )
+        ORDER BY p.id_pub DESC 
+        LIMIT :offset, :limit
+    ");
+    $stmt->bindParam(':user_id', $sessionUserId, PDO::PARAM_INT);
+    $stmt->bindParam(':user_id2', $sessionUserId, PDO::PARAM_INT);
+    $stmt->bindParam(':user_id3', $sessionUserId, PDO::PARAM_INT);
+    $stmt->bindParam(':user_id4', $sessionUserId, PDO::PARAM_INT);
+    $stmt->bindParam(':user_id5', $sessionUserId, PDO::PARAM_INT);
+    $stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
+    $stmt->bindParam(':limit', $CantidadMostrar, PDO::PARAM_INT);
+} else {
+    // Si no está logueado, mostrar todas las publicaciones públicas
+    $stmt = $conexion->prepare("SELECT p.*, u.usuario, u.avatar, u.id_use AS usuario_id FROM publicaciones p JOIN usuarios u ON p.usuario = u.id_use ORDER BY p.id_pub DESC LIMIT :offset, :limit");
+    $stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
+    $stmt->bindParam(':limit', $CantidadMostrar, PDO::PARAM_INT);
+}
 $stmt->execute();
 $publicaciones = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
@@ -150,22 +190,46 @@ $publicaciones = $stmt->fetchAll(PDO::FETCH_ASSOC);
         position: relative;
     }
     
-    .reaction-counter[data-tooltip]:hover::after, .comment-counter[data-tooltip]:hover::after {
-        content: attr(data-tooltip);
-        position: absolute;
-        top: 100%;
-        left: 50%;
-        transform: translateX(-50%);
-        background: #333;
-        color: white;
-        padding: 6px 10px;
-        border-radius: 4px;
-        font-size: 0.75rem;
-        white-space: nowrap;
-        z-index: 1000;
-        margin-top: 5px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    .reaction-counter[data-tooltip]:hover::after, 
+    .comment-counter[data-tooltip]:hover::after {
+        content: attr(data-tooltip) !important;
+        position: absolute !important;
+        top: 50% !important;
+        left: 100% !important;
+        transform: translateY(-50%) !important;
+        background: #333 !important;
+        color: white !important;
+        padding: 8px 12px !important;
+        border-radius: 6px !important;
+        font-size: 0.8rem !important;
+        white-space: pre !important;
+        z-index: 9999 !important;
+        margin-left: 8px !important;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;
+        max-width: 200px !important;
+        text-align: left !important;
+        line-height: 1.3 !important;
+        display: block !important;
+        pointer-events: none !important;
     }
+    
+    /* Flecha del tooltip */
+    .reaction-counter[data-tooltip]:hover::before, 
+    .comment-counter[data-tooltip]:hover::before {
+        content: '' !important;
+        position: absolute !important;
+        top: 50% !important;
+        left: 100% !important;
+        transform: translateY(-50%) !important;
+        border-top: 6px solid transparent !important;
+        border-bottom: 6px solid transparent !important;
+        border-right: 6px solid #333 !important;
+        z-index: 10000 !important;
+        margin-left: 2px !important;
+        pointer-events: none !important;
+    }
+    
+
     
     /* Estilo para botones de reacción activos (SIN fondo colorido) */
     .btn-reaction-active {
@@ -642,34 +706,53 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
         function loadReactionsData(postId) {
+            console.log(`🔄 Cargando datos para post ${postId}...`);
+            
             Promise.all([
                 fetch(`/Converza/app/presenters/get_reactions.php?postId=${postId}`),
                 fetch(`/Converza/app/presenters/get_comentarios.php?postId=${postId}`)
             ])
-            .then(responses => Promise.all(responses.map(r => r.json())))
+            .then(responses => {
+                // Verificar que las respuestas sean exitosas
+                responses.forEach((response, index) => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error ${response.status} en ${index === 0 ? 'reacciones' : 'comentarios'}`);
+                    }
+                });
+                return Promise.all(responses.map(r => r.json()));
+            })
             .then(([reactionsData, commentsData]) => {
                 console.log(`📊 Datos recibidos para post ${postId}:`);
                 console.log('  - Reacciones:', reactionsData);
                 console.log('  - Comentarios:', commentsData);
                 
                 // Actualizar reacciones
-                if (reactionsData.success) {
+                if (reactionsData && reactionsData.success) {
                     currentUserReaction = reactionsData.userReaction;
                     console.log(`👤 Reacción del usuario actual: "${currentUserReaction}"`);
                     updateLikeButton(currentUserReaction);
                     updateReactionsSummary(reactionsData.reactions, postId);
                 } else {
                     console.error('❌ Error en datos de reacciones:', reactionsData);
+                    // Mostrar contador vacío
+                    updateReactionsSummary([], postId);
                 }
                 
                 // Actualizar comentarios
-                if (commentsData.success) {
+                if (commentsData && commentsData.success) {
                     updateCommentsSummary(commentsData.total, commentsData.comentarios, postId);
                 } else {
                     console.error('❌ Error en datos de comentarios:', commentsData);
+                    // Mostrar contador vacío
+                    updateCommentsSummary(0, [], postId);
                 }
             })
-            .catch(error => console.error('Error:', error));
+            .catch(error => {
+                console.error('❌ Error cargando datos:', error);
+                // Mostrar contadores vacíos en caso de error
+                updateReactionsSummary([], postId);
+                updateCommentsSummary(0, [], postId);
+            });
         }
 
         function sendReaction(postId, reactionType) {
@@ -777,20 +860,21 @@ document.addEventListener('DOMContentLoaded', function() {
 
         function updateReactionsSummary(reactionsArray, postId) {
             const counterElement = document.getElementById(`reaction_counter_${postId}`);
-            console.log('Actualizando contador para post:', postId);
-            console.log('Elemento contador encontrado:', counterElement);
-            console.log('Datos de reacciones recibidos:', reactionsArray);
+            console.log('🔄 Actualizando contador de reacciones para post:', postId);
+            console.log('  - Elemento contador encontrado:', !!counterElement);
+            console.log('  - Datos de reacciones recibidos:', reactionsArray);
             
             if (!counterElement) {
-                console.error('No se encontró elemento contador para post:', postId);
+                console.error('❌ No se encontró elemento contador para post:', postId);
                 return;
             }
             
             if (!reactionsArray || reactionsArray.length === 0) {
-                counterElement.innerHTML = '(0)';
+                console.log('  - Sin reacciones, ocultando contador');
+                counterElement.innerHTML = '';
                 counterElement.removeAttribute('title');
-                counterElement.setAttribute('data-tooltip', 'Sin reacciones');
-                counterElement.style.display = 'inline-block';
+                counterElement.removeAttribute('data-tooltip');
+                counterElement.style.display = 'none';
                 return;
             }
 
@@ -822,22 +906,25 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
 
-            // Construir tooltip detallado para hover
-            reactionsArray.forEach((reaction) => {
+            // Construir tooltip: reacción y usuario en la misma línea
+            const tooltipLines = [];
+            reactionsArray.forEach((reaction, index) => {
                 const reactionCount = parseInt(reaction.total);
                 const reactionEmoji = reactions[reaction.tipo_reaccion];
-                const reactionText = reactionNames[reaction.tipo_reaccion];
                 const usuarios = reaction.usuarios ? reaction.usuarios.split(', ') : [];
                 
-                // Formato más natural para el tooltip
-                if (reactionCount === 1) {
-                    tooltip += `${usuarios[0]} ${reactionText.toLowerCase()} esto\n`;
-                } else if (reactionCount === 2) {
-                    tooltip += `${usuarios[0]} y ${usuarios[1]} les ${reactionText.toLowerCase()} esto\n`;
-                } else {
-                    tooltip += `${usuarios[0]}, ${usuarios[1]} y ${reactionCount - 2} más les ${reactionText.toLowerCase()} esto\n`;
+                // Agregar cada usuario con su emoji en la misma línea
+                usuarios.forEach((usuario) => {
+                    tooltipLines.push(`${reactionEmoji} ${usuario}`);
+                });
+                
+                // Si hay más usuarios
+                if (reactionCount > usuarios.length) {
+                    tooltipLines.push(`${reactionEmoji} y ${reactionCount - usuarios.length} más`);
                 }
             });
+            
+            tooltip = tooltipLines.join('\n');
 
             // Formato solo numérico: "(2)" o "y 3 más" 
             let displayText = '';
@@ -855,11 +942,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Mostrar solo cuando hay reacciones
             if (total > 0) {
+                console.log(`✅ Actualizando contador de reacciones:`, {
+                    postId,
+                    displayText,
+                    tooltip: tooltip.trim(),
+                    elementId: counterElement.id
+                });
                 counterElement.innerHTML = displayText;
-                counterElement.removeAttribute('title');
                 counterElement.setAttribute('data-tooltip', tooltip.trim());
                 counterElement.style.display = 'inline-block';
+                counterElement.style.cursor = 'pointer';
             } else {
+                console.log(`⚪ Ocultando contador vacío para post ${postId}`);
                 counterElement.innerHTML = '';
                 counterElement.removeAttribute('title');
                 counterElement.removeAttribute('data-tooltip');
@@ -869,28 +963,48 @@ document.addEventListener('DOMContentLoaded', function() {
 
         function updateCommentsSummary(total, comentarios, postId) {
             const counterElement = document.getElementById(`comment_counter_${postId}`);
+            console.log('🔄 Actualizando contador de comentarios para post:', postId);
+            console.log('  - Elemento contador encontrado:', !!counterElement);
+            console.log('  - Total comentarios:', total);
+            
+            if (!counterElement) {
+                console.error('❌ No se encontró elemento contador de comentarios para post:', postId);
+                return;
+            }
             
             if (total === 0) {
+                console.log('  - Sin comentarios, mostrando (0)');
                 counterElement.textContent = '(0)';
                 counterElement.removeAttribute('title');
                 counterElement.setAttribute('data-tooltip', 'Sin comentarios');
                 return;
             }
 
-            // Obtener nombres únicos de usuarios que comentaron
+            // Obtener nombres únicos de usuarios que comentaron (máximo 3)
             const usuarios = [...new Set(comentarios.map(comment => comment.usuario))];
+            const totalUsuarios = usuarios.length;
             
             let tooltip = '';
-            if (usuarios.length === 1) {
-                tooltip = `${usuarios[0]} comentó esto`;
-            } else if (usuarios.length === 2) {
-                tooltip = `${usuarios[0]} y ${usuarios[1]} comentaron esto`;
-            } else if (usuarios.length > 2) {
-                tooltip = `${usuarios[0]}, ${usuarios[1]} y ${usuarios.length - 2} más comentaron esto`;
+            // Formato: emoji y usuario en la misma línea
+            const tooltipLines = [];
+            usuarios.forEach((usuario) => {
+                tooltipLines.push(`💬 ${usuario}`);
+            });
+            
+            // Si hay más usuarios de los que se muestran en la lista
+            if (totalUsuarios > usuarios.length) {
+                tooltipLines.push(`💬 y ${totalUsuarios - usuarios.length} más`);
             }
+            
+            tooltip = tooltipLines.join('\n');
 
+            console.log(`✅ Actualizando contador de comentarios:`, {
+                postId,
+                total,
+                tooltip,
+                elementId: counterElement.id
+            });
             counterElement.textContent = `(${total})`;
-            counterElement.removeAttribute('title');
             counterElement.setAttribute('data-tooltip', tooltip);
             counterElement.style.cursor = 'pointer';
         }
@@ -967,6 +1081,54 @@ document.addEventListener('DOMContentLoaded', function() {
             shareMenu.style.display = 'none';
         });
     });
+
+    // Cargar datos de reacciones y comentarios para todas las publicaciones al inicio
+    console.log('🚀 Iniciando carga de contadores...');
+    const reactionCounters = document.querySelectorAll('[id^="reaction_counter_"]');
+    const commentCounters = document.querySelectorAll('[id^="comment_counter_"]');
+    
+    console.log(`Encontrados ${reactionCounters.length} contadores de reacciones`);
+    console.log(`Encontrados ${commentCounters.length} contadores de comentarios`);
+    
+    // Verificar CSS de tooltips
+    const testElement = document.createElement('div');
+    testElement.className = 'reaction-counter';
+    testElement.setAttribute('data-tooltip', 'Test tooltip');
+    document.body.appendChild(testElement);
+    
+    const styles = window.getComputedStyle(testElement, '::after');
+    console.log('CSS tooltip detectado:', styles.content);
+    document.body.removeChild(testElement);
+    
+    reactionCounters.forEach((counter, index) => {
+        const postId = counter.id.replace('reaction_counter_', '');
+        console.log(`🔄 Inicializando contadores para post: ${postId} (${index + 1}/${reactionCounters.length})`);
+        
+        // Agregar tooltip de prueba temporal
+        counter.setAttribute('data-tooltip', `Cargando reacciones... Post ${postId}`);
+        counter.style.cursor = 'pointer';
+        counter.textContent = '(...)';
+        counter.style.display = 'inline-block';
+        
+        loadReactionsData(postId);
+    });
+
+    // Función de prueba para verificar tooltips
+    setTimeout(() => {
+        console.log('🧪 Probando tooltips básicos...');
+        
+        const testCounter = document.querySelector('[id^="reaction_counter_"]');
+        if (testCounter) {
+            testCounter.setAttribute('data-tooltip', '🧪 Tooltip de prueba\nSegunda línea');
+            testCounter.textContent = '(TEST)';
+            testCounter.style.display = 'inline-block';
+            testCounter.style.cursor = 'pointer';
+            testCounter.style.background = '#ffeb3b';
+            testCounter.style.padding = '2px 6px';
+            testCounter.style.borderRadius = '3px';
+            console.log('Tooltip de prueba aplicado al primer contador');
+        }
+    }, 2000);
 });
 </script>
 

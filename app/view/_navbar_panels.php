@@ -42,8 +42,8 @@
     <div class="d-flex align-items-center mb-2">
         <?php echo $imgU; ?>
         <a class="me-auto fw-bold text-decoration-none" href="/Converza/app/presenters/perfil.php?id=<?php echo (int)$us['id_use']; ?>"><?php echo htmlspecialchars($us['usuario']); ?></a>
-        <a href="/Converza/app/presenters/solicitud.php?action=aceptar&id=<?php echo (int)$am['de']; ?>" class="btn btn-success btn-sm me-1"><i class="bi bi-check"></i></a>
-        <a href="/Converza/app/presenters/solicitud.php?action=rechazar&id=<?php echo (int)$am['de']; ?>" class="btn btn-danger btn-sm"><i class="bi bi-x"></i></a>
+        <button onclick="manejarSolicitud('aceptar', <?php echo (int)$am['de']; ?>)" class="btn btn-success btn-sm me-1"><i class="bi bi-check"></i></button>
+        <button onclick="manejarSolicitud('rechazar', <?php echo (int)$am['de']; ?>)" class="btn btn-danger btn-sm"><i class="bi bi-x"></i></button>
     </div>
     <?php
         endforeach;
@@ -89,3 +89,30 @@
     </div>
   </div>
 </div>
+
+<script>
+function manejarSolicitud(accion, userId) {
+    fetch('/Converza/app/presenters/solicitud.php?action=' + accion + '&id=' + userId)
+        .then(response => response.text())
+        .then(data => {
+            // Actualizar contador de notificaciones
+            const badges = document.querySelectorAll('.notification-badge');
+            badges.forEach(badge => {
+                const currentCount = parseInt(badge.textContent.replace('+', ''));
+                const newCount = Math.max(0, currentCount - 1);
+                if (newCount === 0) {
+                    badge.style.display = 'none';
+                } else {
+                    badge.textContent = newCount > 9 ? '9+' : newCount;
+                }
+            });
+            
+            // Recargar el contenido del panel de solicitudes
+            location.reload(); // Por ahora recargamos la página
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error al procesar la solicitud');
+        });
+}
+</script>
