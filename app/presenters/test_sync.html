@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Sync System</title>
+</head>
+<body>
+    <h1>Test Sistema de Sincronización</h1>
+    <div id="output"></div>
+    
+    <script>
+        console.log('🔍 Probando sistema de sincronización...');
+        
+        // Simular una petición al endpoint
+        const userId = 1; // Usuario de prueba
+        const ultimoId = 0;
+        const ultimaActualizacion = '2024-01-01 00:00:00';
+        
+        const url = `verificar_nuevos_mensajes.php?user=${userId}&ultimo_id=${ultimoId}&ultima_actualizacion=${encodeURIComponent(ultimaActualizacion)}`;
+        
+        console.log('🎯 URL de prueba:', url);
+        
+        fetch(url)
+            .then(response => {
+                console.log('📡 Status:', response.status);
+                return response.text();
+            })
+            .then(text => {
+                console.log('📄 Respuesta cruda:', text);
+                document.getElementById('output').innerHTML = '<pre>' + text + '</pre>';
+                
+                try {
+                    const data = JSON.parse(text);
+                    console.log('📊 Datos parseados:', data);
+                } catch(e) {
+                    console.error('❌ Error parsing JSON:', e);
+                }
+            })
+            .catch(error => {
+                console.error('❌ Error en fetch:', error);
+                document.getElementById('output').innerHTML = 'Error: ' + error.message;
+            });
+    </script>
+</body>
+</html>

@@ -15,6 +15,7 @@ $options = [
 
 try {
     $conexion = new PDO($dsn, $user, $pass, $options);
+    $pdo = $conexion; // Alias para compatibilidad
 } catch (PDOException $e) {
     die("Error de conexión: " . $e->getMessage());
 }

@@ -104,9 +104,9 @@ try {
                     $id_cch = $conversacion['id_cch'];
                 }
                 
-                // Insertar mensaje de voz - VERSIÓN ULTRA SIMPLIFICADA
+                // Insertar mensaje de voz - USANDO LA LÓGICA QUE FUNCIONÓ EN EL DIAGNÓSTICO
                 try {
-                    // Estrategia: Insertar solo campos básicos primero
+                    // PASO 1: Insertar mensaje básico (igual que el diagnóstico exitoso)
                     $sql = "INSERT INTO chats (id_cch, de, para, mensaje, fecha, leido) VALUES (?, ?, ?, ?, NOW(), 0)";
                     $stmtMsg = $conexion->prepare($sql);
                     
@@ -125,18 +125,13 @@ try {
                     
                     $messageId = $conexion->lastInsertId();
                     
-                    // Ahora intentar actualizar con campos de voz
-                    try {
-                        $updateSql = "UPDATE chats SET tipo_mensaje = ?, archivo_audio = ?, duracion_audio = ? WHERE id_cha = ?";
-                        $updateStmt = $conexion->prepare($updateSql);
-                        $updateResult = $updateStmt->execute(['voz', $fileName, $duracion, $messageId]);
-                        
-                        if (!$updateResult) {
-                            error_log("Warning: No se pudieron actualizar campos de voz: " . implode(", ", $updateStmt->errorInfo()));
-                        }
-                    } catch (Exception $updateError) {
-                        error_log("Warning: Error actualizando campos de voz: " . $updateError->getMessage());
-                        // No lanzamos excepción aquí, al menos tenemos el mensaje básico
+                    // PASO 2: Actualizar con campos de voz (igual que el diagnóstico exitoso)
+                    $updateSql = "UPDATE chats SET tipo_mensaje = ?, archivo_audio = ?, duracion_audio = ? WHERE id_cha = ?";
+                    $updateStmt = $conexion->prepare($updateSql);
+                    $updateResult = $updateStmt->execute(['voz', $fileName, $duracion, $messageId]);
+                    
+                    if (!$updateResult) {
+                        throw new Exception("Error actualizando campos de voz: " . implode(", ", $updateStmt->errorInfo()));
                     }
                     
                     if (!$resultado) {

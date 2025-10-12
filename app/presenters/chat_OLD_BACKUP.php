@@ -34,7 +34,7 @@ $amigos = $stmtAmigos->fetchAll(PDO::FETCH_ASSOC);
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Coverza - Chat</title>
+  <title>REDSOCIAL - Chat</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
   
@@ -65,9 +65,9 @@ $amigos = $stmtAmigos->fetchAll(PDO::FETCH_ASSOC);
     }
     
     .message-bubble.received {
-      background: linear-gradient(135deg, #e5e5ea 0%, #d1d1d6 100%);
+      background: #f8f9fa;
       color: #333;
-      border: 1px solid #c7c7cc;
+      border: 1px solid #e9ecef;
       border-bottom-left-radius: 6px;
     }
     
@@ -111,6 +111,8 @@ $amigos = $stmtAmigos->fetchAll(PDO::FETCH_ASSOC);
       background: #a1a1a1;
     }
     
+
+    
     .message-actions {
       display: flex;
       align-items: center;
@@ -143,7 +145,7 @@ $amigos = $stmtAmigos->fetchAll(PDO::FETCH_ASSOC);
       flex-wrap: wrap;
       position: relative;
       z-index: 1;
-      min-height: 20px;
+      min-height: 20px; /* Asegurar que el área sea visible */
     }
     
     /* Alinear reacciones a la derecha para mensajes enviados */
@@ -266,83 +268,55 @@ $amigos = $stmtAmigos->fetchAll(PDO::FETCH_ASSOC);
       font-size: 18px;
     }
     
-        /* Mensajes de voz - Estructura base */
+
+    
+    /* Mensajes de voz */
     .voice-message {
       display: flex;
       align-items: center;
       gap: 8px;
       padding: 8px;
-      width: 100%;
     }
-
-    /* Botón de play - Por defecto para mensajes recibidos */
+    
     .voice-play-btn {
       width: 32px;
       height: 32px;
-      min-width: 32px;
       border-radius: 50%;
       border: none;
-      background: rgba(0,0,0,0.15);
-      color: #333;
+      background: rgba(255,255,255,0.2);
+      color: white;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      flex-shrink: 0;
     }
-
-    /* Botón de play para mensajes enviados */
-    .message-bubble.sent .voice-play-btn {
-      background: rgba(255,255,255,0.3);
-      color: white;
-    }
-
-    /* Barra de onda - Por defecto para mensajes recibidos */
+    
     .voice-waveform {
       flex: 1;
-      min-width: 60px;
-      height: 24px;
-      background: rgba(0,0,0,0.1);
-      border-radius: 12px;
+      height: 20px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 10px;
       position: relative;
       overflow: hidden;
     }
-
+    
     .voice-waveform::after {
       content: "";
       position: absolute;
       top: 50%;
-      left: 6px;
-      right: 6px;
-      height: 3px;
-      background: rgba(0,0,0,0.4);
+      left: 5px;
+      width: calc(100% - 10px);
+      height: 2px;
+      background: rgba(255,255,255,0.5);
       transform: translateY(-50%);
-      border-radius: 2px;
+      border-radius: 1px;
     }
-
-    /* Barra de onda para mensajes enviados */
-    .message-bubble.sent .voice-waveform {
-      background: rgba(255,255,255,0.25);
-    }
-
-    .message-bubble.sent .voice-waveform::after {
-      background: rgba(255,255,255,0.6);
-    }
-
-    /* Duración - Por defecto para mensajes recibidos */
+    
     .voice-duration {
-      font-size: 11px;
-      font-weight: 500;
-      color: rgba(0,0,0,0.7);
-      flex-shrink: 0;
-      min-width: 35px;
-      text-align: right;
+      font-size: 12px;
+      color: rgba(255,255,255,0.8);
     }
-
-    /* Duración para mensajes enviados */
-    .message-bubble.sent .voice-duration {
-      color: rgba(255,255,255,0.9);
-    }
+    
     /* Botones de eliminar mensaje */
     .message-content {
       flex: 1;
@@ -513,6 +487,7 @@ $amigos = $stmtAmigos->fetchAll(PDO::FETCH_ASSOC);
                          width="32" height="32" class="rounded-circle me-2">
                     <?php echo htmlspecialchars($am['usuario']); ?>
                   </div>
+                  <!-- ✅ Botón que inicia conversación si no existe -->
                   <a href="iniciar_chat.php?usuario=<?php echo $am['id_use']; ?>" 
                      class="btn btn-sm btn-primary">
                     <i class="bi bi-chat-dots"></i> Chatear
@@ -539,7 +514,7 @@ $amigos = $stmtAmigos->fetchAll(PDO::FETCH_ASSOC);
             </div>
           <?php else: ?>
             <?php
-            // Marcar mensajes como leídos
+            // Marcar mensajes como leídos cuando el usuario entra al chat
             $stmtMarkRead = $conexion->prepare(
               "UPDATE chats SET leido = 1 
                WHERE de = :user_from AND para = :sess AND leido = 0"
@@ -549,7 +524,7 @@ $amigos = $stmtAmigos->fetchAll(PDO::FETCH_ASSOC);
               ':sess' => $sess
             ]);
 
-            // Crear tabla mensajes_eliminados si no existe
+            // Verificar si la tabla mensajes_eliminados existe, si no crearla
             try {
               $conexion->exec("CREATE TABLE IF NOT EXISTS mensajes_eliminados (
                   id INT AUTO_INCREMENT PRIMARY KEY,
@@ -563,6 +538,7 @@ $amigos = $stmtAmigos->fetchAll(PDO::FETCH_ASSOC);
                   FOREIGN KEY (usuario_id) REFERENCES usuarios(id_use) ON DELETE CASCADE
               )");
             } catch (Exception $e) {
+              // Si hay error creando la tabla, continuar sin filtrar mensajes eliminados
               error_log("Error creando tabla mensajes_eliminados: " . $e->getMessage());
             }
 
@@ -570,6 +546,7 @@ $amigos = $stmtAmigos->fetchAll(PDO::FETCH_ASSOC);
               "SELECT c.* FROM chats c
                WHERE ((c.de = ? AND c.para = ?) 
                   OR (c.de = ? AND c.para = ?))
+                  -- Excluir mensajes eliminados para el usuario actual
                   AND NOT EXISTS (
                       SELECT 1 FROM mensajes_eliminados me 
                       WHERE me.mensaje_id = c.id_cha AND me.usuario_id = ?
@@ -634,8 +611,10 @@ $amigos = $stmtAmigos->fetchAll(PDO::FETCH_ASSOC);
                 echo '
                     </div>
                     
+                    <!-- Reacciones debajo del mensaje -->
                     <div class="message-reactions" id="reactions_'.$ch['id_cha'].'">';
                 
+                // Mostrar reacciones existentes
                 foreach($reactions as $reaction) {
                   $userReacted = isset($reaction['user_reacted']) && $reaction['user_reacted'] ? 'user-reacted' : '';
                   echo '<span class="reaction-item '.$userReacted.'" title="'.$reaction['usuarios'].'" onclick="toggleReactionDirect('.$ch['id_cha'].', \''.$reaction['tipo_reaccion'].'\')">'.$reaction['tipo_reaccion'].' '.$reaction['total'].'</span>';
@@ -674,6 +653,7 @@ $amigos = $stmtAmigos->fetchAll(PDO::FETCH_ASSOC);
                     <div class="message-bubble sent" oncontextmenu="showMessageMenu(event, '.$ch['id_cha'].', true)">
                       <div class="message-content">';
                 
+                // Mostrar contenido según el tipo de mensaje
                 if ($ch['tipo_mensaje'] == 'voz') {
                   echo '
                       <div class="voice-message">
@@ -691,8 +671,10 @@ $amigos = $stmtAmigos->fetchAll(PDO::FETCH_ASSOC);
                       </div>
                     </div>
                     
+                    <!-- Reacciones debajo del mensaje -->
                     <div class="message-reactions text-end" id="reactions_'.$ch['id_cha'].'">';
                 
+                // Mostrar reacciones existentes
                 foreach($reactions as $reaction) {
                   $userReacted = isset($reaction['user_reacted']) && $reaction['user_reacted'] ? 'user-reacted' : '';
                   echo '<span class="reaction-item '.$userReacted.'" title="'.$reaction['usuarios'].'" onclick="toggleReactionDirect('.$ch['id_cha'].', \''.$reaction['tipo_reaccion'].'\')">'.$reaction['tipo_reaccion'].' '.$reaction['total'].'</span>';
@@ -706,7 +688,7 @@ $amigos = $stmtAmigos->fetchAll(PDO::FETCH_ASSOC);
                         <button class="btn btn-sm btn-outline-secondary reaction-btn" onclick="toggleReactionMenu('.$ch['id_cha'].')" title="Reaccionar">
                           😊
                         </button>
-                        <button class="btn btn-sm btn-outline-danger reaction-btn" onclick="deleteMessage('.$ch['id_cha'].', '.strtotime($ch['fecha']).', true)" title="Eliminar mensaje">
+                        <button class="btn btn-sm btn-outline-danger reaction-btn" onclick="deleteMessage('.$ch['id_cha'].', '.strtotime($ch['fecha']).', true)" title="Eliminar mensaje"
                           <i class="bi bi-trash3"></i>
                         </button>
                       </div>
@@ -720,8 +702,10 @@ $amigos = $stmtAmigos->fetchAll(PDO::FETCH_ASSOC);
           </div>
         </div>
 
+        <!-- 📌 Formulario de envío -->
         <?php if($user != 0): ?>
         <div class="card-footer bg-white">
+          <!-- Formulario de mensaje de texto -->
           <form action="" method="post" class="d-flex align-items-center gap-2" id="messageForm">
             <button type="button" class="btn btn-outline-secondary" id="voiceBtn" onclick="toggleVoiceRecording()" title="Mensaje de voz">
               <i class="bi bi-mic"></i>
@@ -734,6 +718,7 @@ $amigos = $stmtAmigos->fetchAll(PDO::FETCH_ASSOC);
             </button>
           </form>
           
+          <!-- Grabadora de voz -->
           <div id="voiceRecorder" class="voice-recorder" style="display: none;">
             <div class="d-flex align-items-center justify-content-center gap-3 p-3">
               <div class="recording-animation">🎤</div>
@@ -747,6 +732,7 @@ $amigos = $stmtAmigos->fetchAll(PDO::FETCH_ASSOC);
             </div>
           </div>
           
+          <!-- Vista previa del mensaje de voz -->
           <div id="voicePreview" class="voice-preview" style="display: none;">
             <div class="d-flex align-items-center justify-content-between p-3 bg-light border rounded">
               <div class="d-flex align-items-center gap-3">
@@ -766,52 +752,56 @@ $amigos = $stmtAmigos->fetchAll(PDO::FETCH_ASSOC);
               </div>
             </div>
           </div>
+
         </div>
-        
-        <?php
-          if(isset($_POST['enviar'])) {
-              $mensaje = trim($_POST['mensaje']);
-              $de = $_SESSION['id'];
-              $para = $user;
+          <?php
+            if(isset($_POST['enviar'])) {
+                $mensaje = trim($_POST['mensaje']);
+                $de = $_SESSION['id'];
+                $para = $user;
 
-              if(empty($mensaje) || !$de || !$para){
-                echo "<div class='alert alert-danger mt-2'>⚠️ Error: faltan datos para enviar el mensaje.</div>";
-              } else {
-                $stmtC = $conexion->prepare(
-                  "SELECT id_cch FROM c_chats WHERE (de = :de1 AND para = :para1) 
-                      OR (de = :de2 AND para = :para2)"
-                );
-                $stmtC->execute([
-                  ':de1'   => $de,
-                  ':para1' => $para,
-                  ':de2'   => $para,
-                  ':para2' => $de
-                ]);
-                $com = $stmtC->fetch(PDO::FETCH_ASSOC);
-
-                if($com && isset($com['id_cch'])) {
-                  $id_cch = $com['id_cch'];
-
-                  $stmtMsg = $conexion->prepare(
-                    "INSERT INTO chats (id_cch,de,para,mensaje,fecha,leido) 
-                    VALUES (:id_cch,:de,:para,:mensaje,NOW(),0)"
-                  );
-                  $stmtMsg->execute([
-                    ':id_cch' => $id_cch,
-                    ':de'     => $de,
-                    ':para'   => $para,
-                    ':mensaje'=> $mensaje
-                  ]);
-
-                  echo '<script>window.location="chat.php?usuario='.$para.'"</script>';
+                if(empty($mensaje) || !$de || !$para){
+                  echo "<div class='alert alert-danger mt-2'>⚠️ Error: faltan datos para enviar el mensaje.</div>";
                 } else {
-                  echo "<div class='alert alert-danger mt-2'>⚠️ Error: no se encontró la conversación.</div>";
+                  // Buscar conversación (placeholders únicos)
+                  $stmtC = $conexion->prepare(
+                    "SELECT id_cch FROM c_chats 
+                    WHERE (de = :de1 AND para = :para1) 
+                        OR (de = :de2 AND para = :para2)"
+                  );
+                  $stmtC->execute([
+                    ':de1'   => $de,
+                    ':para1' => $para,
+                    ':de2'   => $para,
+                    ':para2' => $de
+                  ]);
+                  $com = $stmtC->fetch(PDO::FETCH_ASSOC);
+
+                  if($com && isset($com['id_cch'])) {
+                    $id_cch = $com['id_cch'];
+
+                    $stmtMsg = $conexion->prepare(
+                      "INSERT INTO chats (id_cch,de,para,mensaje,fecha,leido) 
+                      VALUES (:id_cch,:de,:para,:mensaje,NOW(),0)"
+                    );
+                    $stmtMsg->execute([
+                      ':id_cch' => $id_cch,
+                      ':de'     => $de,
+                      ':para'   => $para,
+                      ':mensaje'=> $mensaje
+                    ]);
+
+                    echo '<script>window.location="chat.php?usuario='.$para.'"</script>';
+                  } else {
+                    echo "<div class='alert alert-danger mt-2'>⚠️ Error: no se encontró la conversación.</div>";
+                  }
                 }
-              }
-          }
-        ?>  
+            }
+          ?>  
+        </div>
         <?php endif; ?>
       </div>
+
     </div>
   </div>
 </div>
@@ -819,7 +809,7 @@ $amigos = $stmtAmigos->fetchAll(PDO::FETCH_ASSOC);
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-// Variables para mensajes de voz
+// Variables para la nueva interfaz de voz tipo WhatsApp
 let mediaRecorder = null;
 let audioChunks = [];
 let isRecording = false;
@@ -830,16 +820,18 @@ let previewAudio = null;
 let isPreviewPlaying = false;
 let recordingCancelled = false;
 
-// Auto-scroll al final del chat
+// Auto-scroll al final del chat cuando se carga la página
 document.addEventListener('DOMContentLoaded', function() {
     const chatMessages = document.querySelector('.chat-messages');
     if (chatMessages) {
         chatMessages.scrollTop = chatMessages.scrollHeight;
     }
     
+    // Inicializar sistema de reacciones
     initReactionSystem();
 });
 
+// Auto-scroll después de enviar un mensaje
 const form = document.querySelector('form');
 if (form) {
     form.addEventListener('submit', function() {
@@ -854,6 +846,7 @@ if (form) {
 
 // Sistema de reacciones
 function initReactionSystem() {
+    // Crear menú de reacciones
     const reactionMenu = document.createElement('div');
     reactionMenu.className = 'reaction-menu';
     reactionMenu.id = 'reactionMenu';
@@ -868,6 +861,7 @@ function initReactionSystem() {
     `;
     document.body.appendChild(reactionMenu);
     
+    // Ocultar menú al hacer clic fuera
     document.addEventListener('click', function(e) {
         if (!e.target.closest('.reaction-menu') && !e.target.closest('.reaction-btn')) {
             hideReactionMenu();
@@ -877,26 +871,32 @@ function initReactionSystem() {
 
 function toggleReactionMenu(messageId) {
     const menu = document.getElementById('reactionMenu');
+    const button = event.target.closest('.reaction-btn');
     
     if (menu.style.display === 'block') {
         hideReactionMenu();
     } else {
+        // Buscar la burbuja del mensaje para posicionar el menú MUY cerca encima
         const messageGroup = document.querySelector(`[data-message-id="${messageId}"]`);
         const messageBubble = messageGroup.querySelector('.message-bubble');
         const rect = messageBubble.getBoundingClientRect();
         
+        // Mostrar menú temporalmente para obtener sus dimensiones
         menu.style.display = 'block';
         menu.style.visibility = 'hidden';
         
+        // Calcular posición óptima
         let leftPos = rect.left;
-        let topPos = rect.top - menu.offsetHeight - 3;
+        let topPos = rect.top - menu.offsetHeight - 3; // Solo 3px de separación
         
+        // Ajustar si se sale por la derecha de la pantalla
         if (leftPos + menu.offsetWidth > window.innerWidth - 10) {
             leftPos = rect.right - menu.offsetWidth;
         }
         
+        // Ajustar si se sale por arriba de la pantalla
         if (topPos < 10) {
-            topPos = rect.bottom + 3;
+            topPos = rect.bottom + 3; // Mostrar debajo del mensaje si no cabe arriba
         }
         
         menu.style.left = leftPos + 'px';
@@ -915,6 +915,7 @@ function addReaction(emoji) {
     const menu = document.getElementById('reactionMenu');
     const messageId = menu.dataset.messageId;
     
+    // Enviar reacción al servidor
     fetch('/Converza/app/presenters/chat_reactions.php', {
         method: 'POST',
         headers: {
@@ -925,6 +926,7 @@ function addReaction(emoji) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
+            // Actualizar reacciones visuales
             updateMessageReactions(messageId, data.reactions);
         } else {
             console.error('Error:', data.error);
@@ -951,6 +953,7 @@ function updateMessageReactions(messageId, reactions) {
     });
 }
 
+// Función para reaccionar directamente haciendo clic en una reacción existente
 function toggleReactionDirect(messageId, emoji) {
     fetch('/Converza/app/presenters/chat_reactions.php', {
         method: 'POST',
@@ -996,6 +999,7 @@ async function startRecording() {
                 const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
                 showVoicePreview(audioBlob);
             } else {
+                // Si fue cancelada, limpiar y no hacer nada
                 audioChunks = [];
                 recordingCancelled = false;
             }
@@ -1003,11 +1007,13 @@ async function startRecording() {
         
         mediaRecorder.start();
         isRecording = true;
-        recordingCancelled = false;
+        recordingCancelled = false; // Resetear al iniciar nueva grabación
         
+        // Mostrar interfaz de grabación
         document.getElementById('messageForm').style.display = 'none';
         document.getElementById('voiceRecorder').style.display = 'block';
         
+        // Iniciar cronómetro
         recordingStartTime = Date.now();
         recordingTimer = setInterval(updateRecordingTime, 1000);
         
@@ -1024,38 +1030,46 @@ function stopRecording() {
         isRecording = false;
         clearInterval(recordingTimer);
         
+        // Ocultar interfaz de grabación
         document.getElementById('voiceRecorder').style.display = 'none';
+        // No mostrar el form todavía, esperamos la vista previa
     }
 }
 
 function cancelRecording() {
     if (mediaRecorder && isRecording) {
-        recordingCancelled = true;
+        recordingCancelled = true; // Marcar como cancelada ANTES de parar
         mediaRecorder.stop();
         mediaRecorder.stream.getTracks().forEach(track => track.stop());
         isRecording = false;
         clearInterval(recordingTimer);
         audioChunks = [];
         
+        // Ocultar interfaz de grabación y mostrar form normal
         document.getElementById('voiceRecorder').style.display = 'none';
         document.getElementById('messageForm').style.display = 'flex';
     }
 }
 
+// Funciones para vista previa de voz
 function showVoicePreview(audioBlob) {
     currentAudioBlob = audioBlob;
     
+    // Crear URL para el audio
     const audioUrl = URL.createObjectURL(audioBlob);
     previewAudio = document.getElementById('previewAudio');
     previewAudio.src = audioUrl;
     
+    // Calcular y mostrar duración
     const duration = recordingStartTime ? Math.floor((Date.now() - recordingStartTime) / 1000) : 0;
     const minutes = Math.floor(duration / 60);
     const seconds = duration % 60;
     document.getElementById('previewDuration').textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
     
+    // Mostrar vista previa
     document.getElementById('voicePreview').style.display = 'block';
     
+    // Resetear botón de play
     const playBtn = document.getElementById('previewPlayBtn');
     playBtn.innerHTML = '<i class="bi bi-play-fill"></i>';
     isPreviewPlaying = false;
@@ -1063,14 +1077,17 @@ function showVoicePreview(audioBlob) {
 
 function confirmSendVoiceMessage() {
     if (currentAudioBlob) {
+        // Ocultar vista previa
         document.getElementById('voicePreview').style.display = 'none';
         document.getElementById('messageForm').style.display = 'flex';
         
-        sendVoiceMessage(currentAudioBlob);
+        // Enviar el mensaje (versión simplificada sin errores SQL)
+        sendVoiceMessageSimple();
     }
 }
 
 function deleteVoiceMessage() {
+    // Limpiar audio
     if (previewAudio) {
         previewAudio.pause();
         URL.revokeObjectURL(previewAudio.src);
@@ -1079,11 +1096,24 @@ function deleteVoiceMessage() {
     
     currentAudioBlob = null;
     
+    // Ocultar vista previa y mostrar form
     document.getElementById('voicePreview').style.display = 'none';
     document.getElementById('messageForm').style.display = 'flex';
     
+    // Resetear estado
     isPreviewPlaying = false;
     audioChunks = [];
+}
+
+// Función para enviar mensaje de voz real
+function sendVoiceMessageSimple() {
+    if (!currentAudioBlob) {
+        alert('No hay audio para enviar');
+        return;
+    }
+    
+    // Usar la función completa que ya funciona
+    sendVoiceMessage(currentAudioBlob);
 }
 
 function updateRecordingTime() {
@@ -1096,6 +1126,7 @@ function updateRecordingTime() {
 
 function togglePreviewPlayback() {
     if (!previewAudio || !previewAudio.src) {
+        console.log('No hay audio para reproducir');
         alert('No hay audio grabado para reproducir');
         return;
     }
@@ -1103,9 +1134,11 @@ function togglePreviewPlayback() {
     const playBtn = document.getElementById('previewPlayBtn');
     
     if (!isPreviewPlaying) {
+        console.log('Iniciando reproducción');
         previewAudio.play().then(() => {
             playBtn.innerHTML = '<i class="bi bi-pause-fill"></i>';
             isPreviewPlaying = true;
+            console.log('Reproducción iniciada correctamente');
         }).catch(error => {
             console.error('Error al reproducir audio:', error);
             alert('No se puede reproducir el audio: ' + error.message);
@@ -1114,213 +1147,22 @@ function togglePreviewPlayback() {
         previewAudio.onended = () => {
             playBtn.innerHTML = '<i class="bi bi-play-fill"></i>';
             isPreviewPlaying = false;
+            console.log('Reproducción terminada');
         };
     } else {
+        console.log('Pausando reproducción');
         previewAudio.pause();
         playBtn.innerHTML = '<i class="bi bi-play-fill"></i>';
         isPreviewPlaying = false;
+        // NO resetear currentTime para mantener la posición
     }
 }
 
-function sendVoiceMessage(audioBlob) {
-    const paraUsuario = new URLSearchParams(window.location.search).get('usuario');
-    
-    if (!paraUsuario) {
-        alert('Error: No se puede enviar el mensaje (usuario no encontrado)');
-        return;
-    }
-    
-    const formData = new FormData();
-    formData.append('audio', audioBlob, 'voice_message.wav');
-    formData.append('action', 'upload_voice');
-    formData.append('para', paraUsuario);
-    const duracion = recordingStartTime ? Math.floor((Date.now() - recordingStartTime) / 1000) : 0;
-    formData.append('duracion', duracion);
-    
-    fetch('./upload_voice_new.php', {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Error HTTP: ' + response.status);
-        }
-        return response.text().then(text => {
-            try {
-                return JSON.parse(text);
-            } catch (e) {
-                throw new Error('El servidor no devolvió JSON válido');
-            }
-        });
-    })
-    .then(data => {
-        if (data.success) {
-            document.getElementById('voicePreview').style.display = 'none';
-            document.getElementById('messageForm').style.display = 'flex';
-            
-            currentAudioBlob = null;
-            if (previewAudio) {
-                previewAudio.src = '';
-            }
-            
-            setTimeout(() => {
-                location.reload();
-            }, 500);
-            
-        } else {
-            alert('Error al enviar mensaje de voz: ' + (data.error || 'Error desconocido'));
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Error al enviar mensaje de voz: ' + error.message);
-    });
-}
-
-// Reproducir mensajes de voz
-let currentAudio = null;
-
-function playVoiceMessage(audioUrl, buttonElement) {
-    if (!buttonElement && window.event) {
-        buttonElement = window.event.target.closest('.voice-play-btn');
-    }
-    
-    if (currentAudio && currentAudio.src.includes(audioUrl) && !currentAudio.paused) {
-        currentAudio.pause();
-        if (buttonElement) {
-            buttonElement.innerHTML = '<i class="bi bi-play-fill"></i>';
-        }
-        return;
-    }
-    
-    if (currentAudio && !currentAudio.paused) {
-        currentAudio.pause();
-        document.querySelectorAll('.voice-play-btn').forEach(btn => {
-            if (btn !== buttonElement) {
-                btn.innerHTML = '<i class="bi bi-play-fill"></i>';
-            }
-        });
-    }
-    
-    if (!currentAudio || !currentAudio.src.includes(audioUrl)) {
-        currentAudio = new Audio(audioUrl);
-    }
-    
-    currentAudio.play().then(() => {
-        if (buttonElement) {
-            buttonElement.innerHTML = '<i class="bi bi-pause-fill"></i>';
-        }
-    }).catch(error => {
-        console.error('Error al reproducir audio:', error);
-        alert('Error al reproducir mensaje de voz: ' + error.message);
-    });
-    
-    currentAudio.onended = () => {
-        if (buttonElement) {
-            buttonElement.innerHTML = '<i class="bi bi-play-fill"></i>';
-        }
-    };
-}
-
-// Sistema de eliminación de mensajes
-function deleteMessage(messageId, messageTimestamp, isOwner) {
-    const ahoraTimestamp = Math.floor(Date.now() / 1000);
-    const puedeEliminarParaTodos = isOwner;
-    
-    if (messageTimestamp <= 0) {
-        alert('Error: Timestamp del mensaje inválido');
-        return;
-    }
-    
-    showDeleteModal(messageId, puedeEliminarParaTodos);
-}
-
-function showDeleteModal(messageId, canDeleteForEveryone) {
-    const modal = document.createElement('div');
-    modal.className = 'delete-modal-overlay';
-    
-    const deleteForEveryoneButton = canDeleteForEveryone ? 
-        '<button class="delete-option" onclick="confirmDelete(' + messageId + ', \'for_everyone\')"><i class="bi bi-trash3"></i> Eliminar para todos</button>' : 
-        '';
-    
-    modal.innerHTML = `
-        <div class="delete-modal">
-            <div class="delete-modal-header">
-                <h4>Eliminar mensaje</h4>
-            </div>
-            <div class="delete-modal-content">
-                ${deleteForEveryoneButton}
-                <button class="delete-option" onclick="confirmDelete(${messageId}, 'for_me')"><i class="bi bi-eye-slash"></i> Eliminar para mí</button>
-                <button class="delete-option cancel" onclick="closeDeleteModal()"><i class="bi bi-x-circle"></i> Cancelar</button>
-            </div>
-        </div>
-    `;
-    
-    document.body.appendChild(modal);
-    
-    modal.addEventListener('click', (e) => {
-        if (e.target === modal) {
-            closeDeleteModal();
-        }
-    });
-}
-
-function closeDeleteModal() {
-    const modal = document.querySelector('.delete-modal-overlay');
-    if (modal) {
-        document.body.removeChild(modal);
-    }
-}
-
-function confirmDelete(messageId, deleteType) {
-    closeDeleteModal();
-    
-    const confirmMsg = deleteType === 'for_everyone' ? 
-        '¿Estás seguro de eliminar este mensaje para todos?' :
-        '¿Estás seguro de eliminar este mensaje para ti?';
-    
-    if (!confirm(confirmMsg)) {
-        return;
-    }
-    
-    fetch('./delete_message.php', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            messageId: messageId,
-            deleteType: deleteType
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            if (deleteType === 'for_everyone') {
-                location.reload();
-            } else {
-                const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
-                if (messageElement) {
-                    messageElement.style.animation = 'messageSlideOut 0.3s ease';
-                    setTimeout(() => {
-                        messageElement.remove();
-                    }, 300);
-                }
-            }
-        } else {
-            alert('Error al eliminar mensaje: ' + (data.error || 'Error desconocido'));
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Error de conexión al eliminar mensaje');
-    });
-}
-
-// Context menu
+// Context menu para mensajes
 function showMessageMenu(event, messageId, isOwn) {
     event.preventDefault();
     
+    // Crear o mostrar menú contextual
     let contextMenu = document.getElementById('contextMenu');
     if (!contextMenu) {
         contextMenu = document.createElement('div');
@@ -1351,6 +1193,7 @@ function showMessageMenu(event, messageId, isOwn) {
     contextMenu.style.left = event.pageX + 'px';
     contextMenu.style.top = event.pageY + 'px';
     
+    // Ocultar menú al hacer clic fuera
     setTimeout(() => {
         document.addEventListener('click', function hideContextMenu() {
             contextMenu.style.display = 'none';
@@ -1360,106 +1203,468 @@ function showMessageMenu(event, messageId, isOwn) {
 }
 
 function copyMessage(messageId) {
+    // Implementar copia del mensaje
     console.log('Copiando mensaje:', messageId);
 }
 
 function replyToMessage(messageId) {
+    // Implementar respuesta al mensaje
     console.log('Respondiendo a mensaje:', messageId);
 }
+
+function deleteMessage(messageId) {
+    // Implementar eliminación del mensaje
+    console.log('Eliminando mensaje:', messageId);
+}
+
+// Las funciones de vista previa ya están definidas arriba
+
+// Función para enviar mensaje de voz
+function sendVoiceMessage(audioBlob) {
+    const paraUsuario = new URLSearchParams(window.location.search).get('usuario');
+    
+    if (!paraUsuario) {
+        console.error('No se encontró el parámetro usuario en la URL');
+        alert('Error: No se puede enviar el mensaje (usuario no encontrado)');
+        return;
+    }
+    
+    const formData = new FormData();
+    formData.append('audio', audioBlob, 'voice_message.wav');
+    formData.append('action', 'upload_voice');
+    formData.append('para', paraUsuario);
+    const duracion = recordingStartTime ? Math.floor((Date.now() - recordingStartTime) / 1000) : 0;
+    formData.append('duracion', duracion);
+    
+    console.log('Enviando mensaje de voz a usuario:', paraUsuario);
+    
+    fetch('./upload_voice_new.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => {
+        console.log('Respuesta del servidor:', response.status);
+        if (!response.ok) {
+            throw new Error('Error HTTP: ' + response.status);
+        }
+        return response.text().then(text => {
+            console.log('Texto de respuesta:', text);
+            try {
+                return JSON.parse(text);
+            } catch (e) {
+                console.error('Error parseando JSON:', e);
+                console.error('Respuesta del servidor:', text);
+                throw new Error('El servidor no devolvió JSON válido: ' + text.substring(0, 100));
+            }
+        });
+    })
+    .then(data => {
+        console.log('Datos recibidos:', data);
+        if (data.success) {
+            console.log('Mensaje de voz enviado correctamente');
+            
+            // Ocultar vista previa y mostrar formulario
+            document.getElementById('voicePreview').style.display = 'none';
+            document.getElementById('messageForm').style.display = 'flex';
+            
+            // Limpiar audio
+            currentAudioBlob = null;
+            if (previewAudio) {
+                previewAudio.src = '';
+            }
+            
+            // Actualizar chat dinámicamente en lugar de recargar
+            setTimeout(() => {
+                location.reload(); // Por ahora recargamos, pero se puede mejorar con AJAX
+            }, 500);
+            
+        } else {
+            console.error('Error al enviar mensaje de voz:', data.error);
+            alert('Error al enviar mensaje de voz: ' + (data.error || 'Error desconocido'));
+        }
+    })
+    .catch(error => {
+        console.error('Error completo:', error);
+        alert('Error al enviar mensaje de voz: ' + error.message);
+    });
+}
+
+// Función para reproducir mensajes de voz
+let currentAudio = null;
+
+function playVoiceMessage(audioUrl, buttonElement) {
+    // Si no se pasa el botón, intentar encontrarlo por el event
+    if (!buttonElement && window.event) {
+        buttonElement = window.event.target.closest('.voice-play-btn');
+    }
+    
+    // Verificar si este audio ya está reproduciéndose
+    if (currentAudio && currentAudio.src.includes(audioUrl) && !currentAudio.paused) {
+        // Pausar el audio actual
+        currentAudio.pause();
+        if (buttonElement) {
+            buttonElement.innerHTML = '<i class="bi bi-play-fill"></i>';
+        }
+        return;
+    }
+    
+    // Detener cualquier otro audio que esté reproduciéndose
+    if (currentAudio && !currentAudio.paused) {
+        currentAudio.pause();
+        // Resetear todos los otros botones de play
+        document.querySelectorAll('.voice-play-btn').forEach(btn => {
+            if (btn !== buttonElement) {
+                btn.innerHTML = '<i class="bi bi-play-fill"></i>';
+            }
+        });
+    }
+    
+    // Crear o reutilizar audio
+    if (!currentAudio || !currentAudio.src.includes(audioUrl)) {
+        currentAudio = new Audio(audioUrl);
+    }
+    
+    // Reproducir desde donde se pausó
+    currentAudio.play().then(() => {
+        // Cambiar icono a pausa
+        if (buttonElement) {
+            buttonElement.innerHTML = '<i class="bi bi-pause-fill"></i>';
+        }
+        console.log('Reproduciendo mensaje de voz:', audioUrl);
+    }).catch(error => {
+        console.error('Error al reproducir audio:', error);
+        alert('Error al reproducir mensaje de voz: ' + error.message);
+    });
+    
+    // Cuando termine, volver al icono de play
+    currentAudio.onended = () => {
+        if (buttonElement) {
+            buttonElement.innerHTML = '<i class="bi bi-play-fill"></i>';
+        }
+        console.log('Reproducción terminada');
+    };
+}
+
+function updateRecordingTime() {
+    const elapsed = Math.floor((Date.now() - recordingStartTime) / 1000);
+    const minutes = Math.floor(elapsed / 60);
+    const seconds = elapsed % 60;
+    const timeText = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    document.getElementById('recordingTime').textContent = timeText;
+}
+
+// Función para mostrar menú de eliminación tipo WhatsApp
+function deleteMessage(messageId, messageTimestamp, isOwner) {
+    // Calcular tiempo transcurrido desde el envío del mensaje
+    const ahoraTimestamp = Math.floor(Date.now() / 1000); // Timestamp actual en segundos
+    const tiempoTranscurrido = ahoraTimestamp - messageTimestamp; // Diferencia en segundos
+    const minutosTranscurridos = tiempoTranscurrido / 60; // Convertir a minutos
+    
+    // Debug completo
+    console.log('=== DEBUG ELIMINAR MENSAJE ===');
+    console.log('Mensaje ID:', messageId);
+    console.log('Timestamp del mensaje:', messageTimestamp);
+    console.log('Timestamp actual:', ahoraTimestamp);
+    console.log('Segundos transcurridos:', tiempoTranscurrido);
+    console.log('Minutos transcurridos:', minutosTranscurridos);
+    console.log('Es el remitente:', isOwner);
+    
+    // REGLA SIMPLE: Si es el remitente = puede eliminar para todos (SIN límite de tiempo)
+    const puedeEliminarParaTodos = isOwner;
+    
+    console.log('¿Puede eliminar para todos?:', puedeEliminarParaTodos);
+    console.log('Condiciones: Es remitente =', isOwner, '(Sin límite de tiempo)');
+    
+    // Verificar que el timestamp sea válido
+    if (messageTimestamp <= 0) {
+        console.error('ERROR: Timestamp del mensaje inválido:', messageTimestamp);
+        alert('Error: Timestamp del mensaje inválido');
+        return;
+    }
+    
+    // Mostrar modal con las opciones
+    showDeleteModal(messageId, puedeEliminarParaTodos, isOwner, minutosTranscurridos);
+}
+
+function showDeleteModal(messageId, canDeleteForEveryone, isOwner, minutesElapsed) {
+    // Crear modal
+    const modal = document.createElement('div');
+    modal.className = 'delete-modal-overlay';
+    
+    const deleteForEveryoneButton = canDeleteForEveryone ? 
+        '<button class="delete-option" onclick="confirmDelete(' + messageId + ', \'for_everyone\')"><i class="bi bi-trash3"></i> Eliminar para todos</button>' : 
+        '';
+    
+    console.log('Modal eliminación - Es propietario:', isOwner, '| Puede eliminar para todos:', canDeleteForEveryone);
+    
+    modal.innerHTML = `
+        <div class="delete-modal">
+            <div class="delete-modal-header">
+                <h4>Eliminar mensaje</h4>
+            </div>
+            <div class="delete-modal-content">
+                ${deleteForEveryoneButton}
+                <button class="delete-option" onclick="confirmDelete(${messageId}, 'for_me')"><i class="bi bi-eye-slash"></i> Eliminar para mí</button>
+                <button class="delete-option cancel" onclick="closeDeleteModal()"><i class="bi bi-x-circle"></i> Cancelar</button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // Cerrar al hacer clic fuera
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            closeDeleteModal();
+        }
+    });
+}
+
+function closeDeleteModal() {
+    const modal = document.querySelector('.delete-modal-overlay');
+    if (modal) {
+        document.body.removeChild(modal);
+    }
+}
+
+function confirmDelete(messageId, deleteType) {
+    closeDeleteModal();
+    
+    const confirmMsg = deleteType === 'for_everyone' ? 
+        '¿Estás seguro de eliminar este mensaje para todos?' :
+        '¿Estás seguro de eliminar este mensaje para ti?';
+    
+    if (!confirm(confirmMsg)) {
+        return;
+    }
+    
+    // Enviar solicitud de eliminación
+    fetch('./delete_message.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            messageId: messageId,
+            deleteType: deleteType
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            if (deleteType === 'for_everyone') {
+                // Recargar para mostrar cambios para ambos
+                location.reload();
+            } else {
+                // Eliminar completamente el mensaje de la vista (tipo WhatsApp)
+                const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
+                if (messageElement) {
+                    messageElement.style.animation = 'messageSlideOut 0.3s ease';
+                    setTimeout(() => {
+                        messageElement.remove();
+                    }, 300);
+                }
+            }
+        } else {
+            alert('Error al eliminar mensaje: ' + (data.error || 'Error desconocido'));
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error de conexión al eliminar mensaje');
+    });
+}
+
+// Sistema de sincronización automática - Se carga desde archivo externo
 </script>
 
+<!-- Variable para el usuario actual -->
 <div data-current-user="<?php echo htmlspecialchars($_SESSION['usuario']); ?>" style="display: none;"></div>
 
+<!-- Incluir script de sincronización automática -->
 <script src="/converza/app/presenters/chat_sync.js"></script>
 
+<!-- Sistema de sincronización embebido -->
 <script>
-// Sistema de sincronización
+console.log('🟢 Sistema de sincronización iniciando...');
+
+// Variables globales
 let ultimoMensajeId = 0;
 let ultimaActualizacion = new Date().toISOString().slice(0, 19).replace('T', ' ');
 let sincronizacionActiva = true;
 let sesionUsuario = '<?php echo addslashes($_SESSION["usuario"]); ?>';
 
+// Función para obtener el usuario actual de la sesión
 function obtenerUsuarioSesion() {
     const userElement = document.querySelector('[data-current-user]');
     if (userElement) {
-        return userElement.getAttribute('data-current-user');
+        const usuario = userElement.getAttribute('data-current-user');
+        console.log('👤 Usuario encontrado en DOM:', usuario);
+        return usuario;
     }
+    console.log('👤 Usuario desde PHP:', sesionUsuario);
     return sesionUsuario;
 }
 
+// Inicializar sistema de sincronización
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('🟢 Sistema de sincronización iniciado');
+    
     sesionUsuario = obtenerUsuarioSesion();
     
+    // Obtener el ID del último mensaje al cargar la página
     const mensajes = document.querySelectorAll('[data-message-id]');
     if (mensajes.length > 0) {
         const ids = Array.from(mensajes).map(msg => parseInt(msg.getAttribute('data-message-id')));
         ultimoMensajeId = Math.max(...ids);
     }
     
-    const urlParams = new URLSearchParams(window.location.search);
-    let userId = urlParams.get('usuario');
+    console.log('🔄 Sistema de sincronización iniciado - Último mensaje ID:', ultimoMensajeId);
+    console.log('👤 Usuario de sesión:', sesionUsuario);
     
-    if (userId && sesionUsuario) {
-        setInterval(sincronizarChat, 3000);
-        setTimeout(sincronizarChat, 1000);
+    // Verificar que tenemos los datos necesarios
+    const urlParams = new URLSearchParams(window.location.search);
+    let userId = urlParams.get('usuario'); // Usar 'usuario' que es lo que usa el PHP
+    console.log('🎯 Chat con usuario ID:', userId);
+    console.log('🔍 URL params completos:', Object.fromEntries(urlParams));
+    
+    if (!userId || !sesionUsuario) {
+        console.error('❌ Faltan datos necesarios para sincronización');
+        console.error('   - userId:', userId);
+        console.error('   - sesionUsuario:', sesionUsuario);
+        console.error('   - URL actual:', window.location.href);
+        return;
     }
+    
+    // Iniciar sincronización completa cada 3 segundos
+    console.log('⏰ Iniciando polling cada 3 segundos...');
+    setInterval(sincronizarChat, 3000);
+    
+    // Primera verificación inmediata
+    setTimeout(sincronizarChat, 1000);
 });
 
 function sincronizarChat() {
-    if (!sincronizacionActiva) return;
+    if (!sincronizacionActiva) {
+        console.log('⏸️ Sincronización pausada');
+        return;
+    }
     
     const urlParams = new URLSearchParams(window.location.search);
-    let userId = urlParams.get('usuario');
+    let userId = urlParams.get('usuario'); // Usar 'usuario' que es lo que usa el PHP
     
-    if (!userId) return;
+    if (!userId) {
+        console.error('❌ No hay userId en la URL');
+        console.error('   - URL params:', Object.fromEntries(urlParams));
+        console.error('   - URL completa:', window.location.href);
+        return;
+    }
     
     const url = `verificar_nuevos_mensajes.php?usuario=${userId}&ultimo_id=${ultimoMensajeId}&ultima_actualizacion=${encodeURIComponent(ultimaActualizacion)}`;
+    console.log('🔍 Verificando cambios...', { userId, ultimoMensajeId, ultimaActualizacion });
+    console.log('🌐 URL completa:', window.location.origin + window.location.pathname.replace('chat.php', '') + url);
     
     fetch(url, { 
         method: 'GET',
-        credentials: 'same-origin',
+        credentials: 'same-origin', // Incluir cookies de sesión
         headers: {
             'Accept': 'application/json',
             'X-Requested-With': 'XMLHttpRequest'
         }
     })
-    .then(response => response.text())
-    .then(text => {
-        try {
-            const data = JSON.parse(text);
+    .then(response => {
+        console.log('📡 Respuesta recibida:', response.status, response.statusText);
+        console.log('📡 URL solicitada:', response.url);
+        
+        // Obtener el texto crudo para debugging
+        return response.text().then(text => {
+            console.log('📄 Respuesta cruda:', text);
             
-            if (data.error) return;
-            
-            if (data.cambios) {
-                if (data.nuevos_mensajes && data.nuevos_mensajes.length > 0) {
-                    data.nuevos_mensajes.forEach(mensaje => {
-                        if (document.querySelector(`[data-message-id="${mensaje.id_cha}"]`)) {
-                            return;
-                        }
-                        
-                        const mensajeHtml = crearHtmlMensajeCompleto(mensaje);
-                        document.querySelector('.chat-messages').insertAdjacentHTML('beforeend', mensajeHtml);
-                        
-                        ultimoMensajeId = Math.max(ultimoMensajeId, parseInt(mensaje.id_cha));
-                    });
-                    
-                    const chatContainer = document.querySelector('.chat-messages');
-                    chatContainer.scrollTop = chatContainer.scrollHeight;
-                }
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${text}`);
             }
-        } catch (e) {
-            console.error('Error parseando JSON:', e);
+            
+            try {
+                return JSON.parse(text);
+            } catch (e) {
+                console.error('❌ Error parseando JSON:', e);
+                console.error('📄 Texto recibido:', text);
+                throw new Error('Respuesta no es JSON válido: ' + text.substring(0, 100));
+            }
+        });
+    })
+    .then(data => {
+        console.log('📄 Datos parseados correctamente:', data);
+        
+        // Verificar si hay errores en la respuesta
+        if (data.error) {
+            console.error('❌ Error del servidor:', data.error);
+            return;
+        }
+        
+        if (data.cambios) {
+            console.log('🔄 ¡CAMBIOS DETECTADOS!', data);
+            
+            // 1. AGREGAR MENSAJES NUEVOS
+            if (data.nuevos_mensajes && data.nuevos_mensajes.length > 0) {
+                console.log('📨 Mensajes nuevos:', data.nuevos_mensajes.length);
+                
+                data.nuevos_mensajes.forEach(mensaje => {
+                    // Verificar que el mensaje no exista ya
+                    if (document.querySelector(`[data-message-id="${mensaje.id_cha}"]`)) {
+                        console.log('⚠️ Mensaje ya existe:', mensaje.id_cha);
+                        return;
+                    }
+                    
+                    console.log('➕ Agregando nuevo mensaje:', mensaje.id_cha, mensaje.mensaje);
+                    const mensajeHtml = crearHtmlMensajeCompleto(mensaje);
+                    document.querySelector('.chat-messages').insertAdjacentHTML('beforeend', mensajeHtml);
+                    
+                    // Actualizar último ID
+                    ultimoMensajeId = Math.max(ultimoMensajeId, parseInt(mensaje.id_cha));
+                });
+                
+                // Scroll automático hacia abajo
+                const chatContainer = document.querySelector('.chat-messages');
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+                
+                console.log('✅ Nuevo ultimoMensajeId:', ultimoMensajeId);
+            }
+            
+            // 2. ACTUALIZAR REACCIONES
+            if (data.reacciones_actualizadas && data.reacciones_actualizadas.length > 0) {
+                console.log('😊 Reacciones actualizadas:', data.reacciones_actualizadas.length);
+                actualizarReaccionesEnTiempoReal(data.reacciones_actualizadas);
+            }
+            
+            // 3. ELIMINAR MENSAJES
+            if (data.mensajes_eliminados && data.mensajes_eliminados.length > 0) {
+                console.log('🗑️ Mensajes eliminados:', data.mensajes_eliminados.length);
+                eliminarMensajesEnTiempoReal(data.mensajes_eliminados);
+            }
+            
+        } else {
+            console.log('💤 Sin cambios detectados');
         }
     })
     .catch(error => {
-        console.error('Error en sincronización:', error);
+        console.error('❌ Error en sincronización:', error);
     });
 }
+
+// Función agregarNuevosMensajes integrada arriba
 
 function crearHtmlMensajeCompleto(mensaje) {
     const fechaCompleta = new Date(mensaje.fecha).toLocaleDateString() + ' ' + 
                          new Date(mensaje.fecha).toLocaleTimeString().slice(0, 5);
     const esPropio = mensaje.de_usuario === sesionUsuario;
+    
+    console.log('🏗️ Creando mensaje HTML:', {
+        esPropio: esPropio,
+        mensaje_usuario: mensaje.de_usuario,
+        sesion_usuario: sesionUsuario,
+        mensaje: mensaje.mensaje
+    });
     
     if (esPropio) {
         const estadoMensaje = mensaje.leido == 1 ? 
@@ -1511,6 +1716,7 @@ function crearHtmlMensajeCompleto(mensaje) {
         `;
     }
 }
+
 </script>
 
 </body>
