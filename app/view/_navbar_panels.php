@@ -486,3 +486,184 @@ function escapeHtml(text) {
     return text.replace(/[&<>"']/g, m => map[m]);
 }
 </script>
+
+<!-- ========================================
+     🔮 OFFCANVAS: CONEXIONES MÍSTICAS
+     ======================================== -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasConexiones" aria-labelledby="offcanvasConexionesLabel" style="width: 400px;">
+  <div class="offcanvas-header bg-primary text-white">
+    <h5 class="offcanvas-title" id="offcanvasConexionesLabel">
+        <i class="bi bi-stars"></i> Conexiones Místicas
+    </h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>
+  </div>
+  <div class="offcanvas-body p-0">
+    <!-- Loading spinner -->
+    <div id="conexiones-loading" class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Cargando...</span>
+        </div>
+        <p class="mt-3 text-muted">Descubriendo conexiones...</p>
+    </div>
+    
+    <!-- Contenedor de conexiones -->
+    <div id="conexiones-container" style="display: none;"></div>
+    
+    <!-- Mensaje cuando no hay conexiones -->
+    <div id="conexiones-empty" class="text-center p-4" style="display: none;">
+        <i class="bi bi-stars display-1 text-muted"></i>
+        <h5 class="mt-3">Aún no hay conexiones</h5>
+        <p class="text-muted">Interactúa más para descubrir coincidencias</p>
+    </div>
+  </div>
+</div>
+
+<style>
+.conexion-offcanvas-card {
+    padding: 16px;
+    border-bottom: 1px solid #e9ecef;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.conexion-offcanvas-card:hover {
+    background-color: #f8f9fa;
+}
+
+.conexion-offcanvas-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+
+.conexion-offcanvas-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #0d6efd;
+}
+
+.conexion-offcanvas-info {
+    flex-grow: 1;
+}
+
+.conexion-offcanvas-username {
+    font-weight: 600;
+    color: #212529;
+    font-size: 1rem;
+}
+
+.conexion-offcanvas-tipo {
+    font-size: 0.8rem;
+    color: #6c757d;
+}
+
+.conexion-offcanvas-badge {
+    background-color: #0d6efd;
+    color: white;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+
+.conexion-offcanvas-desc {
+    font-size: 0.9rem;
+    color: #495057;
+    background: #f8f9fa;
+    padding: 10px;
+    border-radius: 8px;
+    margin-top: 8px;
+}
+</style>
+
+<script>
+// Cargar conexiones místicas cuando se abre el offcanvas
+document.getElementById('offcanvasConexiones')?.addEventListener('show.bs.offcanvas', function() {
+    cargarConexionesMisticas();
+});
+
+function cargarConexionesMisticas() {
+    const loading = document.getElementById('conexiones-loading');
+    const container = document.getElementById('conexiones-container');
+    const empty = document.getElementById('conexiones-empty');
+    
+    loading.style.display = 'block';
+    container.style.display = 'none';
+    empty.style.display = 'none';
+    
+    fetch('../presenters/get_conexiones_misticas.php')
+        .then(response => response.json())
+        .then(data => {
+            loading.style.display = 'none';
+            
+            if (data.error) {
+                empty.style.display = 'block';
+                return;
+            }
+            
+            if (data.conexiones && data.conexiones.length > 0) {
+                container.innerHTML = data.conexiones.map(c => {
+                    const avatarPath = c.otro_avatar 
+                        ? `/Converza/public/avatars/${c.otro_avatar}` 
+                        : '/Converza/public/avatars/defect.jpg';
+                    
+                    const tipos = {
+                        'gustos_compartidos': '💖 Gustos Compartidos',
+                        'intereses_comunes': '💬 Intereses Comunes',
+                        'amigos_de_amigos': '👥 Amigos de Amigos',
+                        'horarios_coincidentes': '🕐 Horarios Coincidentes'
+                    };
+                    
+                    const tipoTexto = tipos[c.tipo_conexion] || '✨ Conexión Especial';
+                    
+                    return `
+                        <div class="conexion-offcanvas-card" onclick="location.href='../presenters/perfil.php?id=${c.otro_id}'">
+                            <div class="conexion-offcanvas-header">
+                                <img src="${avatarPath}" alt="Avatar" class="conexion-offcanvas-avatar">
+                                <div class="conexion-offcanvas-info">
+                                    <div class="conexion-offcanvas-username">${escapeHtml(c.otro_usuario)}</div>
+                                    <div class="conexion-offcanvas-tipo">${tipoTexto}</div>
+                                </div>
+                                <div class="conexion-offcanvas-badge">${c.puntuacion}%</div>
+                            </div>
+                            <div class="conexion-offcanvas-desc">${escapeHtml(c.descripcion)}</div>
+                        </div>
+                    `;
+                }).join('');
+                container.style.display = 'block';
+                
+                // Marcar conexiones como vistas
+                marcarConexionesVistas();
+            } else {
+                empty.style.display = 'block';
+            }
+        })
+        .catch(error => {
+            console.error('Error cargando conexiones:', error);
+            loading.style.display = 'none';
+            empty.style.display = 'block';
+        });
+}
+
+// Marcar conexiones como vistas y actualizar badge
+function marcarConexionesVistas() {
+    fetch('../presenters/marcar_conexiones_vistas.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Ocultar badge
+            const badge = document.getElementById('conexiones-badge-count');
+            if (badge) {
+                badge.style.display = 'none';
+            }
+        }
+    })
+    .catch(error => console.error('Error marcando vistas:', error));
+}
+</script>

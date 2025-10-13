@@ -129,6 +129,9 @@ $navActive = [
         </li>
         <li class="nav-item"><a class="nav-link<?php if($navActive['albumes']) echo ' active'; ?>" href="/Converza/app/presenters/albumes.php?id=<?php echo (int)$_SESSION['id']; ?>" aria-current="<?php if($navActive['albumes']) echo 'page'; ?>"><i class="bi bi-images"></i> Álbumes</a></li>
         <li class="nav-item">
+            <?php include __DIR__.'/../view/components/conexiones-badge.php'; ?>
+        </li>
+        <li class="nav-item">
             <a class="nav-link" href="#" data-bs-toggle="offcanvas" data-bs-target="#offcanvasDailyShuffle" title="Daily Shuffle - Descubre nuevas personas">
                 <i class="bi bi-shuffle"></i> Shuffle
             </a>

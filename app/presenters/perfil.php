@@ -134,6 +134,9 @@ try {
             <?php include __DIR__.'/../view/components/mensajes-badge.php'; ?>
         </li>
         <li class="nav-item"><a class="nav-link" href="/Converza/app/presenters/albumes.php?id=<?php echo $_SESSION['id']; ?>"><i class="bi bi-images"></i> Álbumes</a></li>
+        <li class="nav-item">
+            <?php include __DIR__.'/../view/components/conexiones-badge.php'; ?>
+        </li>
         <li class="nav-item"><a class="nav-link" href="#" data-bs-toggle="offcanvas" data-bs-target="#offcanvasDailyShuffle" title="Daily Shuffle"><i class="bi bi-shuffle"></i> Shuffle</a></li>
         <li class="nav-item"><a class="nav-link" href="#" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSearch" title="Buscar usuarios"><i class="bi bi-search"></i></a></li>
         <li class="nav-item">

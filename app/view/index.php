@@ -256,6 +256,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['publicacion']) || (i
                     <?php include __DIR__.'/components/mensajes-badge.php'; ?>
                 </li>
                 <li class="nav-item"><a class="nav-link" href="../presenters/albumes.php?id=<?php echo (int)$_SESSION['id']; ?>"><i class="bi bi-images"></i> Álbumes</a></li>
+                
+                <!-- 🔮 Conexiones Místicas con Badge -->
+                <li class="nav-item">
+                    <?php include __DIR__.'/components/conexiones-badge.php'; ?>
+                </li>
+                
                 <li class="nav-item">
                     <a class="nav-link" href="#" data-bs-toggle="offcanvas" data-bs-target="#offcanvasDailyShuffle" title="Daily Shuffle - Descubre nuevas personas">
                         <i class="bi bi-shuffle"></i> Shuffle
