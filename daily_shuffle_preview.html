@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Shuffle - Preview</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        body { padding: 20px; background: #f8f9fa; }
+        .preview-section { margin: 30px 0; }
+        .preview-card { background: white; border-radius: 10px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .mockup { border: 2px solid #dee2e6; border-radius: 10px; padding: 20px; background: white; }
+        .gradient-preview { height: 60px; border-radius: 10px; margin: 10px 0; }
+        .color-box { width: 60px; height: 60px; border-radius: 10px; display: inline-block; margin: 5px; }
+        .feature-list { list-style: none; padding: 0; }
+        .feature-list li { padding: 10px; margin: 5px 0; background: #e9ecef; border-radius: 5px; }
+        .feature-list li i { margin-right: 10px; color: #28a745; }
+        
+        /* Daily Shuffle Preview Styles */
+        .shuffle-preview {
+            max-width: 450px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .shuffle-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .shuffle-card-demo {
+            background: white;
+            border-radius: 20px;
+            margin: 20px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .shuffle-card-image-demo {
+            width: 100%;
+            height: 250px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 80px;
+            color: #aaa;
+        }
+        
+        .shuffle-card-body-demo {
+            padding: 20px;
+        }
+        
+        .demo-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .demo-btn {
+            flex: 1;
+            padding: 12px;
+            border-radius: 12px;
+            border: none;
+            font-weight: 600;
+            text-align: center;
+        }
+        
+        .demo-btn-profile {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+        
+        .demo-btn-friend {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center mb-5">
+            <i class="bi bi-shuffle text-primary"></i> Daily Shuffle - Preview
+        </h1>
+        
+        <!-- Sección 1: Resumen -->
+        <div class="preview-section">
+            <div class="preview-card">
+                <h2><i class="bi bi-info-circle text-info"></i> Resumen</h2>
+                <p class="lead">Sistema de descubrimiento diario de nuevos usuarios para Converza, similar a Tinder/Bumble</p>
+                <div class="row mt-4">
+                    <div class="col-md-4 text-center">
+                        <h3 class="text-primary">10</h3>
+                        <p>Usuarios diarios</p>
+                    </div>
+                    <div class="col-md-4 text-center">
+                        <h3 class="text-success">100%</h3>
+                        <p>Responsive</p>
+                    </div>
+                    <div class="col-md-4 text-center">
+                        <h3 class="text-warning">7</h3>
+                        <p>Tests implementados</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Sección 2: Características -->
+        <div class="preview-section">
+            <div class="preview-card">
+                <h2><i class="bi bi-star text-warning"></i> Características</h2>
+                <ul class="feature-list">
+                    <li><i class="bi bi-check-circle-fill"></i> Generación automática diaria de usuarios</li>
+                    <li><i class="bi bi-check-circle-fill"></i> Filtrado inteligente (excluye amigos y bloqueados)</li>
+                    <li><i class="bi bi-check-circle-fill"></i> Interfaz visual tipo Tinder</li>
+                    <li><i class="bi bi-check-circle-fill"></i> Animaciones suaves y transiciones</li>
+                    <li><i class="bi bi-check-circle-fill"></i> Marcado de usuarios contactados</li>
+                    <li><i class="bi bi-check-circle-fill"></i> Limpieza automática de datos antiguos</li>
+                    <li><i class="bi bi-check-circle-fill"></i> 100% seguro (PDO, validaciones)</li>
+                    <li><i class="bi bi-check-circle-fill"></i> Responsive (móvil y desktop)</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Sección 3: Preview UI -->
+        <div class="preview-section">
+            <div class="preview-card">
+                <h2><i class="bi bi-phone text-primary"></i> Preview de la Interfaz</h2>
+                <p class="text-muted mb-4">Así se verá Daily Shuffle en la aplicación:</p>
+                
+                <div class="shuffle-preview">
+                    <div class="shuffle-header">
+                        <h5><i class="bi bi-shuffle"></i> Daily Shuffle</h5>
+                        <p class="mb-0 small">Descubre gente nueva cada día</p>
+                    </div>
+                    
+                    <div class="shuffle-card-demo">
+                        <div class="shuffle-card-image-demo">
+                            <i class="bi bi-person-circle"></i>
+                        </div>
+                        <div class="shuffle-card-body-demo">
+                            <h3 style="font-weight: 700; color: #2d3748; margin-bottom: 8px;">Usuario Demo</h3>
+                            <p style="color: #718096; margin-bottom: 15px;">
+                                Amante de la tecnología, la música y el arte. 
+                                Siempre buscando nuevas aventuras.
+                            </p>
+                            <div class="demo-actions">
+                                <button class="demo-btn demo-btn-profile">
+                                    <i class="bi bi-person"></i> Ver perfil
+                                </button>
+                                <button class="demo-btn demo-btn-friend">
+                                    <i class="bi bi-person-plus"></i> Agregar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center p-3">
+                        <span class="badge bg-primary">10 usuarios hoy</span>
+                        <span class="badge bg-success">3 contactados</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Sección 4: Paleta de Colores -->
+        <div class="preview-section">
+            <div class="preview-card">
+                <h2><i class="bi bi-palette text-danger"></i> Paleta de Colores</h2>
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5>Gradiente Principal</h5>
+                        <div class="gradient-preview" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"></div>
+                        <p class="text-muted small">#667eea → #764ba2</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h5>Gradiente Botón Agregar</h5>
+                        <div class="gradient-preview" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);"></div>
+                        <p class="text-muted small">#f093fb → #f5576c</p>
+                    </div>
+                </div>
+                
+                <h5 class="mt-4">Colores Adicionales</h5>
+                <div>
+                    <div class="color-box" style="background: #e2e8f0;" title="Fondo botón perfil"></div>
+                    <div class="color-box" style="background: #48bb78;" title="Verde - Contactado"></div>
+                    <div class="color-box" style="background: #2d3748;" title="Texto principal"></div>
+                    <div class="color-box" style="background: #718096;" title="Texto secundario"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Sección 5: Flujo de Usuario -->
+        <div class="preview-section">
+            <div class="preview-card">
+                <h2><i class="bi bi-diagram-3 text-success"></i> Flujo de Usuario</h2>
+                <div class="mockup">
+                    <ol>
+                        <li><strong>Usuario inicia sesión</strong> en Converza</li>
+                        <li><strong>Click en icono <i class="bi bi-shuffle"></i> "Shuffle"</strong> en la navbar</li>
+                        <li><strong>Se abre el panel lateral</strong> (offcanvas)</li>
+                        <li><strong>Sistema genera/carga</strong> 10 usuarios del día</li>
+                        <li><strong>Usuario ve cards</strong> con información de cada persona</li>
+                        <li><strong>Opciones disponibles:</strong>
+                            <ul>
+                                <li>"Ver perfil" - Abre el perfil del usuario</li>
+                                <li>"Agregar" - Envía solicitud de amistad</li>
+                            </ul>
+                        </li>
+                        <li><strong>Al hacer click en "Agregar":</strong>
+                            <ul>
+                                <li>Se envía solicitud de amistad</li>
+                                <li>Se marca como contactado</li>
+                                <li>Card se muestra con indicador "✓ Ya contactado"</li>
+                            </ul>
+                        </li>
+                        <li><strong>Mañana:</strong> Nuevo shuffle con 10 usuarios diferentes</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Sección 6: Tecnologías -->
+        <div class="preview-section">
+            <div class="preview-card">
+                <h2><i class="bi bi-code-square text-primary"></i> Stack Tecnológico</h2>
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5>Backend</h5>
+                        <ul>
+                            <li><strong>PHP 7+</strong> - Lógica del servidor</li>
+                            <li><strong>PDO</strong> - Base de datos segura</li>
+                            <li><strong>MySQL</strong> - Almacenamiento</li>
+                            <li><strong>JSON API</strong> - Comunicación</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h5>Frontend</h5>
+                        <ul>
+                            <li><strong>Bootstrap 5</strong> - Framework CSS</li>
+                            <li><strong>JavaScript ES6+</strong> - Interactividad</li>
+                            <li><strong>Fetch API</strong> - Requests AJAX</li>
+                            <li><strong>Bootstrap Icons</strong> - Iconografía</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Sección 7: Archivos -->
+        <div class="preview-section">
+            <div class="preview-card">
+                <h2><i class="bi bi-folder text-warning"></i> Estructura de Archivos</h2>
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5>Backend</h5>
+                        <ul class="list-group">
+                            <li class="list-group-item"><code>app/presenters/daily_shuffle.php</code></li>
+                            <li class="list-group-item"><code>app/presenters/marcar_contacto_shuffle.php</code></li>
+                            <li class="list-group-item"><code>sql/create_daily_shuffle_table.sql</code></li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h5>Frontend</h5>
+                        <ul class="list-group">
+                            <li class="list-group-item"><code>app/view/index.php</code> (modificado)</li>
+                            <li class="list-group-item"><code>app/view/_navbar_panels.php</code> (modificado)</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <h5>Utilidades</h5>
+                    <ul class="list-group">
+                        <li class="list-group-item"><code>setup_daily_shuffle.php</code> - Instalación</li>
+                        <li class="list-group-item"><code>test_daily_shuffle.php</code> - Tests</li>
+                        <li class="list-group-item"><code>DAILY_SHUFFLE_README.md</code> - Documentación</li>
+                        <li class="list-group-item"><code>DAILY_SHUFFLE_SUMMARY.md</code> - Resumen</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Sección 8: Próximos Pasos -->
+        <div class="preview-section">
+            <div class="preview-card bg-light">
+                <h2><i class="bi bi-rocket text-danger"></i> Próximos Pasos</h2>
+                <div class="alert alert-info">
+                    <h4>Para empezar a usar Daily Shuffle:</h4>
+                    <ol>
+                        <li>
+                            <strong>Ejecutar Setup:</strong><br>
+                            <a href="setup_daily_shuffle.php" class="btn btn-primary btn-sm mt-2">
+                                <i class="bi bi-wrench"></i> Ir a Setup
+                            </a>
+                        </li>
+                        <li class="mt-3">
+                            <strong>Ejecutar Tests:</strong><br>
+                            <a href="test_daily_shuffle.php" class="btn btn-success btn-sm mt-2">
+                                <i class="bi bi-clipboard-check"></i> Ir a Tests
+                            </a>
+                        </li>
+                        <li class="mt-3">
+                            <strong>Usar la aplicación:</strong><br>
+                            <a href="app/view/index.php" class="btn btn-warning btn-sm mt-2">
+                                <i class="bi bi-house"></i> Ir a Converza
+                            </a>
+                        </li>
+                        <li class="mt-3">
+                            <strong>Leer documentación:</strong><br>
+                            <a href="DAILY_SHUFFLE_README.md" class="btn btn-info btn-sm mt-2" target="_blank">
+                                <i class="bi bi-book"></i> Ver README
+                            </a>
+                        </li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+        
+        <div class="text-center mt-5 mb-5">
+            <p class="text-muted">
+                <i class="bi bi-heart-fill text-danger"></i> 
+                Desarrollado para Converza - Octubre 2025
+            </p>
+        </div>
+    </div>
+</body>
+</html>

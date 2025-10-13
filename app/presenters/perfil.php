@@ -119,25 +119,25 @@ try {
             <a class="nav-link position-relative" href="/Converza/app/presenters/chat.php">
                 <i class="bi bi-chat-dots"></i> Mensajes
                 <?php
-                // Contar mensajes no leídos (verificar si la tabla existe)
+                // Contar mensajes no leídos
                 $countMensajes = 0;
                 try {
                     $stmtCheckTable = $conexion->query("SHOW TABLES LIKE 'chats'");
                     if ($stmtCheckTable->rowCount() > 0) {
-                        // Contar solo mensajes no leídos de amigos confirmados
+                        // Contar solo mensajes recibidos no leídos
                         $stmtMensajes = $conexion->prepare("
-                            SELECT COUNT(*) as total 
+                            SELECT COUNT(DISTINCT c.id_cha) as total 
                             FROM chats c
-                            INNER JOIN amigos a ON (a.de = c.de AND a.para = :usuario_id) OR (a.para = c.de AND a.de = :usuario_id2)
-                            WHERE c.para = :usuario_id3 
-                            AND c.leido = 0 
-                            AND a.estado = 1
+                            WHERE c.para = :usuario_id 
+                            AND c.leido = 0
+                            AND c.de != :usuario_id2
                         ");
-                        $stmtMensajes->bindParam(':usuario_id', $_SESSION['id'], PDO::PARAM_INT);
-                        $stmtMensajes->bindParam(':usuario_id2', $_SESSION['id'], PDO::PARAM_INT);
-                        $stmtMensajes->bindParam(':usuario_id3', $_SESSION['id'], PDO::PARAM_INT);
-                        $stmtMensajes->execute();
-                        $countMensajes = $stmtMensajes->fetch(PDO::FETCH_ASSOC)['total'];
+                        $stmtMensajes->execute([
+                            ':usuario_id' => $_SESSION['id'],
+                            ':usuario_id2' => $_SESSION['id']
+                        ]);
+                        $result = $stmtMensajes->fetch(PDO::FETCH_ASSOC);
+                        $countMensajes = $result['total'] ?? 0;
                     }
                 } catch (Exception $e) {
                     // Si hay error, simplemente no mostrar contador
@@ -152,6 +152,7 @@ try {
             </a>
         </li>
         <li class="nav-item"><a class="nav-link" href="/Converza/app/presenters/albumes.php?id=<?php echo $_SESSION['id']; ?>"><i class="bi bi-images"></i> Álbumes</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-bs-toggle="offcanvas" data-bs-target="#offcanvasDailyShuffle" title="Daily Shuffle"><i class="bi bi-shuffle"></i> Shuffle</a></li>
         <li class="nav-item"><a class="nav-link" href="#" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSearch" title="Buscar usuarios"><i class="bi bi-search"></i></a></li>
         <li class="nav-item">
             <a class="nav-link position-relative" href="#" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSolicitudes" title="Solicitudes de amistad">
@@ -179,6 +180,7 @@ try {
     </div>
   </div>
 </nav>
+<?php include '../view/_navbar_panels.php'; ?>
 
 <div class="container py-4">
   <div class="row justify-content-center">
@@ -229,6 +231,10 @@ try {
                   <a href="editarperfil.php?id=<?php echo $usuario['id_use']; ?>" class="btn btn-outline-primary btn-sm">
                       <i class="bi bi-pencil"></i> Editar perfil
                   </a>
+                  <!-- Botón Daily Shuffle -->
+                  <button class="btn btn-primary btn-sm" data-bs-toggle="offcanvas" data-bs-target="#offcanvasDailyShuffle">
+                      <i class="bi bi-shuffle"></i> Daily Shuffle
+                  </button>
               <?php else: ?>
                   <!-- Botón Seguir/Siguiendo -->
                   <button id="btn-seguir" class="btn btn-sm" data-usuario-id="<?php echo $usuario['id_use']; ?>">
@@ -238,6 +244,11 @@ try {
                   
                   <!-- Botón/Badge de Amistad -->
                   <div id="btn-amistad-container"></div>
+                  
+                  <!-- Botón Enviar Mensaje -->
+                  <button id="btn-mensaje" class="btn btn-primary btn-sm" data-usuario-id="<?php echo $usuario['id_use']; ?>">
+                      <i class="bi bi-chat-dots"></i> Mensaje
+                  </button>
               <?php endif; ?>
           </div>
 
@@ -321,13 +332,24 @@ try {
                   }
 
                   if (!amistadData.tiene_relacion) {
-                      // No hay relación - Botón añadir amigo
+                      // No hay relación - Mostrar botón de seguir y botón añadir amigo
+                      const btnSeguir = document.getElementById('btn-seguir');
+                      if (btnSeguir) {
+                          btnSeguir.style.display = 'block';
+                      }
+                      
                       container.innerHTML = `
                           <a href="solicitud.php?action=agregar&id=<?php echo $usuario['id_use']; ?>" class="btn btn-outline-success btn-sm">
                               <i class="bi bi-person-plus"></i> Añadir Amigo
                           </a>
                       `;
                   } else if (amistadData.estado == 1) {
+                      // Son amigos - Ocultar botón de seguir
+                      const btnSeguir = document.getElementById('btn-seguir');
+                      if (btnSeguir) {
+                          btnSeguir.style.display = 'none';
+                      }
+                      
                       // Son amigos - Dropdown con opciones
                       container.innerHTML = `
                           <div class="dropdown">
@@ -346,7 +368,12 @@ try {
                           </div>
                       `;
                   } else if (amistadData.estado == 0) {
-                      // Solicitud pendiente
+                      // Solicitud pendiente - Mostrar botón de seguir (aún no son amigos)
+                      const btnSeguir = document.getElementById('btn-seguir');
+                      if (btnSeguir) {
+                          btnSeguir.style.display = 'block';
+                      }
+                      
                       if (amistadData.direccion === 'enviada') {
                           container.innerHTML = `
                               <div class="btn-group">
@@ -370,8 +397,34 @@ try {
 
               function eliminarAmigo() {
                   if (confirm('¿Estás seguro de que quieres eliminar esta amistad?')) {
-                      // Implementar eliminación de amistad
-                      window.location.href = `solicitud.php?action=eliminar&id=<?php echo $usuario['id_use']; ?>`;
+                      const xhr = new XMLHttpRequest();
+                      xhr.open('POST', 'solicitud.php', true);
+                      xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+                      
+                      xhr.onreadystatechange = function() {
+                          if (xhr.readyState === 4 && xhr.status === 200) {
+                              // Actualizar los datos de amistad
+                              amistadData.tiene_relacion = false;
+                              amistadData.estado = null;
+                              amistadData.direccion = null;
+                              
+                              // Mostrar el botón de seguir nuevamente y forzar estado "Seguir"
+                              const btnSeguir = document.getElementById('btn-seguir');
+                              if (btnSeguir) {
+                                  btnSeguir.style.display = 'block';
+                                  // Forzar a estado "Seguir" (no "Siguiendo")
+                                  actualizarBotonSeguir(false);
+                              }
+                              
+                              // Actualizar la interfaz
+                              actualizarBotonAmistad();
+                              
+                              // Mostrar notificación
+                              mostrarNotificacion('Amistad eliminada correctamente. Ya no sigues a este usuario.', 'success');
+                          }
+                      };
+                      
+                      xhr.send('action=eliminar&id=<?php echo $usuario['id_use']; ?>');
                   }
               }
 
@@ -381,41 +434,50 @@ try {
                   }
               }
 
+              let bloqueoEnProceso = false;
+              
               function bloquearUsuarioAjax(usuarioId) {
-                  const xhr = new XMLHttpRequest();
-                  xhr.open('POST', 'bloquear_usuario.php');
-                  xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+                  // Prevenir múltiples llamadas simultáneas
+                  if (bloqueoEnProceso) {
+                      console.log('🔒 Bloqueo ya en proceso, ignorando solicitud duplicada');
+                      return;
+                  }
                   
-                  xhr.onreadystatechange = function() {
-                      if (xhr.readyState === 4 && xhr.status === 200) {
-                          try {
-                              const response = JSON.parse(xhr.responseText);
-                              if (response.success) {
-                                  // Actualizar la interfaz
-                                  const container = document.getElementById('btn-amistad-container');
-                                  container.innerHTML = `
-                                      <span class="btn btn-danger btn-sm disabled">
-                                          <i class="bi bi-shield-x"></i> Usuario bloqueado
-                                      </span>
-                                  `;
-                                  
-                                  // También ocultar el botón de seguir si existe
-                                  const btnSeguir = document.getElementById('btn-seguir');
-                                  if (btnSeguir) {
-                                      btnSeguir.style.display = 'none';
-                                  }
-                                  
-                                  alert('Usuario bloqueado correctamente');
-                              } else {
-                                  alert('Error al bloquear usuario: ' + response.message);
-                              }
-                          } catch (e) {
-                              alert('Error al procesar la respuesta');
-                          }
+                  bloqueoEnProceso = true;
+                  console.log('🚀 Iniciando bloqueo de usuario:', usuarioId);
+                  
+                  fetch('bloquear_usuario.php', {
+                      method: 'POST',
+                      headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                      body: `usuario_id=${usuarioId}`
+                  })
+                  .then(r => {
+                      console.log('📡 Respuesta recibida, status:', r.status);
+                      return r.json();
+                  })
+                  .then(response => {
+                      console.log('📦 Datos de respuesta:', response);
+                      
+                      if (response.success) {
+                          console.log('✅ Bloqueo exitoso!');
+                          alert('✓ Usuario bloqueado correctamente');
+                          
+                          // Recargar la página después de 500ms
+                          console.log('🔄 Recargando página en 500ms...');
+                          setTimeout(() => {
+                              window.location.reload();
+                          }, 500);
+                      } else {
+                          console.error('❌ Error en respuesta:', response.message);
+                          alert('❌ Error al bloquear usuario: ' + (response.message || 'Error desconocido'));
+                          bloqueoEnProceso = false;
                       }
-                  };
-                  
-                  xhr.send('usuario_id=' + usuarioId);
+                  })
+                  .catch(err => {
+                      console.error('💥 Error en fetch:', err);
+                      alert('❌ Error al procesar la solicitud');
+                      bloqueoEnProceso = false;
+                  });
               }
 
               function desbloquearUsuario() {
@@ -424,41 +486,56 @@ try {
                   }
               }
 
+              let desbloqueoEnProceso = false;
+              
               function desbloquearUsuarioAjax(usuarioId) {
-                  const xhr = new XMLHttpRequest();
-                  xhr.open('POST', 'desbloquear_usuario.php');
-                  xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+                  // Prevenir múltiples llamadas simultáneas
+                  if (desbloqueoEnProceso) {
+                      console.log('🔒 Desbloqueo ya en proceso, ignorando solicitud duplicada');
+                      return;
+                  }
                   
-                  xhr.onreadystatechange = function() {
-                      if (xhr.readyState === 4 && xhr.status === 200) {
-                          try {
-                              const response = JSON.parse(xhr.responseText);
-                              if (response.success) {
-                                  // Actualizar la interfaz para mostrar botón de añadir amigo
-                                  const container = document.getElementById('btn-amistad-container');
-                                  container.innerHTML = `
-                                      <a href="solicitud.php?action=agregar&id=${usuarioId}" class="btn btn-outline-success btn-sm">
-                                          <i class="bi bi-person-plus"></i> Añadir Amigo
-                                      </a>
-                                  `;
-                                  
-                                  // Mostrar el botón de seguir nuevamente si existe
-                                  const btnSeguir = document.getElementById('btn-seguir');
-                                  if (btnSeguir) {
-                                      btnSeguir.style.display = 'block';
-                                  }
-                                  
-                                  alert('Usuario desbloqueado correctamente');
-                              } else {
-                                  alert('Error al desbloquear usuario: ' + response.message);
-                              }
-                          } catch (e) {
-                              alert('Error al procesar la respuesta');
+                  desbloqueoEnProceso = true;
+                  console.log('🚀 Iniciando desbloqueo de usuario:', usuarioId);
+                  
+                  fetch('desbloquear_usuario.php', {
+                      method: 'POST',
+                      headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                      body: `usuario_id=${usuarioId}`
+                  })
+                  .then(r => {
+                      console.log('📡 Respuesta recibida, status:', r.status);
+                      return r.json();
+                  })
+                  .then(response => {
+                      console.log('📦 Datos de respuesta:', response);
+                      
+                      if (response.success) {
+                          console.log('✅ Desbloqueo exitoso!');
+                          
+                          // Mostrar mensaje de éxito
+                          if (response.data && response.data.tiene_conversacion) {
+                              alert(`✓ Usuario desbloqueado. Conversación restaurada (${response.data.mensajes_previos} mensajes).`);
+                          } else {
+                              alert('✓ Usuario desbloqueado correctamente');
                           }
+                          
+                          // Recargar la página después de 500ms (reducido de 800ms)
+                          console.log('🔄 Recargando página en 500ms...');
+                          setTimeout(() => {
+                              window.location.reload();
+                          }, 500);
+                      } else {
+                          console.error('❌ Error en respuesta:', response.message);
+                          alert('❌ Error al desbloquear usuario: ' + (response.message || 'Error desconocido'));
+                          desbloqueoEnProceso = false;
                       }
-                  };
-                  
-                  xhr.send('usuario_id=' + usuarioId);
+                  })
+                  .catch(err => {
+                      console.error('💥 Error en fetch:', err);
+                      alert('❌ Error al procesar la solicitud');
+                      desbloqueoEnProceso = false;
+                  });
               }
               
               function cancelarSolicitud() {
@@ -473,23 +550,60 @@ try {
                                   try {
                                       const response = JSON.parse(xhr.responseText);
                                       if (response.success) {
+                                          // Actualizar los datos de amistad
+                                          amistadData.tiene_relacion = false;
+                                          amistadData.estado = null;
+                                          amistadData.direccion = null;
+                                          
+                                          // Mostrar el botón de seguir nuevamente
+                                          const btnSeguir = document.getElementById('btn-seguir');
+                                          if (btnSeguir) {
+                                              btnSeguir.style.display = 'block';
+                                          }
+                                          
                                           // Actualizar la interfaz - volver al botón de enviar solicitud
                                           actualizarBotonAmistad();
-                                          alert('Solicitud cancelada exitosamente');
+                                          
+                                          // Mostrar notificación de éxito
+                                          mostrarNotificacion('Solicitud cancelada exitosamente', 'success');
                                       } else {
-                                          alert('Error: ' + response.message);
+                                          mostrarNotificacion('Error: ' + response.message, 'error');
                                       }
                                   } catch (e) {
-                                      alert('Error al procesar la respuesta');
+                                      mostrarNotificacion('Error al procesar la respuesta', 'error');
                                   }
                               } else {
-                                  alert('Error al cancelar la solicitud');
+                                  mostrarNotificacion('Error al cancelar la solicitud', 'error');
                               }
                           }
                       };
                       
                       xhr.send('usuario_id=<?php echo $id; ?>');
                   }
+              }
+
+              // Función para mostrar notificaciones
+              function mostrarNotificacion(mensaje, tipo) {
+                  const alertClass = tipo === 'success' ? 'alert-success' : 'alert-danger';
+                  const alerta = document.createElement('div');
+                  alerta.className = `alert ${alertClass} alert-dismissible fade show position-fixed`;
+                  alerta.style.cssText = 'top: 20px; right: 20px; z-index: 9999; max-width: 300px;';
+                  alerta.setAttribute('role', 'alert');
+                  alerta.innerHTML = `
+                      ${mensaje}
+                      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                  `;
+                  document.body.appendChild(alerta);
+                  
+                  // Auto-ocultar después de 3 segundos
+                  setTimeout(function() {
+                      alerta.style.opacity = '0';
+                      setTimeout(function() {
+                          if (alerta.parentNode) {
+                              alerta.parentNode.removeChild(alerta);
+                          }
+                      }, 300);
+                  }, 3000);
               }
           </script>
         </div>
@@ -610,7 +724,53 @@ try {
   </div>
 </div>
 
-<?php include '../view/_navbar_panels.php'; ?>
+<!-- Modal: Enviar Mensaje -->
+<div class="modal fade" id="modalEnviarMensaje" tabindex="-1" aria-labelledby="modalEnviarMensajeLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title" id="modalEnviarMensajeLabel">
+            <i class="bi bi-chat-dots"></i> Enviar mensaje a @<?php echo htmlspecialchars($usuario['usuario']); ?>
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        <!-- Alerta de permisos -->
+        <div id="alerta-permisos" class="alert" style="display: none;"></div>
+        
+        <!-- Formulario de mensaje -->
+        <form id="form-enviar-mensaje">
+          <div class="mb-3">
+            <label for="mensaje-texto" class="form-label">Mensaje:</label>
+            <textarea 
+              class="form-control" 
+              id="mensaje-texto" 
+              rows="4" 
+              placeholder="Escribe tu mensaje aquí..."
+              maxlength="500"
+              required
+            ></textarea>
+            <div class="form-text">
+              <span id="contador-caracteres">0</span>/500 caracteres
+            </div>
+          </div>
+          
+          <!-- Info sobre restricciones -->
+          <div id="info-restriccion" class="alert alert-info" style="display: none;">
+            <i class="bi bi-info-circle"></i> 
+            <span id="texto-restriccion"></span>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-primary" id="btn-enviar-mensaje-submit">
+          <i class="bi bi-send"></i> Enviar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -775,6 +935,205 @@ function desbloquearDesdeModal() {
 }
 </script>
 <?php endif; ?>
+
+<!-- JavaScript para sistema de mensajes con permisos -->
+<script>
+<?php if ($_SESSION['id'] !== $usuario['id_use']): ?>
+// Sistema de envío de mensajes con permisos (solo si no es el propio perfil)
+const usuarioDestinoId = <?php echo $usuario['id_use']; ?>;
+const usuarioDestinoNombre = "<?php echo htmlspecialchars($usuario['usuario']); ?>";
+
+// Contador de caracteres
+$('#mensaje-texto').on('input', function() {
+    const length = $(this).val().length;
+    $('#contador-caracteres').text(length);
+});
+
+// Manejar click en botón de mensaje
+$('#btn-mensaje').on('click', function(e) {
+    e.preventDefault();
+    
+    console.log('🔵 Click en botón mensaje, verificando si puede chatear...');
+    console.log('Usuario destino ID:', usuarioDestinoId);
+    
+    // Verificar si ya existe una conversación aceptada
+    $.ajax({
+        url: 'verificar_conversacion_existente.php',
+        method: 'POST',
+        data: { usuario_id: usuarioDestinoId },
+        dataType: 'json',
+        success: function(response) {
+            console.log('✅ Respuesta del servidor:', response);
+            
+            if (response.existe_conversacion) {
+                // Ya existe una conversación aceptada, redirigir al chat
+                console.log('✅ Puede chatear - Tipo:', response.tipo, '- Redirigiendo...');
+                window.location.href = 'iniciar_chat.php?usuario=' + usuarioDestinoId;
+            } else {
+                // No existe conversación, abrir el modal
+                console.log('⚠️ No puede chatear libremente - Mostrando modal de solicitud');
+                $('#modalEnviarMensaje').modal('show');
+            }
+        },
+        error: function(xhr, status, error) {
+            // En caso de error, abrir el modal por defecto
+            console.error('❌ Error al verificar conversación:', status, error);
+            console.error('Respuesta del servidor:', xhr.responseText);
+            $('#modalEnviarMensaje').modal('show');
+        }
+    });
+});
+
+// Al abrir el modal, verificar permisos de chat
+$('#modalEnviarMensaje').on('show.bs.modal', function() {
+    verificarPermisosChat();
+});
+
+function verificarPermisosChat() {
+    $('#alerta-permisos').hide();
+    $('#info-restriccion').hide();
+    $('#btn-enviar-mensaje-submit').prop('disabled', true);
+    
+    // Verificar permisos mediante AJAX
+    $.ajax({
+        url: '/Converza/app/presenters/verificar_permisos_chat.php',
+        method: 'POST',
+        data: { para: usuarioDestinoId },
+        dataType: 'json',
+        success: function(response) {
+            if (response.puede_chatear) {
+                // Puede chatear libremente
+                mostrarInfoPermiso(response.tipo_relacion);
+                $('#btn-enviar-mensaje-submit').prop('disabled', false);
+            } else if (response.necesita_solicitud) {
+                // Necesita enviar solicitud (solo 1 mensaje)
+                if (response.tiene_solicitud_pendiente) {
+                    // Ya tiene solicitud pendiente
+                    mostrarAlerta('warning', '⏳ Ya enviaste un mensaje a este usuario. Espera a que lo acepte para poder chatear.', true);
+                    $('#mensaje-texto').val(response.primer_mensaje).prop('disabled', true);
+                } else if (response.solicitud_rechazada) {
+                    // Solicitud fue rechazada
+                    mostrarAlerta('danger', '❌ Este usuario rechazó tu solicitud de mensaje anterior. No puedes enviar más mensajes.', true);
+                    $('#mensaje-texto').prop('disabled', true);
+                } else {
+                    // Puede enviar 1 mensaje
+                    mostrarInfoRestriccion('⚠️ Solo puedes enviar <strong>1 mensaje</strong> hasta que este usuario lo acepte. Escribe con cuidado.');
+                    $('#btn-enviar-mensaje-submit').prop('disabled', false);
+                }
+            } else {
+                mostrarAlerta('danger', 'No es posible enviar mensajes a este usuario.', true);
+            }
+        },
+        error: function() {
+            mostrarAlerta('danger', 'Error al verificar permisos. Intenta de nuevo.', false);
+        }
+    });
+}
+
+function mostrarInfoPermiso(tipoRelacion) {
+    let texto = '';
+    if (tipoRelacion === 'amigos') {
+        texto = '✅ Son amigos. Pueden chatear libremente.';
+    } else if (tipoRelacion === 'seguidores_mutuos') {
+        texto = '✅ Se siguen mutuamente. Pueden chatear libremente.';
+    } else if (tipoRelacion === 'solicitud_aceptada') {
+        texto = '✅ Solicitud de mensaje aceptada. Pueden chatear libremente.';
+    }
+    
+    if (texto) {
+        $('#info-restriccion')
+            .removeClass('alert-warning alert-info')
+            .addClass('alert-success')
+            .html('<i class="bi bi-check-circle"></i> ' + texto)
+            .show();
+    }
+}
+
+function mostrarInfoRestriccion(texto) {
+    $('#info-restriccion')
+        .removeClass('alert-success alert-danger')
+        .addClass('alert-warning')
+        .html(texto)
+        .show();
+}
+
+function mostrarAlerta(tipo, mensaje, deshabilitarBoton) {
+    const clases = {
+        'success': 'alert-success',
+        'warning': 'alert-warning',
+        'danger': 'alert-danger',
+        'info': 'alert-info'
+    };
+    
+    $('#alerta-permisos')
+        .removeClass('alert-success alert-warning alert-danger alert-info')
+        .addClass(clases[tipo])
+        .html(mensaje)
+        .show();
+        
+    if (deshabilitarBoton) {
+        $('#btn-enviar-mensaje-submit').prop('disabled', true);
+    }
+}
+
+// Enviar mensaje
+$('#btn-enviar-mensaje-submit').click(function() {
+    const mensaje = $('#mensaje-texto').val().trim();
+    
+    if (!mensaje) {
+        alert('Por favor escribe un mensaje');
+        return;
+    }
+    
+    // Deshabilitar botón mientras se envía
+    $(this).prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Enviando...');
+    
+    $.ajax({
+        url: '/Converza/app/presenters/enviar_mensaje_con_permisos.php',
+        method: 'POST',
+        data: {
+            para: usuarioDestinoId,
+            mensaje: mensaje
+        },
+        dataType: 'json',
+        success: function(response) {
+            if (response.success) {
+                if (response.tipo === 'mensaje_enviado') {
+                    // Mensaje enviado correctamente - redirigir al chat
+                    mostrarAlerta('success', '✅ ' + response.mensaje, false);
+                    setTimeout(function() {
+                        window.location.href = '/Converza/app/presenters/chat.php?usuario=' + usuarioDestinoId;
+                    }, 1500);
+                } else if (response.tipo === 'solicitud_creada') {
+                    // Solicitud de mensaje creada
+                    mostrarAlerta('info', '📬 ' + response.mensaje, true);
+                    $('#mensaje-texto').prop('disabled', true);
+                    setTimeout(function() {
+                        $('#modalEnviarMensaje').modal('hide');
+                    }, 3000);
+                }
+            } else {
+                mostrarAlerta('danger', '❌ ' + response.error, false);
+                $('#btn-enviar-mensaje-submit').prop('disabled', false).html('<i class="bi bi-send"></i> Enviar');
+            }
+        },
+        error: function() {
+            mostrarAlerta('danger', 'Error al enviar mensaje. Intenta de nuevo.', false);
+            $('#btn-enviar-mensaje-submit').prop('disabled', false).html('<i class="bi bi-send"></i> Enviar');
+        }
+    });
+});
+
+// Limpiar modal al cerrar
+$('#modalEnviarMensaje').on('hidden.bs.modal', function() {
+    $('#mensaje-texto').val('').prop('disabled', false);
+    $('#contador-caracteres').text('0');
+    $('#alerta-permisos').hide();
+    $('#info-restriccion').hide();
+    $('#btn-enviar-mensaje-submit').prop('disabled', false).html('<i class="bi bi-send"></i> Enviar');
+});
+<?php endif; ?>
+</script>
 
 </body>
 </html>

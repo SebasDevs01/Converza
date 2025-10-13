@@ -2,32 +2,114 @@
 session_start();
 require_once __DIR__.'/../models/config.php';
 require_once __DIR__.'/../models/socialnetwork-lib.php';
+require_once __DIR__.'/../models/chat-permisos-helper.php';
 
 if(!isset($_SESSION['usuario'])) {
   header("Location: login.php");
   exit();
 }
 
-$user = isset($_GET['usuario']) ? (int)$_GET['usuario'] : 0;
+// Acepta tanto 'usuario' como 'id' para compatibilidad
+$user = isset($_GET['id']) ? (int)$_GET['id'] : (isset($_GET['usuario']) ? (int)$_GET['usuario'] : 0);
 $sess = $_SESSION['id'];
 
-// ✅ Obtener solo amigos confirmados (estado = 1)
+// ✅ Obtener usuarios con los que puede chatear (SIN DUPLICADOS)
+// PRIORIDAD: Amigos > Seguidores mutuos > Solicitudes aceptadas
+// Si son amigos, NO los muestra como seguidores
 $stmtAmigos = $conexion->prepare("
-    SELECT u.* 
+    SELECT DISTINCT u.id_use, u.usuario, u.nombre, u.avatar, u.verificado,
+    CASE
+        WHEN EXISTS(
+            SELECT 1 FROM amigos a 
+            WHERE ((a.de = :sess1 AND a.para = u.id_use) OR (a.para = :sess2 AND a.de = u.id_use))
+            AND a.estado = 1
+        ) THEN 'amigo'
+        WHEN EXISTS(
+            SELECT 1 FROM seguidores s1
+            INNER JOIN seguidores s2 ON s1.seguidor_id = s2.seguido_id AND s1.seguido_id = s2.seguidor_id
+            WHERE s1.seguidor_id = :sess3 AND s1.seguido_id = u.id_use
+        ) THEN 'seguidor_mutuo'
+        WHEN EXISTS(
+            SELECT 1 FROM solicitudes_mensaje sm
+            WHERE ((sm.de = :sess4 AND sm.para = u.id_use) OR (sm.para = :sess5 AND sm.de = u.id_use))
+            AND sm.estado = 'aceptada'
+        ) THEN 'solicitud_aceptada'
+    END as tipo_relacion,
+    (
+        SELECT COUNT(*) FROM chats c
+        WHERE c.de = u.id_use AND c.para = :sess16 AND c.leido = 0
+    ) as mensajes_no_leidos
     FROM usuarios u
-    INNER JOIN amigos a 
-        ON (
-            (a.de = :sess1 AND a.para = u.id_use) 
-            OR (a.para = :sess2 AND a.de = u.id_use)
+    WHERE u.id_use != :sess6
+    AND NOT EXISTS (
+        SELECT 1 FROM chats_archivados ca 
+        WHERE ca.usuario_id = :sess17 AND ca.chat_con_usuario_id = u.id_use
+    )
+    AND NOT EXISTS (
+        SELECT 1 FROM bloqueos b 
+        WHERE (b.bloqueador_id = :sess18 AND b.bloqueado_id = u.id_use)
+           OR (b.bloqueador_id = u.id_use AND b.bloqueado_id = :sess19)
+    )
+    AND (
+        -- Son amigos confirmados
+        EXISTS(
+            SELECT 1 FROM amigos a 
+            WHERE ((a.de = :sess7 AND a.para = u.id_use) OR (a.para = :sess8 AND a.de = u.id_use))
+            AND a.estado = 1
         )
-    WHERE a.estado = 1
-    ORDER BY u.usuario ASC
+        OR
+        -- Son seguidores mutuos (pero NO amigos)
+        (
+            EXISTS(
+                SELECT 1 FROM seguidores s1
+                INNER JOIN seguidores s2 ON s1.seguidor_id = s2.seguido_id AND s1.seguido_id = s2.seguidor_id
+                WHERE s1.seguidor_id = :sess9 AND s1.seguido_id = u.id_use
+            )
+            AND NOT EXISTS(
+                SELECT 1 FROM amigos a 
+                WHERE ((a.de = :sess10 AND a.para = u.id_use) OR (a.para = :sess11 AND a.de = u.id_use))
+                AND a.estado = 1
+            )
+        )
+        OR
+        -- Tienen solicitud de mensaje aceptada (pero NO son amigos ni seguidores mutuos)
+        (
+            EXISTS(
+                SELECT 1 FROM solicitudes_mensaje sm
+                WHERE ((sm.de = :sess12 AND sm.para = u.id_use) OR (sm.para = :sess13 AND sm.de = u.id_use))
+                AND sm.estado = 'aceptada'
+            )
+            AND NOT EXISTS(
+                SELECT 1 FROM amigos a 
+                WHERE ((a.de = :sess14 AND a.para = u.id_use) OR (a.para = :sess15 AND a.de = u.id_use))
+                AND a.estado = 1
+            )
+        )
+    )
+    ORDER BY mensajes_no_leidos DESC, u.usuario ASC
 ");
 $stmtAmigos->execute([
-    ':sess1' => $sess,
-    ':sess2' => $sess
+    ':sess1' => $sess, ':sess2' => $sess, ':sess3' => $sess,
+    ':sess4' => $sess, ':sess5' => $sess, ':sess6' => $sess,
+    ':sess7' => $sess, ':sess8' => $sess, ':sess9' => $sess,
+    ':sess10' => $sess, ':sess11' => $sess, ':sess12' => $sess,
+    ':sess13' => $sess, ':sess14' => $sess, ':sess15' => $sess,
+    ':sess16' => $sess, ':sess17' => $sess, ':sess18' => $sess,
+    ':sess19' => $sess
 ]);
 $amigos = $stmtAmigos->fetchAll(PDO::FETCH_ASSOC);
+
+// Obtener solicitudes de mensaje pendientes
+$stmtSolicitudes = $conexion->prepare("
+    SELECT sm.*, u.usuario, u.nombre, u.avatar, u.verificado
+    FROM solicitudes_mensaje sm
+    INNER JOIN usuarios u ON sm.de = u.id_use
+    WHERE sm.para = :sess AND sm.estado = 'pendiente'
+    ORDER BY sm.fecha_solicitud DESC
+");
+$stmtSolicitudes->execute([':sess' => $sess]);
+$solicitudesMensaje = $stmtSolicitudes->fetchAll(PDO::FETCH_ASSOC);
+$countSolicitudesMensaje = count($solicitudesMensaje);
 
 ?>
 <!DOCTYPE html>
@@ -159,6 +241,33 @@ $amigos = $stmtAmigos->fetchAll(PDO::FETCH_ASSOC);
       max-width: 50px;
       overflow: hidden;
       text-overflow: ellipsis;
+    }
+    
+    /* Contador de mensajes no leídos en lista de chats */
+    .list-group-item:has(.badge.bg-danger) {
+      background-color: #f8f9ff;
+      border-left: 3px solid #dc3545;
+    }
+    
+    .list-group-item .badge.bg-danger {
+      animation: pulse-badge 2s infinite;
+      box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.4);
+    }
+    
+    @keyframes pulse-badge {
+      0%, 100% {
+        box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.4);
+      }
+      50% {
+        box-shadow: 0 0 0 8px rgba(220, 53, 69, 0);
+      }
+    }
+    
+    /* Hover effect mejorado para items con mensajes no leídos */
+    .list-group-item:hover {
+      background-color: #e9ecef;
+      transform: translateX(3px);
+      transition: all 0.2s ease;
     }
     
     .reaction-item {
@@ -488,6 +597,38 @@ $amigos = $stmtAmigos->fetchAll(PDO::FETCH_ASSOC);
     .context-menu-item:hover {
       background: #f8f9fa;
     }
+    
+    /* Arreglar dropdown menu de 3 puntos - Solución definitiva */
+    
+    /* Asegurar overflow visible en todos los contenedores */
+    #chats-panel,
+    #solicitudes-panel,
+    .tab-pane,
+    .tab-content,
+    .card,
+    .card-body,
+    #chats-panel ul,
+    #solicitudes-panel ul,
+    .list-group {
+      overflow: visible !important;
+    }
+    
+    /* Cada list-group-item debe tener overflow visible */
+    .list-group-item {
+      overflow: visible !important;
+      position: relative;
+    }
+    
+    /* Elevar z-index cuando el dropdown está abierto */
+    .list-group-item:has(.dropdown.show) {
+      z-index: 1060 !important;
+    }
+    
+    /* Asegurar que el dropdown-menu tenga z-index alto */
+    .dropdown-menu {
+      z-index: 1070 !important;
+      position: absolute !important;
+    }
   </style>
 </head>
 <body class="hold-transition skin-blue sidebar-mini">
@@ -495,34 +636,312 @@ $amigos = $stmtAmigos->fetchAll(PDO::FETCH_ASSOC);
   <div class="row justify-content-center">
     <div class="col-lg-8">
 
-      <!-- 📌 Listado de amigos -->
+      <!-- 📌 Listado de amigos y solicitudes de mensaje -->
       <div class="card shadow-lg mb-4">
-        <div class="card-header bg-secondary text-white d-flex justify-content-between">
+        <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
           <a href="/converza/app/view/index.php" class="btn btn-light btn-sm">
             <i class="fa fa-arrow-left"></i> Volver
           </a>
-          <span><i class="bi bi-people-fill"></i> Tus amigos</span>
+          <span><i class="bi bi-chat-dots"></i> Mensajes</span>
+          <div></div>
         </div>
-        <div class="card-body">
-          <?php if($amigos): ?>
-            <ul class="list-group">
-              <?php foreach($amigos as $am): ?>
-                <li class="list-group-item d-flex align-items-center justify-content-between">
-                  <div>
-                    <img src="/converza/public/avatars/<?php echo $am['avatar']; ?>" 
-                         width="32" height="32" class="rounded-circle me-2">
-                    <?php echo htmlspecialchars($am['usuario']); ?>
-                  </div>
-                  <a href="iniciar_chat.php?usuario=<?php echo $am['id_use']; ?>" 
-                     class="btn btn-sm btn-primary">
-                    <i class="bi bi-chat-dots"></i> Chatear
-                  </a>
-                </li>
-              <?php endforeach; ?>
-            </ul>
-          <?php else: ?>
-            <p class="text-muted">No tienes amigos registrados todavía.</p>
-          <?php endif; ?>
+        
+        <!-- Tabs: Chats | Solicitudes | Archivados | Bloqueados -->
+        <ul class="nav nav-tabs" id="chatTabs" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="chats-tab" data-bs-toggle="tab" data-bs-target="#chats-panel" type="button" role="tab">
+              <i class="bi bi-chat-dots"></i> Chats
+              <span class="badge bg-primary ms-1"><?php echo count($amigos); ?></span>
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link position-relative" id="solicitudes-tab" data-bs-toggle="tab" data-bs-target="#solicitudes-panel" type="button" role="tab">
+              <i class="bi bi-envelope"></i> Solicitudes
+              <?php if ($countSolicitudesMensaje > 0): ?>
+              <span class="badge bg-danger ms-1"><?php echo $countSolicitudesMensaje; ?></span>
+              <?php endif; ?>
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="archivados-tab" data-bs-toggle="tab" data-bs-target="#archivados-panel" type="button" role="tab">
+              <i class="bi bi-archive"></i> Archivados
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="bloqueados-tab" data-bs-toggle="tab" data-bs-target="#bloqueados-panel" type="button" role="tab">
+              <i class="bi bi-shield-x"></i> Bloqueados
+            </button>
+          </li>
+        </ul>
+        
+        <div class="tab-content" id="chatTabsContent">
+          <!-- Panel: Chats -->
+          <div class="tab-pane fade show active p-3" id="chats-panel" role="tabpanel">
+            <?php if($amigos): ?>
+              <ul class="list-group">
+                <?php foreach($amigos as $am): ?>
+                  <li class="list-group-item d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center flex-grow-1">
+                      <img src="/converza/public/avatars/<?php echo $am['avatar']; ?>" 
+                           width="40" height="40" class="rounded-circle me-2">
+                      <div class="flex-grow-1">
+                        <div class="d-flex align-items-center gap-2">
+                          <span class="fw-bold"><?php echo htmlspecialchars($am['usuario']); ?></span>
+                          <?php if ($am['mensajes_no_leidos'] > 0): ?>
+                            <span class="badge rounded-pill bg-danger" style="font-size: 0.7rem;">
+                              <?php echo $am['mensajes_no_leidos'] > 9 ? '9+' : $am['mensajes_no_leidos']; ?>
+                            </span>
+                          <?php endif; ?>
+                        </div>
+                        <small class="text-muted">
+                          <?php if ($am['tipo_relacion'] === 'amigo'): ?>
+                            <i class="bi bi-people-fill"></i> Amigo
+                          <?php elseif ($am['tipo_relacion'] === 'seguidor_mutuo'): ?>
+                            <i class="bi bi-arrow-left-right"></i> Seguidor mutuo
+                          <?php else: ?>
+                            <i class="bi bi-check-circle"></i> Solicitud aceptada
+                          <?php endif; ?>
+                        </small>
+                      </div>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                      <a href="chat.php?id=<?php echo $am['id_use']; ?>" 
+                         class="btn btn-sm btn-primary">
+                        <i class="bi bi-chat-dots"></i> Chatear
+                      </a>
+                      <!-- Menú de opciones -->
+                      <div class="dropdown">
+                        <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                          <i class="bi bi-three-dots-vertical"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                          <li>
+                            <a class="dropdown-item" href="perfil.php?id=<?php echo $am['id_use']; ?>">
+                              <i class="bi bi-person-circle"></i> Ver perfil
+                            </a>
+                          </li>
+                          <li>
+                            <a class="dropdown-item" href="#" onclick="archivarConversacion(<?php echo $am['id_use']; ?>); return false;">
+                              <i class="bi bi-archive"></i> Archivar
+                            </a>
+                          </li>
+                          <li><hr class="dropdown-divider"></li>
+                          <li>
+                            <a class="dropdown-item text-danger" href="#" onclick="bloquearUsuarioDesdeChat(<?php echo $am['id_use']; ?>, '<?php echo htmlspecialchars($am['usuario']); ?>'); return false;">
+                              <i class="bi bi-shield-x"></i> Bloquear
+                            </a>
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+                  </li>
+                <?php endforeach; ?>
+              </ul>
+            <?php else: ?>
+              <div class="alert alert-info mb-0">
+                <i class="bi bi-info-circle"></i> No tienes conversaciones activas todavía.
+              </div>
+            <?php endif; ?>
+          </div>
+          
+          <!-- Panel: Solicitudes de Mensaje -->
+          <div class="tab-pane fade p-3" id="solicitudes-panel" role="tabpanel">
+            <?php if($solicitudesMensaje): ?>
+              <div class="alert alert-warning">
+                <i class="bi bi-exclamation-triangle"></i> 
+                Tienes <strong><?php echo $countSolicitudesMensaje; ?></strong> solicitud<?php echo $countSolicitudesMensaje > 1 ? 'es' : ''; ?> de mensaje pendiente<?php echo $countSolicitudesMensaje > 1 ? 's' : ''; ?>.
+              </div>
+              <ul class="list-group">
+                <?php foreach($solicitudesMensaje as $sol): ?>
+                  <li class="list-group-item">
+                    <div class="d-flex align-items-start mb-3">
+                      <img src="/converza/public/avatars/<?php echo $sol['avatar']; ?>" 
+                           width="48" height="48" class="rounded-circle me-3">
+                      <div class="flex-grow-1">
+                        <div class="d-flex justify-content-between align-items-start">
+                          <div>
+                            <a href="/Converza/app/presenters/perfil.php?id=<?php echo $sol['de']; ?>" class="fw-bold text-decoration-none">
+                              <?php echo htmlspecialchars($sol['usuario']); ?>
+                              <?php if ($sol['verificado']): ?>
+                                <i class="bi bi-patch-check-fill text-primary"></i>
+                              <?php endif; ?>
+                            </a>
+                            <br>
+                            <small class="text-muted">
+                              <i class="bi bi-clock"></i> <?php echo date('d/m/Y H:i', strtotime($sol['fecha_solicitud'])); ?>
+                            </small>
+                          </div>
+                        </div>
+                        <div class="mt-2 p-3 bg-light rounded">
+                          <i class="bi bi-chat-quote"></i> 
+                          <em><?php echo htmlspecialchars($sol['primer_mensaje']); ?></em>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="d-flex gap-2">
+                      <button class="btn btn-success btn-sm flex-fill" onclick="gestionarSolicitudMensaje(<?php echo $sol['id']; ?>, 'aceptar', this)">
+                        <i class="bi bi-check-circle"></i> Aceptar
+                      </button>
+                      <button class="btn btn-danger btn-sm flex-fill" onclick="gestionarSolicitudMensaje(<?php echo $sol['id']; ?>, 'rechazar', this)">
+                        <i class="bi bi-x-circle"></i> Rechazar
+                      </button>
+                    </div>
+                  </li>
+                <?php endforeach; ?>
+              </ul>
+            <?php else: ?>
+              <div class="alert alert-info mb-0">
+                <i class="bi bi-inbox"></i> No tienes solicitudes de mensaje pendientes.
+              </div>
+            <?php endif; ?>
+          </div>
+          
+          <!-- Panel: Archivados -->
+          <div class="tab-pane fade p-3" id="archivados-panel" role="tabpanel">
+            <?php
+            // Obtener chats archivados
+            $stmtArchivados = $conexion->prepare("
+              SELECT u.id_use, u.usuario, u.avatar, u.nombre,
+                     ca.fecha_archivado,
+                     (SELECT mensaje FROM chats 
+                      WHERE (de = :sess1 AND para = u.id_use) 
+                         OR (de = u.id_use AND para = :sess2)
+                      ORDER BY fecha DESC LIMIT 1) as ultimo_mensaje,
+                     (SELECT fecha FROM chats 
+                      WHERE (de = :sess3 AND para = u.id_use) 
+                         OR (de = u.id_use AND para = :sess4)
+                      ORDER BY fecha DESC LIMIT 1) as fecha_ultimo_mensaje
+              FROM chats_archivados ca
+              INNER JOIN usuarios u ON ca.chat_con_usuario_id = u.id_use
+              WHERE ca.usuario_id = :sess5
+              ORDER BY ca.fecha_archivado DESC
+            ");
+            $stmtArchivados->execute([
+              ':sess1' => $sess,
+              ':sess2' => $sess,
+              ':sess3' => $sess,
+              ':sess4' => $sess,
+              ':sess5' => $sess
+            ]);
+            $chatsArchivados = $stmtArchivados->fetchAll(PDO::FETCH_ASSOC);
+            
+            // DEBUG: Verificar qué se está obteniendo
+            ?>
+            
+            <!-- DEBUG: Total archivados = <?php echo count($chatsArchivados); ?> -->
+            
+            <?php if($chatsArchivados && count($chatsArchivados) > 0): ?>
+              <ul class="list-group">
+                <?php foreach($chatsArchivados as $arch): ?>
+                  <li class="list-group-item">
+                    <div class="d-flex justify-content-between align-items-center">
+                      <div class="d-flex align-items-center gap-2 flex-grow-1">
+                        <?php
+                        $avatarArch = htmlspecialchars($arch['avatar']);
+                        $avatarPathArch = __DIR__.'/../../public/avatars/'.$avatarArch;
+                        if ($avatarArch && $avatarArch !== 'default_avatar.svg' && file_exists($avatarPathArch)) {
+                          echo '<img src="/converza/public/avatars/'.$avatarArch.'" class="rounded-circle" width="50" height="50" alt="Avatar">';
+                        } else {
+                          echo '<img src="/converza/public/avatars/defect.jpg" class="rounded-circle" width="50" height="50" alt="Avatar">';
+                        }
+                        ?>
+                        <div class="flex-grow-1">
+                          <div class="fw-bold"><?php echo htmlspecialchars($arch['usuario']); ?></div>
+                          <?php if ($arch['ultimo_mensaje']): ?>
+                            <small class="text-muted">
+                              <?php 
+                              $ultMsgArch = htmlspecialchars($arch['ultimo_mensaje']);
+                              echo strlen($ultMsgArch) > 40 ? substr($ultMsgArch, 0, 40).'...' : $ultMsgArch;
+                              ?>
+                            </small>
+                          <?php endif; ?>
+                          <div class="text-muted small">
+                            <i class="bi bi-archive-fill"></i> Archivado: 
+                            <?php 
+                            $fechaArch = new DateTime($arch['fecha_archivado']);
+                            echo $fechaArch->format('d/m/Y H:i');
+                            ?>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="d-flex gap-2 align-items-center">
+                        <button class="btn btn-success btn-sm" onclick="desarchivarConversacion(<?php echo $arch['id_use']; ?>); return false;" title="Desarchivar">
+                          <i class="bi bi-arrow-up-circle"></i> Desarchivar
+                        </button>
+                      </div>
+                    </div>
+                  </li>
+                <?php endforeach; ?>
+              </ul>
+            <?php else: ?>
+              <div class="alert alert-info mb-0">
+                <i class="bi bi-archive"></i> No tienes conversaciones archivadas.
+              </div>
+            <?php endif; ?>
+          </div>
+          
+          <!-- Panel: Bloqueados -->
+          <div class="tab-pane fade p-3" id="bloqueados-panel" role="tabpanel">
+            <?php
+            // Obtener usuarios bloqueados
+            $stmtBloqueados = $conexion->prepare("
+              SELECT u.id_use, u.usuario, u.avatar, u.nombre, b.fecha_bloqueo
+              FROM bloqueos b
+              INNER JOIN usuarios u ON b.bloqueado_id = u.id_use
+              WHERE b.bloqueador_id = :sess
+              ORDER BY b.fecha_bloqueo DESC
+            ");
+            $stmtBloqueados->execute([':sess' => $sess]);
+            $usuariosBloqueados = $stmtBloqueados->fetchAll(PDO::FETCH_ASSOC);
+            ?>
+            
+            <?php if($usuariosBloqueados && count($usuariosBloqueados) > 0): ?>
+              <ul class="list-group">
+                <?php foreach($usuariosBloqueados as $bloq): ?>
+                  <li class="list-group-item">
+                    <div class="d-flex justify-content-between align-items-center">
+                      <div class="d-flex align-items-center gap-2 flex-grow-1">
+                        <?php
+                        $avatarBloq = htmlspecialchars($bloq['avatar']);
+                        $avatarPathBloq = __DIR__.'/../../public/avatars/'.$avatarBloq;
+                        if ($avatarBloq && $avatarBloq !== 'default_avatar.svg' && file_exists($avatarPathBloq)) {
+                          echo '<img src="/converza/public/avatars/'.$avatarBloq.'" class="rounded-circle" width="50" height="50" alt="Avatar">';
+                        } else {
+                          echo '<img src="/converza/public/avatars/defect.jpg" class="rounded-circle" width="50" height="50" alt="Avatar">';
+                        }
+                        ?>
+                        <div class="flex-grow-1">
+                          <div class="fw-bold"><?php echo htmlspecialchars($bloq['usuario']); ?></div>
+                          <small class="text-muted">
+                            <?php echo htmlspecialchars($bloq['nombre']); ?>
+                          </small>
+                          <div class="text-muted small">
+                            <i class="bi bi-shield-x"></i> Bloqueado: 
+                            <?php 
+                            $fechaBloq = new DateTime($bloq['fecha_bloqueo']);
+                            echo $fechaBloq->format('d/m/Y H:i');
+                            ?>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="d-flex gap-2 align-items-center">
+                        <a href="perfil.php?id=<?php echo $bloq['id_use']; ?>" class="btn btn-outline-primary btn-sm" title="Ver perfil">
+                          <i class="bi bi-person-circle"></i>
+                        </a>
+                        <button class="btn btn-warning btn-sm" onclick="desbloquearUsuario(<?php echo $bloq['id_use']; ?>, '<?php echo htmlspecialchars($bloq['usuario']); ?>'); return false;" title="Desbloquear">
+                          <i class="bi bi-unlock"></i> Desbloquear
+                        </button>
+                      </div>
+                    </div>
+                  </li>
+                <?php endforeach; ?>
+              </ul>
+            <?php else: ?>
+              <div class="alert alert-info mb-0">
+                <i class="bi bi-shield-check"></i> No tienes usuarios bloqueados.
+              </div>
+            <?php endif; ?>
+          </div>
         </div>
       </div>
 
@@ -538,6 +957,38 @@ $amigos = $stmtAmigos->fetchAll(PDO::FETCH_ASSOC);
               <i class="bi bi-info-circle"></i> Selecciona un amigo para iniciar un chat.
             </div>
           <?php else: ?>
+            <?php
+            // Verificar si el usuario está bloqueado (en cualquier dirección)
+            $stmtCheckBloqueo = $conexion->prepare("
+              SELECT 1 FROM bloqueos 
+              WHERE (bloqueador_id = :sess1 AND bloqueado_id = :user1)
+                 OR (bloqueador_id = :user2 AND bloqueado_id = :sess2)
+            ");
+            $stmtCheckBloqueo->execute([
+              ':sess1' => $sess,
+              ':user1' => $user,
+              ':user2' => $user,
+              ':sess2' => $sess
+            ]);
+            $estaBloqueado = $stmtCheckBloqueo->fetch();
+            
+            // Verificar si el usuario está archivado
+            $stmtCheckArchivado = $conexion->prepare("
+              SELECT 1 FROM chats_archivados 
+              WHERE usuario_id = :sess AND chat_con_usuario_id = :user
+            ");
+            $stmtCheckArchivado->execute([':sess' => $sess, ':user' => $user]);
+            $estaArchivado = $stmtCheckArchivado->fetch();
+            
+            if ($estaBloqueado): ?>
+              <div class="alert alert-warning">
+                <i class="bi bi-shield-x"></i> Este chat no está disponible. El usuario ha sido bloqueado.
+              </div>
+            <?php elseif ($estaArchivado): ?>
+              <div class="alert alert-info">
+                <i class="bi bi-archive"></i> Esta conversación está archivada. Ve a la sección "Archivados" para verla.
+              </div>
+            <?php else: ?>
             <?php
             // Marcar mensajes como leídos
             $stmtMarkRead = $conexion->prepare(
@@ -716,11 +1167,12 @@ $amigos = $stmtAmigos->fetchAll(PDO::FETCH_ASSOC);
               }
             }
             ?>
-          <?php endif; ?>
+            <?php endif; // Cierre de: else (no bloqueado ni archivado) ?>
+          <?php endif; // Cierre de: if($user == 0) ?>
           </div>
         </div>
 
-        <?php if($user != 0): ?>
+        <?php if($user != 0 && !$estaBloqueado && !$estaArchivado): ?>
         <div class="card-footer bg-white">
           <form action="" method="post" class="d-flex align-items-center gap-2" id="messageForm">
             <button type="button" class="btn btn-outline-secondary" id="voiceBtn" onclick="toggleVoiceRecording()" title="Mensaje de voz">
@@ -838,6 +1290,60 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     initReactionSystem();
+    
+    // Controlar visibilidad del chat según la pestaña activa
+    const chatCards = document.querySelectorAll('.card.shadow-lg');
+    let chatCard = null;
+    chatCards.forEach(card => {
+        if (card.querySelector('.chat-container')) {
+            chatCard = card;
+        }
+    });
+    
+    const chatsTab = document.getElementById('chats-tab');
+    const solicitudesTab = document.getElementById('solicitudes-tab');
+    const archivadosTab = document.getElementById('archivados-tab');
+    const bloqueadosTab = document.getElementById('bloqueados-tab');
+    
+    // Solo mostrar el chat si hay un usuario seleccionado
+    const urlParams = new URLSearchParams(window.location.search);
+    const hasUser = urlParams.has('id') || urlParams.has('usuario');
+    
+    function updateChatVisibility() {
+        if (!chatCard) return;
+        
+        const chatsActive = chatsTab && chatsTab.classList.contains('active');
+        
+        // Mostrar chat solo si:
+        // 1. La pestaña "Chats" está activa
+        // 2. Y hay un usuario seleccionado
+        if (chatsActive && hasUser) {
+            chatCard.style.display = 'block';
+        } else if (!chatsActive) {
+            // Ocultar cuando no estamos en la pestaña Chats
+            chatCard.style.display = 'none';
+        } else if (!hasUser) {
+            // Mostrar el placeholder si no hay usuario
+            chatCard.style.display = 'block';
+        }
+    }
+    
+    // Ejecutar al cargar
+    updateChatVisibility();
+    
+    // Escuchar cambios de pestaña
+    if (chatsTab) {
+        chatsTab.addEventListener('click', updateChatVisibility);
+    }
+    if (solicitudesTab) {
+        solicitudesTab.addEventListener('click', updateChatVisibility);
+    }
+    if (archivadosTab) {
+        archivadosTab.addEventListener('click', updateChatVisibility);
+    }
+    if (bloqueadosTab) {
+        bloqueadosTab.addEventListener('click', updateChatVisibility);
+    }
 });
 
 const form = document.querySelector('form');
@@ -1511,6 +2017,473 @@ function crearHtmlMensajeCompleto(mensaje) {
         `;
     }
 }
+
+// 📩 Gestionar solicitud de mensaje (Aceptar/Rechazar)
+function gestionarSolicitudMensaje(idSolicitud, accion, buttonElement) {
+    const textoAccion = accion === 'aceptar' ? 'aceptar' : 'rechazar';
+    if (!confirm(`¿Estás seguro de que quieres ${textoAccion} esta solicitud de mensaje?`)) {
+        return;
+    }
+    
+    console.log('🔧 buttonElement recibido:', buttonElement);
+    
+    fetch('gestionar_solicitud_mensaje.php', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        body: `solicitud_id=${idSolicitud}&accion=${accion}`
+    })
+    .then(r => r.json())
+    .then(data => {
+        console.log('📥 Respuesta completa del servidor:', data);
+        console.log('📊 data.success:', data.success);
+        console.log('👤 data.usuario:', data.usuario);
+        
+        if (data.success) {
+            // Remover la solicitud de la lista visualmente usando el botón recibido
+            const solicitudElement = buttonElement ? buttonElement.closest('.list-group-item') : null;
+            console.log('📋 Elemento de solicitud encontrado:', solicitudElement);
+            if (solicitudElement) {
+                solicitudElement.style.transition = 'opacity 0.3s ease';
+                solicitudElement.style.opacity = '0';
+                setTimeout(() => {
+                    solicitudElement.remove();
+                    
+                    // Actualizar contador de solicitudes
+                    const badge = document.querySelector('#solicitudes-tab .badge');
+                    if (badge) {
+                        let count = parseInt(badge.textContent) || 0;
+                        count--;
+                        if (count > 0) {
+                            badge.textContent = count;
+                        } else {
+                            badge.remove();
+                        }
+                    }
+                    
+                    // Verificar si quedan solicitudes
+                    const solicitudesRestantes = document.querySelectorAll('#solicitudes-panel .list-group-item').length;
+                    if (solicitudesRestantes === 0) {
+                        document.querySelector('#solicitudes-panel ul').innerHTML = `
+                            <div class="alert alert-info mb-0">
+                                <i class="bi bi-inbox"></i> No tienes solicitudes de mensaje pendientes.
+                            </div>
+                        `;
+                    }
+                    
+                    // Si se aceptó, agregar a la lista y luego redirigir
+                    if (accion === 'aceptar') {
+                        console.log('✅ Solicitud aceptada');
+                        
+                        // Validar que tenemos la información del usuario
+                        if (!data.usuario) {
+                            console.error('⚠️ No se recibió información del usuario, redirigiendo directamente...');
+                            // Obtener el ID del usuario desde el elemento de la solicitud
+                            if (solicitudElement) {
+                                const enlacePerfil = solicitudElement.querySelector('a[href*="perfil.php?id="]');
+                                if (enlacePerfil) {
+                                    const usuarioId = enlacePerfil.href.match(/id=(\d+)/)[1];
+                                    console.log('🔍 ID de usuario extraído del DOM:', usuarioId);
+                                    setTimeout(() => {
+                                        window.location.href = 'chat.php?id=' + usuarioId;
+                                    }, 500);
+                                    return;
+                                }
+                            }
+                            mostrarNotificacion('⚠️ Solicitud aceptada, pero recarga la página', 'warning');
+                            setTimeout(() => location.reload(), 2000);
+                            return;
+                        }
+                        
+                        console.log('👤 Agregando usuario a lista:', data.usuario);
+                        
+                        // 1. Agregar el usuario a la lista de chats
+                        agregarUsuarioAListaChats(data.usuario);
+                        
+                        // 2. Cambiar al tab de chats
+                        setTimeout(() => {
+                            const chatsTab = document.querySelector('button[data-bs-target="#chats-panel"]');
+                            if (chatsTab) {
+                                const tab = new bootstrap.Tab(chatsTab);
+                                tab.show();
+                            }
+                            
+                            // 3. Redirigir después de un breve delay para que el usuario vea el cambio
+                            setTimeout(() => {
+                                console.log('🚀 Redirigiendo a chat con usuario:', data.usuario.id_use);
+                                window.location.href = 'chat.php?id=' + data.usuario.id_use;
+                            }, 800);
+                        }, 300);
+                    } else if (accion === 'rechazar') {
+                        // Solo mostrar notificación si se rechazó
+                        mostrarNotificacion('✓ Solicitud rechazada correctamente.', 'success');
+                    }
+                }, 300);
+            }
+        } else {
+            console.error('❌ Error del servidor:', data);
+            mostrarNotificacion('❌ Error: ' + (data.error || data.mensaje || 'Error desconocido'), 'error');
+        }
+    })
+    .catch(err => {
+        console.error('💥 Error de red o parsing:', err);
+        console.error('Stack trace:', err.stack);
+        mostrarNotificacion('❌ Error al procesar la solicitud: ' + err.message, 'error');
+    });
+}
+
+// Función para agregar un usuario a la lista de chats dinámicamente
+function agregarUsuarioAListaChats(usuario) {
+    console.log('🔧 agregarUsuarioAListaChats() llamada con:', usuario);
+    
+    if (!usuario || !usuario.id_use) {
+        console.error('❌ Usuario inválido o sin id_use:', usuario);
+        return;
+    }
+    
+    const chatsPanel = document.querySelector('#chats-panel ul');
+    console.log('📋 Panel de chats encontrado:', chatsPanel);
+    
+    // Si no existe la lista (estaba vacía), crearla
+    if (!chatsPanel) {
+        const panelDiv = document.querySelector('#chats-panel');
+        const alertInfo = panelDiv.querySelector('.alert-info');
+        if (alertInfo) {
+            alertInfo.remove();
+        }
+        const newList = document.createElement('ul');
+        newList.className = 'list-group';
+        panelDiv.appendChild(newList);
+    }
+    
+    // Obtener el icono según el tipo de relación
+    let iconoRelacion = '<i class="bi bi-check-circle"></i> Solicitud aceptada';
+    if (usuario.tipo_relacion === 'amigo') {
+        iconoRelacion = '<i class="bi bi-people-fill"></i> Amigo';
+    } else if (usuario.tipo_relacion === 'seguidor_mutuo') {
+        iconoRelacion = '<i class="bi bi-arrow-left-right"></i> Seguidor mutuo';
+    }
+    
+    // Crear el elemento del nuevo usuario
+    const nuevoItem = document.createElement('li');
+    nuevoItem.className = 'list-group-item d-flex align-items-center justify-content-between';
+    nuevoItem.style.opacity = '0';
+    nuevoItem.innerHTML = `
+        <div class="d-flex align-items-center flex-grow-1">
+            <img src="/converza/public/avatars/${usuario.avatar}" 
+                 width="40" height="40" class="rounded-circle me-2">
+            <div class="flex-grow-1">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="fw-bold">${usuario.usuario}</span>
+                </div>
+                <small class="text-muted">
+                    ${iconoRelacion}
+                </small>
+            </div>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <a href="chat.php?id=${usuario.id_use}" 
+               class="btn btn-sm btn-primary">
+                <i class="bi bi-chat-dots"></i> Chatear
+            </a>
+            <!-- Menú de opciones -->
+            <div class="dropdown">
+                <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-three-dots-vertical"></i>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li>
+                        <a class="dropdown-item" href="perfil.php?id=${usuario.id_use}">
+                            <i class="bi bi-person-circle"></i> Ver perfil
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" href="#" onclick="archivarConversacion(${usuario.id_use}); return false;">
+                            <i class="bi bi-archive"></i> Archivar
+                        </a>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <a class="dropdown-item text-danger" href="#" onclick="bloquearUsuarioDesdeChat(${usuario.id_use}, '${usuario.usuario}'); return false;">
+                            <i class="bi bi-shield-x"></i> Bloquear
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    `;
+    
+    // Agregar al inicio de la lista con animación
+    const listaChats = document.querySelector('#chats-panel ul');
+    listaChats.insertBefore(nuevoItem, listaChats.firstChild);
+    
+    // Animar la aparición
+    setTimeout(() => {
+        nuevoItem.style.transition = 'opacity 0.5s ease';
+        nuevoItem.style.opacity = '1';
+    }, 100);
+    
+    // Actualizar el contador del tab de chats
+    const badgeChats = document.querySelector('#chats-tab .badge');
+    if (badgeChats) {
+        let count = parseInt(badgeChats.textContent) || 0;
+        badgeChats.textContent = count + 1;
+    }
+    
+    // Remover el badge "Nuevo" después de 5 segundos
+    setTimeout(() => {
+        const badgeNuevo = nuevoItem.querySelector('.badge-success');
+        if (badgeNuevo) {
+            badgeNuevo.style.transition = 'opacity 0.3s ease';
+            badgeNuevo.style.opacity = '0';
+            setTimeout(() => badgeNuevo.remove(), 300);
+        }
+    }, 5000);
+}
+
+// Función para bloquear usuario desde el chat
+function bloquearUsuarioDesdeChat(usuarioId, nombreUsuario) {
+    if (!confirm(`¿Estás seguro de que quieres bloquear a ${nombreUsuario}?\n\nAl bloquear a este usuario:\n• No podrá ver tu perfil\n• No podrá enviarte mensajes\n• No podrá interactuar contigo de ninguna forma\n• Solo podrás desbloquearlo desde su perfil`)) {
+        return;
+    }
+    
+    fetch('bloquear_usuario.php', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        body: `usuario_id=${usuarioId}`
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            mostrarNotificacion(`✓ Usuario bloqueado correctamente. ${nombreUsuario} ya no podrá interactuar contigo.`, 'success');
+            
+            // Remover al usuario de la lista de chats visualmente
+            const listItems = document.querySelectorAll('#chats-panel .list-group-item');
+            listItems.forEach(item => {
+                const nombreEnItem = item.querySelector('.fw-bold');
+                if (nombreEnItem && nombreEnItem.textContent.trim() === nombreUsuario) {
+                    item.style.transition = 'opacity 0.3s ease';
+                    item.style.opacity = '0';
+                    setTimeout(() => {
+                        item.remove();
+                        
+                        // Verificar si quedan usuarios en la lista
+                        const itemsRestantes = document.querySelectorAll('#chats-panel .list-group-item').length;
+                        if (itemsRestantes === 0) {
+                            const listaChats = document.querySelector('#chats-panel ul');
+                            if (listaChats) {
+                                listaChats.outerHTML = `
+                                    <div class="alert alert-info mb-0">
+                                        <i class="bi bi-info-circle"></i> No tienes conversaciones activas todavía.
+                                    </div>
+                                `;
+                            }
+                        }
+                    }, 300);
+                }
+            });
+            
+            // Actualizar el contador del tab de chats
+            const badgeChats = document.querySelector('#chats-tab .badge');
+            if (badgeChats) {
+                let count = parseInt(badgeChats.textContent) || 0;
+                count--;
+                if (count > 0) {
+                    badgeChats.textContent = count;
+                } else {
+                    badgeChats.remove();
+                }
+            }
+            
+            // Recargar página para mostrar cambios
+            setTimeout(() => {
+                window.location.href = 'chat.php';
+            }, 800);
+        } else {
+            mostrarNotificacion('❌ Error al bloquear usuario: ' + (data.message || 'Error desconocido'), 'error');
+        }
+    })
+    .catch(err => {
+        console.error('Error:', err);
+        mostrarNotificacion('❌ Error al procesar la solicitud de bloqueo', 'error');
+    });
+}
+
+// Función para archivar conversación
+function archivarConversacion(usuarioId) {
+    if (!confirm('¿Estás seguro de que quieres archivar esta conversación?\n\nLa conversación no se eliminará, solo se moverá a la sección de Archivados.')) {
+        return;
+    }
+    
+    fetch('gestionar_archivo_chat.php', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        body: `accion=archivar&usuario_id=${usuarioId}`
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            mostrarNotificacion('✓ Conversación archivada correctamente', 'success');
+            
+            // Remover de la lista de chats activos
+            const listItems = document.querySelectorAll('#chats-panel .list-group-item');
+            listItems.forEach(item => {
+                const chatearBtn = item.querySelector(`a[href*="id=${usuarioId}"]`);
+                if (chatearBtn) {
+                    item.style.transition = 'opacity 0.3s ease';
+                    item.style.opacity = '0';
+                    setTimeout(() => item.remove(), 300);
+                }
+            });
+            
+            // Actualizar contador de chats
+            const badgeChats = document.querySelector('#chats-tab .badge');
+            if (badgeChats) {
+                let count = parseInt(badgeChats.textContent) || 0;
+                count--;
+                if (count > 0) {
+                    badgeChats.textContent = count;
+                } else {
+                    badgeChats.remove();
+                }
+            }
+            
+            // Recargar página para mostrar cambios
+            setTimeout(() => {
+                window.location.href = 'chat.php';
+            }, 800);
+        } else {
+            mostrarNotificacion('❌ Error al archivar conversación: ' + (data.message || 'Error desconocido'), 'error');
+        }
+    })
+    .catch(err => {
+        console.error('Error:', err);
+        mostrarNotificacion('❌ Error al archivar conversación', 'error');
+    });
+}
+
+// Función para desarchivar conversación
+function desarchivarConversacion(usuarioId) {
+    fetch('gestionar_archivo_chat.php', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        body: `accion=desarchivar&usuario_id=${usuarioId}`
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            mostrarNotificacion('✓ Conversación desarchivada correctamente', 'success');
+            
+            // Remover de la lista de archivados
+            const listItems = document.querySelectorAll('#archivados-panel .list-group-item');
+            listItems.forEach(item => {
+                const desarchivarBtn = item.querySelector(`button[onclick*="${usuarioId}"]`);
+                if (desarchivarBtn) {
+                    item.style.transition = 'opacity 0.3s ease';
+                    item.style.opacity = '0';
+                    setTimeout(() => item.remove(), 300);
+                }
+            });
+            
+            // Redirigir a chats después de 1 segundo
+            setTimeout(() => {
+                window.location.href = 'chat.php';
+            }, 1000);
+        } else {
+            mostrarNotificacion('❌ Error al desarchivar conversación: ' + (data.message || 'Error desconocido'), 'error');
+        }
+    })
+    .catch(err => {
+        console.error('Error:', err);
+        mostrarNotificacion('❌ Error al desarchivar conversación', 'error');
+    });
+}
+
+// Función para desbloquear usuario
+function desbloquearUsuario(usuarioId, nombreUsuario) {
+    if (!confirm(`¿Estás seguro de que quieres desbloquear a ${nombreUsuario}?\n\nEste usuario podrá volver a interactuar contigo.`)) {
+        return;
+    }
+    
+    fetch('desbloquear_usuario.php', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        body: `usuario_id=${usuarioId}`
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            // Mensaje de éxito
+            if (data.data && data.data.tiene_conversacion) {
+                mostrarNotificacion(`✓ ${nombreUsuario} desbloqueado. Conversación restaurada (${data.data.mensajes_previos} mensajes).`, 'success');
+            } else {
+                mostrarNotificacion(`✓ ${nombreUsuario} ha sido desbloqueado correctamente.`, 'success');
+            }
+            
+            // Recargar la página después de 800ms para mostrar los cambios
+            setTimeout(() => {
+                window.location.href = 'chat.php';
+            }, 800);
+        } else {
+            mostrarNotificacion('❌ Error al desbloquear usuario: ' + (data.message || 'Error desconocido'), 'error');
+        }
+    })
+    .catch(err => {
+        console.error('Error:', err);
+        mostrarNotificacion('❌ Error al procesar la solicitud', 'error');
+    });
+}
+
+// Función para mostrar notificaciones
+function mostrarNotificacion(mensaje, tipo) {
+    const alertClass = tipo === 'success' ? 'alert-success' : 'alert-danger';
+    const iconClass = tipo === 'success' ? 'bi-check-circle-fill' : 'bi-exclamation-triangle-fill';
+    const alerta = document.createElement('div');
+    alerta.className = `alert ${alertClass} alert-dismissible fade show position-fixed shadow-lg`;
+    alerta.style.cssText = 'top: 80px; right: 20px; z-index: 9999; min-width: 300px; max-width: 400px;';
+    alerta.setAttribute('role', 'alert');
+    alerta.innerHTML = `
+        <div class="d-flex align-items-center">
+            <i class="bi ${iconClass} me-2 fs-5"></i>
+            <div class="flex-grow-1">${mensaje}</div>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    `;
+    document.body.appendChild(alerta);
+    
+    // Auto-ocultar después de 4 segundos
+    setTimeout(function() {
+        alerta.style.transition = 'opacity 0.3s ease';
+        alerta.style.opacity = '0';
+        setTimeout(function() {
+            if (alerta.parentNode) {
+                alerta.parentNode.removeChild(alerta);
+            }
+        }, 300);
+    }, 4000);
+}
+
+// Manejar z-index de dropdowns para que aparezcan correctamente
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.dropdown').forEach(function(dropdown) {
+        const button = dropdown.querySelector('[data-bs-toggle="dropdown"]');
+        
+        if (button) {
+            button.addEventListener('show.bs.dropdown', function() {
+                const listItem = dropdown.closest('.list-group-item');
+                if (listItem) {
+                    listItem.style.zIndex = '1060';
+                }
+            });
+            
+            button.addEventListener('hidden.bs.dropdown', function() {
+                const listItem = dropdown.closest('.list-group-item');
+                if (listItem) {
+                    listItem.style.zIndex = '';
+                }
+            });
+        }
+    });
+});
 </script>
 
 </body>

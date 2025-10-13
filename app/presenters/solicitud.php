@@ -106,6 +106,19 @@ if ($action === 'eliminar') {
     $stmt->execute();
     
     if ($stmt->rowCount() > 0) {
+        // También eliminar la relación de seguimiento (dejar de seguir automáticamente)
+        try {
+            $stmtSeguir = $conexion->prepare('
+                DELETE FROM seguidores 
+                WHERE seguidor_id = :yo AND seguido_id = :id
+            ');
+            $stmtSeguir->bindParam(':yo', $yo, PDO::PARAM_INT);
+            $stmtSeguir->bindParam(':id', $id, PDO::PARAM_INT);
+            $stmtSeguir->execute();
+        } catch (Exception $e) {
+            // Si hay error al eliminar seguimiento, continuar igual
+        }
+        
         $_SESSION['notificaciones'][] = "Has eliminado la amistad con usuario #$id";
         echo 'Amistad eliminada correctamente.';
     } else {

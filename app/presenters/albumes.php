@@ -128,25 +128,25 @@ $navActive = [
             <a class="nav-link position-relative<?php if($navActive['chat']) echo ' active'; ?>" href="/Converza/app/presenters/chat.php" aria-current="<?php if($navActive['chat']) echo 'page'; ?>">
                 <i class="bi bi-chat-dots"></i> Mensajes
                 <?php
-                // Contar mensajes no leídos (verificar si la tabla existe)
+                // Contar mensajes no leídos
                 $countMensajes = 0;
                 try {
                     $stmtCheckTable = $conexion->query("SHOW TABLES LIKE 'chats'");
                     if ($stmtCheckTable->rowCount() > 0) {
-                        // Contar solo mensajes no leídos de amigos confirmados
+                        // Contar solo mensajes recibidos no leídos
                         $stmtMensajes = $conexion->prepare("
-                            SELECT COUNT(*) as total 
+                            SELECT COUNT(DISTINCT c.id_cha) as total 
                             FROM chats c
-                            INNER JOIN amigos a ON (a.de = c.de AND a.para = :usuario_id) OR (a.para = c.de AND a.de = :usuario_id2)
-                            WHERE c.para = :usuario_id3 
-                            AND c.leido = 0 
-                            AND a.estado = 1
+                            WHERE c.para = :usuario_id 
+                            AND c.leido = 0
+                            AND c.de != :usuario_id2
                         ");
-                        $stmtMensajes->bindParam(':usuario_id', $_SESSION['id'], PDO::PARAM_INT);
-                        $stmtMensajes->bindParam(':usuario_id2', $_SESSION['id'], PDO::PARAM_INT);
-                        $stmtMensajes->bindParam(':usuario_id3', $_SESSION['id'], PDO::PARAM_INT);
-                        $stmtMensajes->execute();
-                        $countMensajes = $stmtMensajes->fetch(PDO::FETCH_ASSOC)['total'];
+                        $stmtMensajes->execute([
+                            ':usuario_id' => $_SESSION['id'],
+                            ':usuario_id2' => $_SESSION['id']
+                        ]);
+                        $result = $stmtMensajes->fetch(PDO::FETCH_ASSOC);
+                        $countMensajes = $result['total'] ?? 0;
                     }
                 } catch (Exception $e) {
                     // Si hay error, simplemente no mostrar contador
@@ -161,6 +161,11 @@ $navActive = [
             </a>
         </li>
         <li class="nav-item"><a class="nav-link<?php if($navActive['albumes']) echo ' active'; ?>" href="/Converza/app/presenters/albumes.php?id=<?php echo (int)$_SESSION['id']; ?>" aria-current="<?php if($navActive['albumes']) echo 'page'; ?>"><i class="bi bi-images"></i> Álbumes</a></li>
+        <li class="nav-item">
+            <a class="nav-link" href="#" data-bs-toggle="offcanvas" data-bs-target="#offcanvasDailyShuffle" title="Daily Shuffle - Descubre nuevas personas">
+                <i class="bi bi-shuffle"></i> Shuffle
+            </a>
+        </li>
         <li class="nav-item"><a class="nav-link" href="#" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSearch" title="Buscar usuarios"><i class="bi bi-search"></i></a></li>
         <li class="nav-item">
             <a class="nav-link position-relative" href="#" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSolicitudes" title="Solicitudes de amistad">

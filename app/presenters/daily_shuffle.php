@@ -85,6 +85,7 @@ try {
             u.nombre,
             u.avatar,
             u.descripcion,
+            u.sexo,
             ds.ya_contactado
         FROM daily_shuffle ds
         INNER JOIN usuarios u ON ds.usuario_mostrado_id = u.id_use

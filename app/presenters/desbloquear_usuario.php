@@ -55,33 +55,70 @@ try {
     }
     error_log("Usuario a desbloquear existe: OK");
     
-    // Verificar que existe el bloqueo
-    $stmtCheck = $conexion->prepare('SELECT id FROM bloqueos WHERE bloqueador_id = ? AND bloqueado_id = ?');
-    $stmtCheck->execute([$bloqueador_id, $bloqueado_id]);
-    
-    if (!$stmtCheck->fetch()) {
-        errorResponse('Este usuario no está bloqueado');
-    }
-    error_log("Bloqueo encontrado: OK");
-    
-    // Eliminar el bloqueo
+    // Intentar eliminar el bloqueo directamente (sin verificar primero si existe)
     $deleteBloqueo = $conexion->prepare('DELETE FROM bloqueos WHERE bloqueador_id = ? AND bloqueado_id = ?');
     $deleteBloqueo->execute([$bloqueador_id, $bloqueado_id]);
     
-    if ($deleteBloqueo->rowCount() > 0) {
+    // Si se eliminó al menos un registro o si no existía el bloqueo, considerarlo exitoso
+    $bloqueoExistia = $deleteBloqueo->rowCount() > 0;
+    
+    // Registrar si existía o no el bloqueo
+    if ($bloqueoExistia) {
         error_log("Bloqueo eliminado correctamente");
-        
-        echo json_encode([
-            'success' => true,
-            'message' => 'Usuario desbloqueado correctamente',
-            'data' => [
-                'bloqueador_id' => $bloqueador_id,
-                'desbloqueado_id' => $bloqueado_id
-            ]
-        ]);
     } else {
-        errorResponse('No se pudo eliminar el bloqueo');
+        error_log("El bloqueo no existía, pero se considera operación exitosa");
     }
+    
+    // Verificar si hay conversación previa entre estos usuarios
+    $stmtConversacion = $conexion->prepare('
+        SELECT COUNT(*) as total 
+        FROM chats 
+        WHERE (de = ? AND para = ?) 
+           OR (de = ? AND para = ?)
+    ');
+    $stmtConversacion->execute([$bloqueador_id, $bloqueado_id, $bloqueado_id, $bloqueador_id]);
+    $resultConv = $stmtConversacion->fetch(PDO::FETCH_ASSOC);
+    $tieneConversacion = $resultConv['total'] > 0;
+    
+    error_log("Conversación previa encontrada: " . ($tieneConversacion ? 'SI' : 'NO') . " ({$resultConv['total']} mensajes)");
+    
+    // Obtener datos del usuario desbloqueado para el frontend
+    $stmtUsuario = $conexion->prepare('
+        SELECT u.id_use, u.usuario, u.nombre, u.avatar,
+               CASE 
+                   WHEN EXISTS (SELECT 1 FROM amigos WHERE 
+                       ((de = ? AND para = u.id_use) OR (de = u.id_use AND para = ?))
+                       AND estado = 1
+                   ) THEN "amigo"
+                   WHEN EXISTS (SELECT 1 FROM seguidores WHERE 
+                       (seguidor_id = ? AND seguido_id = u.id_use) AND
+                       EXISTS (SELECT 1 FROM seguidores WHERE seguidor_id = u.id_use AND seguido_id = ?)
+                   ) THEN "seguidor_mutuo"
+                   ELSE "ninguno"
+               END as tipo_relacion
+        FROM usuarios u
+        WHERE u.id_use = ?
+    ');
+    $stmtUsuario->execute([
+        $bloqueador_id, $bloqueador_id, 
+        $bloqueador_id, $bloqueador_id,
+        $bloqueado_id
+    ]);
+    $usuarioData = $stmtUsuario->fetch(PDO::FETCH_ASSOC);
+    
+    // Responder con éxito, independientemente de si el bloqueo existía o no
+    echo json_encode([
+        'success' => true,
+        'message' => 'Usuario desbloqueado correctamente',
+        'data' => [
+            'bloqueador_id' => $bloqueador_id,
+            'desbloqueado_id' => $bloqueado_id,
+            'tiene_conversacion' => $tieneConversacion,
+            'mensajes_previos' => $resultConv['total'],
+            'usuario' => $usuarioData,
+            'bloqueo_existia' => $bloqueoExistia
+        ]
+    ]);
     
 } catch (PDOException $e) {
     error_log("ERROR PDO DESBLOQUEO: " . $e->getMessage());
