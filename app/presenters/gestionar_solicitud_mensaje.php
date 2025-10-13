@@ -2,6 +2,7 @@
 session_start();
 require_once __DIR__.'/../models/config.php';
 require_once __DIR__.'/../models/chat-permisos-helper.php';
+require_once __DIR__.'/../models/notificaciones-triggers.php';
 
 header('Content-Type: application/json');
 
@@ -16,6 +17,9 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     echo json_encode(['success' => false, 'error' => 'Método no permitido']);
     exit;
 }
+
+// Instanciar clase de notificaciones
+$notificacionesTriggers = new NotificacionesTriggers($conexion);
 
 $accion = $_POST['accion'] ?? '';
 $solicitudId = isset($_POST['solicitud_id']) ? (int)$_POST['solicitud_id'] : 0;
@@ -35,10 +39,19 @@ try {
             $stmt->execute([':id' => $solicitudId]);
             $solicitud = $stmt->fetch(PDO::FETCH_ASSOC);
             
-            if ($solicitud && !empty($solicitud['primer_mensaje'])) {
+            if ($solicitud) {
                 $deUsuario = $solicitud['de'];
                 $paraUsuario = $usuarioActual;
                 $fechaOriginal = $solicitud['fecha_solicitud'];
+                
+                // Obtener nombre del usuario que acepta para la notificación
+                $stmtNombre = $conexion->prepare("SELECT usuario FROM usuarios WHERE id_use = :id");
+                $stmtNombre->execute([':id' => $usuarioActual]);
+                $datosUsuario = $stmtNombre->fetch(PDO::FETCH_ASSOC);
+                $nombreUsuario = $datosUsuario['usuario'] ?? 'Usuario';
+                
+                // Enviar notificación al usuario que envió la solicitud
+                $notificacionesTriggers->solicitudMensajeAceptada($usuarioActual, $deUsuario, $nombreUsuario);
                 
                 // 1. Verificar si existe conversación en c_chats
                 $stmtCheckConv = $conexion->prepare("
@@ -121,6 +134,24 @@ try {
         
     } else if ($accion === 'rechazar') {
         if (rechazarSolicitudMensaje($conexion, $solicitudId, $usuarioActual)) {
+            // Obtener info de la solicitud rechazada
+            $stmt = $conexion->prepare("SELECT de FROM solicitudes_mensaje WHERE id = :id");
+            $stmt->execute([':id' => $solicitudId]);
+            $solicitud = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if ($solicitud) {
+                $deUsuario = $solicitud['de'];
+                
+                // Obtener nombre del usuario que rechaza
+                $stmtNombre = $conexion->prepare("SELECT usuario FROM usuarios WHERE id_use = :id");
+                $stmtNombre->execute([':id' => $usuarioActual]);
+                $datosUsuario = $stmtNombre->fetch(PDO::FETCH_ASSOC);
+                $nombreUsuario = $datosUsuario['usuario'] ?? 'Usuario';
+                
+                // Enviar notificación al usuario que envió la solicitud
+                $notificacionesTriggers->solicitudMensajeRechazada($usuarioActual, $deUsuario, $nombreUsuario);
+            }
+            
             echo json_encode([
                 'success' => true,
                 'mensaje' => 'Solicitud rechazada'

@@ -15,6 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 session_start();
 require_once __DIR__.'/../models/config.php';
 require_once __DIR__.'/../models/socialnetwork-lib.php';
+require_once __DIR__.'/../models/notificaciones-triggers.php';
 // Eliminar todas las publicaciones si se solicita por el usuario (solo para admin o debug)
 if (isset($_GET['eliminar_todo']) && isset($_SESSION['tipo']) && $_SESSION['tipo'] === 'admin') {
     $conexion->exec('DELETE FROM publicaciones');
@@ -31,6 +32,9 @@ if (!isset($_SESSION['id']) || !isset($_SESSION['usuario']) || !isset($_SESSION[
     header("Location: login.php");
     exit();
 }
+
+// Instanciar sistema de notificaciones
+$notificacionesTriggers = new NotificacionesTriggers($conexion);
 
 // Verificar si el usuario está bloqueado
 if (isUserBlocked($_SESSION['id'], $conexion)) {
@@ -136,6 +140,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['publicacion']) || (i
                     $stmtVideo->bindParam(':pubid', $pubId, PDO::PARAM_INT);
                     $stmtVideo->execute();
                 }
+                
+                // 🔔 Notificar a seguidores y amigos sobre nueva publicación
+                $stmtUsuario = $conexion->prepare("SELECT usuario FROM usuarios WHERE id_use = :id");
+                $stmtUsuario->execute([':id' => $_SESSION['id']]);
+                $datosUsuario = $stmtUsuario->fetch(PDO::FETCH_ASSOC);
+                $nombreUsuario = $datosUsuario['usuario'] ?? $_SESSION['usuario'];
+                $notificacionesTriggers->notificarNuevaPublicacion($conexion, $_SESSION['id'], $nombreUsuario, $pubId, $publicacion);
+                
                 $mensaje = "¡Publicación creada exitosamente!";
                 logPublicar('Publicación creada por usuario '.$_SESSION['id'].' ('.$_SESSION['usuario'].') con '.count($imagenesGuardadas).' imagen(es) y '.count($videosGuardados).' video(s).');
                 header("Location: " . $_SERVER['PHP_SELF']);
@@ -241,40 +253,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['publicacion']) || (i
                 <li class="nav-item"><a class="nav-link active" href="index.php" aria-current="page"><i class="bi bi-house-door"></i> Inicio</a></li>
                 <li class="nav-item"><a class="nav-link" href="../presenters/perfil.php?id=<?php echo (int)$_SESSION['id']; ?>"><i class="bi bi-person-circle"></i> Perfil</a></li>
                 <li class="nav-item">
-                    <a class="nav-link position-relative" href="../presenters/chat.php">
-                        <i class="bi bi-chat-dots"></i> Mensajes
-                        <?php
-                        // Contar mensajes no leídos
-                        $countMensajes = 0;
-                        try {
-                            $stmtCheckTable = $conexion->query("SHOW TABLES LIKE 'chats'");
-                            if ($stmtCheckTable->rowCount() > 0) {
-                                // Contar solo mensajes recibidos no leídos
-                                $stmtMensajes = $conexion->prepare("
-                                    SELECT COUNT(DISTINCT c.id_cha) as total 
-                                    FROM chats c
-                                    WHERE c.para = :usuario_id 
-                                    AND c.leido = 0
-                                    AND c.de != :usuario_id2
-                                ");
-                                $stmtMensajes->execute([
-                                    ':usuario_id' => $_SESSION['id'],
-                                    ':usuario_id2' => $_SESSION['id']
-                                ]);
-                                $result = $stmtMensajes->fetch(PDO::FETCH_ASSOC);
-                                $countMensajes = $result['total'] ?? 0;
-                            }
-                        } catch (Exception $e) {
-                            // Si hay error, simplemente no mostrar contador
-                            $countMensajes = 0;
-                        }
-                        if ($countMensajes > 0):
-                        ?>
-                        <span class="position-absolute badge rounded-pill bg-danger notification-badge">
-                            <?php echo $countMensajes > 9 ? '9+' : $countMensajes; ?>
-                        </span>
-                        <?php endif; ?>
-                    </a>
+                    <?php include __DIR__.'/components/mensajes-badge.php'; ?>
                 </li>
                 <li class="nav-item"><a class="nav-link" href="../presenters/albumes.php?id=<?php echo (int)$_SESSION['id']; ?>"><i class="bi bi-images"></i> Álbumes</a></li>
                 <li class="nav-item">
@@ -284,23 +263,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['publicacion']) || (i
                 </li>
                 <li class="nav-item"><a class="nav-link" href="#" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSearch" title="Buscar usuarios"><i class="bi bi-search"></i></a></li>
                 <li class="nav-item">
-                    <a class="nav-link position-relative" href="#" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSolicitudes" title="Solicitudes de amistad">
-                        <i class="bi bi-person-plus"></i>
-                        <?php
-                        // Contar solicitudes pendientes
-                        $stmtCount = $conexion->prepare("SELECT COUNT(*) as total FROM amigos WHERE para = :usuario_id AND estado = 0");
-                        $stmtCount->bindParam(':usuario_id', $_SESSION['id'], PDO::PARAM_INT);
-                        $stmtCount->execute();
-                        $countSolicitudes = $stmtCount->fetch(PDO::FETCH_ASSOC)['total'];
-                        if ($countSolicitudes > 0):
-                        ?>
-                        <span class="position-absolute badge rounded-pill bg-danger notification-badge">
-                            <?php echo $countSolicitudes > 9 ? '9+' : $countSolicitudes; ?>
-                        </span>
-                        <?php endif; ?>
-                    </a>
+                    <?php include __DIR__.'/components/solicitudes-badge.php'; ?>
                 </li>
                 <li class="nav-item"><a class="nav-link" href="#" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNuevos" title="Nuevos usuarios"><i class="bi bi-people"></i></a></li>
+                
+                <!-- 🔔 Sistema de Notificaciones -->
+                <li class="nav-item">
+                    <?php include __DIR__.'/components/notificaciones-widget.php'; ?>
+                </li>
+                
                 <li class="nav-item"><a class="nav-link" href="../presenters/logout.php"><i class="bi bi-box-arrow-right"></i> Cerrar sesión</a></li>
                 <?php if (isset($_SESSION['tipo']) && $_SESSION['tipo'] === 'admin'): ?>
                 <li class="nav-item"><a class="nav-link text-warning fw-bold" href="admin.php"><i class="bi bi-shield-lock"></i> Panel Admin</a></li>

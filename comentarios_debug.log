@@ -1,0 +1,20 @@
+[13-Oct-2025 18:19:24 Europe/Berlin] === AGREGARCOMENTARIO.PHP INICIADO ===
+[13-Oct-2025 18:19:24 Europe/Berlin] POST: {"comentario":"NARUTO UWU","usuario":"21","publicacion":"173"}
+[13-Oct-2025 18:19:24 Europe/Berlin] SESSION ID: 21
+[13-Oct-2025 18:19:24 Europe/Berlin] ✅ Usuario NO bloqueado, continuando...
+[13-Oct-2025 18:19:24 Europe/Berlin] 📨 Método POST detectado
+[13-Oct-2025 18:19:24 Europe/Berlin] ✅ Comentario insertado correctamente. ID: 156
+[13-Oct-2025 18:19:24 Europe/Berlin] ❌ ERROR PDO: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'user1' in 'field list'
+[13-Oct-2025 18:19:24 Europe/Berlin] Stack trace: #0 C:\xampp\htdocs\Converza\app\presenters\agregarcomentario.php(98): PDO->prepare('INSERT INTO not...')
+#1 {main}
+[13-Oct-2025 18:19:24 Europe/Berlin] 📤 Enviando respuesta: {"status":"error","message":"Ocurri\u00f3 un problema al guardar el comentario. Por favor, int\u00e9ntalo de nuevo.","debug":"SQLSTATE[42S22]: Column not found: 1054 Unknown column 'user1' in 'field list'"}
+[13-Oct-2025 18:24:49 Europe/Berlin] === AGREGARCOMENTARIO.PHP INICIADO ===
+[13-Oct-2025 18:24:49 Europe/Berlin] POST: {"comentario":"test debug","usuario":"14","publicacion":"171"}
+[13-Oct-2025 18:24:49 Europe/Berlin] SESSION ID: 14
+[13-Oct-2025 18:24:49 Europe/Berlin] ✅ Usuario NO bloqueado, continuando...
+[13-Oct-2025 18:24:49 Europe/Berlin] 📨 Método POST detectado
+[13-Oct-2025 18:24:49 Europe/Berlin] ✅ Comentario insertado correctamente. ID: 157
+[13-Oct-2025 18:24:49 Europe/Berlin] ❌ ERROR PDO: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'user1' in 'field list'
+[13-Oct-2025 18:24:49 Europe/Berlin] Stack trace: #0 C:\xampp\htdocs\Converza\app\presenters\agregarcomentario.php(98): PDO->prepare('INSERT INTO not...')
+#1 {main}
+[13-Oct-2025 18:24:49 Europe/Berlin] 📤 Enviando respuesta: {"status":"error","message":"Ocurri\u00f3 un problema al guardar el comentario. Por favor, int\u00e9ntalo de nuevo.","debug":"SQLSTATE[42S22]: Column not found: 1054 Unknown column 'user1' in 'field list'"}

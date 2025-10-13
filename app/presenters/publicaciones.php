@@ -54,59 +54,10 @@ if ($sessionUserId) {
 $stmt->execute();
 $publicaciones = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
-<div class="d-flex flex-column gap-4">
-<?php foreach ($publicaciones as $pub): 
-    // Verificar si el usuario actual está bloqueado
-    $isUserBlocked = $sessionUserId && isUserBlocked($sessionUserId, $conexion);
-?>
-    <div class="card shadow-sm border-0 mb-2">
-        <div class="card-body">
-            <div class="d-flex align-items-center mb-2">
-                <?php
-                    $avatar = htmlspecialchars($pub['avatar']);
-                    $avatarPath = __DIR__.'/../../public/avatars/'.$avatar;
-                    if ($avatar && file_exists($avatarPath)) {
-                        $src = '/converza/public/avatars/'.$avatar;
-                        echo '<img src="'.$src.'" class="rounded-circle me-2" width="48" height="48" alt="Avatar">';
-                    } else {
-                        echo '<img src="/converza/public/avatars/defect.jpg" class="rounded-circle me-2" width="48" height="48" alt="Avatar por defecto">';
-                    }
-                ?>
-                <div>
-                    <span class="fw-bold text-primary" style="cursor:pointer;" onclick="location.href='../presenters/perfil.php?id=<?php echo (int)$pub['usuario_id'];?>';">
-                        <?php echo htmlspecialchars($pub['usuario']);?>
-                    </span>
-                    <br>
-                    <span class="text-muted small"><?php echo htmlspecialchars($pub['fecha']);?></span>
-                </div>
-                <div class="ms-auto">
-                    <?php 
-                    $isOwner = $sessionUserId && isset($pub['usuario_id']) && (int)$pub['usuario_id'] === $sessionUserId;
-                    $isAdmin = isset($_SESSION['tipo']) && $_SESSION['tipo'] === 'admin';
-                    
-                    if ($isOwner || $isAdmin): ?>
-                        <div class="custom-menu-wrapper position-relative d-inline-block">
-                            <button class="btn <?php echo $isAdmin && !$isOwner ? 'btn-warning' : 'btn-light'; ?> btn-sm rounded-circle custom-menu-btn" type="button" data-pub-id="<?php echo (int)$pub['id_pub']; ?>" style="width:36px;height:36px;display:flex;align-items:center;justify-content:center;" title="<?php echo $isAdmin && !$isOwner ? 'Acciones de administrador' : 'Mis acciones'; ?>">
-                                <i class="bi <?php echo $isAdmin && !$isOwner ? 'bi-shield-lock' : 'bi-three-dots-vertical'; ?>"></i>
-                            </button>
-                            <div class="custom-menu shadow" id="customMenu-<?php echo (int)$pub['id_pub']; ?>" style="display:none;position:absolute;top:40px;right:0;z-index:1000;min-width:<?php echo $isAdmin && !$isOwner ? '180px' : '140px'; ?>;background:#fff;border-radius:12px;box-shadow:0 4px 24px rgba(0,0,0,0.10);">
-                                <?php if ($isOwner || $isAdmin): ?>
-                                    <a href="#" class="d-block px-4 py-2 text-dark custom-edit" data-pub-id="<?php echo (int)$pub['id_pub']; ?>" style="text-decoration:none;font-size:1rem;">✏️ Editar<?php echo $isAdmin && !$isOwner ? ' (Admin)' : ''; ?></a>
-                                <?php endif; ?>
-                                
-                                <?php if ($isOwner): ?>
-                                    <a href="#" class="d-block px-4 py-2 text-danger custom-delete" data-pub-id="<?php echo (int)$pub['id_pub']; ?>" style="text-decoration:none;font-size:1rem;">🗑️ Eliminar</a>
-                                <?php elseif ($isAdmin): ?>
-                                    <a href="#" class="d-block px-4 py-2 text-danger admin-delete" data-pub-id="<?php echo (int)$pub['id_pub']; ?>" style="text-decoration:none;font-size:1rem;">🗑️ Eliminar (Admin)</a>
-                                <?php endif; ?>
-                                
-                                <?php if ($isAdmin): ?>
-                                    <a href="admin.php" class="d-block px-4 py-2 text-primary" style="text-decoration:none;font-size:1rem;">⚙️ Panel Admin</a>
-                                <?php endif; ?>
-                            </div>
-                        </div>
-<!-- Estilos para el menú de los tres puntos -->
+
+<!-- Estilos GLOBALES para tooltips y menús - SIEMPRE se cargan -->
 <style>
+    /* CSS Version: 2.1 - TOOLTIP GLOBAL FIX - <?php echo time(); ?> */
     .custom-menu-btn:focus {
         outline: none;
         box-shadow: 0 0 0 2px #0d6efd33;
@@ -166,11 +117,12 @@ $publicaciones = $stmt->fetchAll(PDO::FETCH_ASSOC);
     .reaction-counter, .comment-counter {
         font-size: 0.85rem;
         margin-left: 0.5rem;
-        cursor: pointer;
+        cursor: help !important;
         transition: all 0.2s ease;
         display: inline-block;
         opacity: 0.8;
         color: #6c757d;
+        position: relative;
     }
     
     .reaction-counter:hover, .comment-counter:hover {
@@ -185,11 +137,7 @@ $publicaciones = $stmt->fetchAll(PDO::FETCH_ASSOC);
         font-weight: 500;
     }
     
-    /* Tooltip simple para contadores - solo abajo */
-    .reaction-counter, .comment-counter {
-        position: relative;
-    }
-    
+    /* Tooltip para contadores - CRÍTICO para todos los usuarios */
     .reaction-counter[data-tooltip]:hover::after, 
     .comment-counter[data-tooltip]:hover::after {
         content: attr(data-tooltip) !important;
@@ -229,8 +177,6 @@ $publicaciones = $stmt->fetchAll(PDO::FETCH_ASSOC);
         pointer-events: none !important;
     }
     
-
-    
     /* Estilo para botones de reacción activos (SIN fondo colorido) */
     .btn-reaction-active {
         background: transparent !important;
@@ -266,6 +212,58 @@ $publicaciones = $stmt->fetchAll(PDO::FETCH_ASSOC);
         transition: all 0.3s ease;
     }
 </style>
+
+<div class="d-flex flex-column gap-4">
+<?php foreach ($publicaciones as $pub): 
+    // Verificar si el usuario actual está bloqueado
+    $isUserBlocked = $sessionUserId && isUserBlocked($sessionUserId, $conexion);
+?>
+    <div class="card shadow-sm border-0 mb-2">
+        <div class="card-body">
+            <div class="d-flex align-items-center mb-2">
+                <?php
+                    $avatar = htmlspecialchars($pub['avatar']);
+                    $avatarPath = __DIR__.'/../../public/avatars/'.$avatar;
+                    if ($avatar && file_exists($avatarPath)) {
+                        $src = '/converza/public/avatars/'.$avatar;
+                        echo '<img src="'.$src.'" class="rounded-circle me-2" width="48" height="48" alt="Avatar">';
+                    } else {
+                        echo '<img src="/converza/public/avatars/defect.jpg" class="rounded-circle me-2" width="48" height="48" alt="Avatar por defecto">';
+                    }
+                ?>
+                <div>
+                    <span class="fw-bold text-primary" style="cursor:pointer;" onclick="location.href='../presenters/perfil.php?id=<?php echo (int)$pub['usuario_id'];?>';">
+                        <?php echo htmlspecialchars($pub['usuario']);?>
+                    </span>
+                    <br>
+                    <span class="text-muted small"><?php echo htmlspecialchars($pub['fecha']);?></span>
+                </div>
+                <div class="ms-auto">
+                    <?php 
+                    $isOwner = $sessionUserId && isset($pub['usuario_id']) && (int)$pub['usuario_id'] === $sessionUserId;
+                    $isAdmin = isset($_SESSION['tipo']) && $_SESSION['tipo'] === 'admin';
+                    
+                    if ($isOwner || $isAdmin): ?>
+                        <div class="custom-menu-wrapper position-relative d-inline-block">
+                            <button class="btn <?php echo $isAdmin && !$isOwner ? 'btn-warning' : 'btn-light'; ?> btn-sm rounded-circle custom-menu-btn" type="button" data-pub-id="<?php echo (int)$pub['id_pub']; ?>" style="width:36px;height:36px;display:flex;align-items:center;justify-content:center;" title="<?php echo $isAdmin && !$isOwner ? 'Acciones de administrador' : 'Mis acciones'; ?>">
+                                <i class="bi <?php echo $isAdmin && !$isOwner ? 'bi-shield-lock' : 'bi-three-dots-vertical'; ?>"></i>
+                            </button>
+                            <div class="custom-menu shadow" id="customMenu-<?php echo (int)$pub['id_pub']; ?>" style="display:none;position:absolute;top:40px;right:0;z-index:1000;min-width:<?php echo $isAdmin && !$isOwner ? '180px' : '140px'; ?>;background:#fff;border-radius:12px;box-shadow:0 4px 24px rgba(0,0,0,0.10);">
+                                <?php if ($isOwner || $isAdmin): ?>
+                                    <a href="#" class="d-block px-4 py-2 text-dark custom-edit" data-pub-id="<?php echo (int)$pub['id_pub']; ?>" style="text-decoration:none;font-size:1rem;">✏️ Editar<?php echo $isAdmin && !$isOwner ? ' (Admin)' : ''; ?></a>
+                                <?php endif; ?>
+                                
+                                <?php if ($isOwner): ?>
+                                    <a href="#" class="d-block px-4 py-2 text-danger custom-delete" data-pub-id="<?php echo (int)$pub['id_pub']; ?>" style="text-decoration:none;font-size:1rem;">🗑️ Eliminar</a>
+                                <?php elseif ($isAdmin): ?>
+                                    <a href="#" class="d-block px-4 py-2 text-danger admin-delete" data-pub-id="<?php echo (int)$pub['id_pub']; ?>" style="text-decoration:none;font-size:1rem;">🗑️ Eliminar (Admin)</a>
+                                <?php endif; ?>
+                                
+                                <?php if ($isAdmin): ?>
+                                    <a href="admin.php" class="d-block px-4 py-2 text-primary" style="text-decoration:none;font-size:1rem;">⚙️ Panel Admin</a>
+                                <?php endif; ?>
+                            </div>
+                        </div>
                         </div>
                     <?php endif; ?>
                 </div>
@@ -393,7 +391,16 @@ $publicaciones = $stmt->fetchAll(PDO::FETCH_ASSOC);
             </div>
             <div class="ps-5 mt-2">
                 <?php
-                $stmtComentarios = $conexion->prepare("SELECT c.*, u.usuario as nombre_usuario, u.avatar, u.id_use FROM comentarios c JOIN usuarios u ON c.usuario = u.id_use WHERE c.publicacion = :publicacion ORDER BY c.id_com ASC");
+                // Obtener comentarios con filtro de bloqueos
+                $filtroComentariosBloqueos = $sessionUserId ? generarFiltroBloqueos($conexion, $sessionUserId, 'c.usuario') : '1=1';
+                
+                $stmtComentarios = $conexion->prepare("
+                    SELECT c.*, u.usuario as nombre_usuario, u.avatar, u.id_use 
+                    FROM comentarios c 
+                    JOIN usuarios u ON c.usuario = u.id_use 
+                    WHERE c.publicacion = :publicacion AND ($filtroComentariosBloqueos)
+                    ORDER BY c.id_com ASC
+                ");
                 $stmtComentarios->bindParam(':publicacion', $pub['id_pub'], PDO::PARAM_INT);
                 $stmtComentarios->execute();
                 $comentarios = $stmtComentarios->fetchAll(PDO::FETCH_ASSOC);
@@ -615,6 +622,245 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
         });
     });
+
+    // ===== MANEJO DE COMENTARIOS CON AJAX =====
+    document.querySelectorAll('[id^="comment_form_"]').forEach(function(form) {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            console.log('🚀 === INICIO DE ENVÍO DE COMENTARIO ===');
+            
+            const formData = new FormData(form);
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const commentInput = form.querySelector('input[name="comentario"]');
+            const pubId = form.querySelector('input[name="publicacion"]').value;
+            const commentsContainer = form.parentElement;
+            
+            // Log de datos a enviar
+            console.log('📋 Datos del formulario:', {
+                usuario: formData.get('usuario'),
+                comentario: formData.get('comentario'),
+                publicacion: formData.get('publicacion')
+            });
+            
+            // Deshabilitar botón mientras se envía
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="bi bi-hourglass-split"></i>';
+            
+            console.log('📤 Enviando fetch a: /Converza/app/presenters/agregarcomentario.php');
+            
+            fetch('/Converza/app/presenters/agregarcomentario.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                console.log('📥 ===== RESPUESTA RECIBIDA =====');
+                console.log('Status:', response.status);
+                console.log('StatusText:', response.statusText);
+                console.log('Headers:', {
+                    contentType: response.headers.get('Content-Type'),
+                    contentLength: response.headers.get('Content-Length')
+                });
+                
+                // Obtener el texto RAW primero para ver qué llegó
+                return response.text().then(text => {
+                    console.log('📄 Respuesta RAW:', text);
+                    console.log('📄 Longitud:', text.length, 'caracteres');
+                    
+                    // Intentar parsear como JSON
+                    try {
+                        const json = JSON.parse(text);
+                        console.log('✅ JSON parseado correctamente:', json);
+                        return json;
+                    } catch (parseError) {
+                        console.error('❌ ERROR AL PARSEAR JSON:', parseError);
+                        console.error('Primeros 500 caracteres:', text.substring(0, 500));
+                        throw new Error('La respuesta del servidor no es JSON válido');
+                    }
+                });
+            })
+            .then(data => {
+                console.log('📊 ===== PROCESANDO DATOS =====');
+                console.log('Status:', data.status);
+                console.log('Message:', data.message);
+                console.log('Data completo:', data);
+                
+                if (data.status === 'success') {
+                    console.log('✅ Éxito! Creando elemento de comentario...');
+                    
+                    // Limpiar el campo de comentario
+                    commentInput.value = '';
+                    
+                    // Crear el HTML del nuevo comentario con la estructura exacta del PHP
+                    const newComment = document.createElement('div');
+                    newComment.className = 'd-flex align-items-center mb-2';
+                    
+                    // Determinar la ruta del avatar
+                    const avatarPath = data.comentario.avatar 
+                        ? `/Converza/public/avatars/${data.comentario.avatar}`
+                        : '/Converza/public/avatars/defect.jpg';
+                    
+                    // Construir el menú de 3 puntos (solo si es el dueño del comentario)
+                    const userId = parseInt(formData.get('usuario'));
+                    const menuHTML = data.comentario.id > 0 ? `
+                        <div class="comment-menu-wrapper position-relative d-inline-block ms-2 flex-shrink-0">
+                            <button class="btn btn-light btn-sm rounded-circle comment-menu-btn" type="button" 
+                                    data-comment-id="${data.comentario.id}" 
+                                    style="width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:0.7rem;border:1px solid #dee2e6;">
+                                <i class="bi bi-three-dots-vertical"></i>
+                            </button>
+                            <div class="comment-menu shadow" id="commentMenu-${data.comentario.id}" 
+                                 style="display:none;position:absolute;top:30px;right:0;z-index:1000;min-width:120px;background:#fff;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.15);">
+                                <a href="#" class="d-block px-3 py-2 text-danger comment-delete" 
+                                   data-comment-id="${data.comentario.id}" 
+                                   style="text-decoration:none;font-size:0.9rem;">🗑️ Eliminar</a>
+                            </div>
+                        </div>
+                    ` : '';
+                    
+                    newComment.innerHTML = `
+                        <img src="${avatarPath}" 
+                             alt="Avatar" class="rounded-circle me-2" width="32" height="32" 
+                             style="object-fit: cover;">
+                        <div class="bg-light rounded-4 p-2 flex-grow-1" style="max-width:80%;">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="flex-grow-1">
+                                    <span class="fw-bold text-primary">${data.comentario.usuario}</span>
+                                    <span class="text-muted small ms-2">Justo ahora</span><br>
+                                    ${data.comentario.comentario.replace(/\n/g, '<br>')}
+                                </div>
+                                ${menuHTML}
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Insertar el comentario ANTES del formulario
+                    form.parentElement.insertBefore(newComment, form);
+                    console.log('✅ Comentario insertado en DOM');
+                    
+                    // Activar el menú de 3 puntos si existe
+                    if (data.comentario.id > 0) {
+                        const menuBtn = newComment.querySelector('.comment-menu-btn');
+                        const menu = newComment.querySelector('.comment-menu');
+                        const deleteBtn = newComment.querySelector('.comment-delete');
+                        
+                        if (menuBtn && menu) {
+                            // Toggle del menú al hacer clic
+                            menuBtn.addEventListener('click', function(e) {
+                                e.stopPropagation();
+                                // Cerrar otros menús abiertos
+                                document.querySelectorAll('.comment-menu').forEach(m => {
+                                    if (m !== menu) m.style.display = 'none';
+                                });
+                                menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+                            });
+                            
+                            // Cerrar menú al hacer clic fuera
+                            document.addEventListener('click', function() {
+                                menu.style.display = 'none';
+                            });
+                            
+                            console.log('✅ Menú de 3 puntos activado');
+                        }
+                        
+                        // Activar botón de eliminar
+                        if (deleteBtn) {
+                            deleteBtn.addEventListener('click', function(e) {
+                                e.preventDefault();
+                                const commentId = deleteBtn.getAttribute('data-comment-id');
+                                console.log('🗑️ Intentando eliminar comentario:', commentId);
+                                
+                                if (confirm('¿Seguro que deseas eliminar este comentario?')) {
+                                    fetch('/Converza/app/presenters/eliminar_comentario.php', {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/json',
+                                        },
+                                        body: JSON.stringify({
+                                            comentario_id: parseInt(commentId)
+                                        })
+                                    })
+                                    .then(response => response.json())
+                                    .then(data => {
+                                        if (data.status === 'success') {
+                                            console.log('✅ Comentario eliminado, recargando página...');
+                                            location.reload();
+                                        } else {
+                                            console.error('❌ Error al eliminar:', data.message);
+                                            alert('Error al eliminar el comentario: ' + data.message);
+                                        }
+                                    })
+                                    .catch(error => {
+                                        console.error('❌ Error de conexión:', error);
+                                        alert('Error de conexión');
+                                    });
+                                }
+                            });
+                            
+                            console.log('✅ Botón de eliminar activado para comentario ID:', data.comentario.id);
+                        }
+                    }
+                    
+                    // Actualizar contador de comentarios
+                    const counterElement = document.getElementById(`comment_counter_${pubId}`);
+                    if (counterElement) {
+                        const currentText = counterElement.textContent.trim();
+                        const currentCount = parseInt(currentText.replace(/[()]/g, '')) || 0;
+                        const newCount = currentCount + 1;
+                        counterElement.textContent = `(${newCount})`;
+                        console.log(`✅ Contador actualizado: ${currentCount} → ${newCount}`);
+                        
+                        // Actualizar tooltip INMEDIATAMENTE con datos locales
+                        const currentTooltip = counterElement.getAttribute('data-tooltip') || '';
+                        console.log('📝 Tooltip actual:', currentTooltip);
+                        
+                        // Si el tooltip decía "Sin comentarios", reemplazar completamente
+                        let newTooltip;
+                        if (currentTooltip === 'Sin comentarios' || currentCount === 0) {
+                            newTooltip = `💬 ${data.comentario.usuario}`;
+                        } else {
+                            // Agregar el nuevo usuario al tooltip
+                            newTooltip = `💬 ${data.comentario.usuario}\n${currentTooltip}`;
+                        }
+                        
+                        counterElement.setAttribute('data-tooltip', newTooltip);
+                        console.log('✅ Tooltip actualizado inmediatamente:', newTooltip);
+                        
+                        // DESPUÉS recargar desde la API para sincronizar (por si acaso)
+                        if (newCount > 0 && typeof loadReactionsData === 'function') {
+                            setTimeout(() => {
+                                console.log('🔄 Sincronizando con API después de actualización local...');
+                                loadReactionsData(pubId);
+                            }, 1000);
+                        } else if (typeof loadReactionsData === 'undefined') {
+                            console.warn('⚠️ loadReactionsData no está definida, saltando sincronización con API');
+                        }
+                    }
+                    
+                    console.log('✅ ===== COMENTARIO AGREGADO EXITOSAMENTE =====');
+                    
+                } else {
+                    // Error del servidor (status = 'error' o 'warning')
+                    console.error('❌ ===== ERROR DEL SERVIDOR =====');
+                    console.error('Message:', data.message);
+                    console.error('Debug:', data.debug || 'N/A');
+                    alert('Error: ' + data.message + (data.debug ? '\n\nDebug: ' + data.debug : ''));
+                }
+            })
+            .catch(error => {
+                console.error('❌ ===== ERROR CATCH =====');
+                console.error('Error:', error);
+                console.error('Stack:', error.stack);
+                alert('Error al enviar el comentario: ' + error.message);
+            })
+            .finally(() => {
+                // Rehabilitar botón
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="bi bi-send"></i>';
+                console.log('🏁 === FIN DE ENVÍO DE COMENTARIO ===');
+            });
+        });
+    });
 });
 </script>
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
@@ -646,22 +892,279 @@ document.addEventListener('DOMContentLoaded', function() {
         me_asombra: 'Me asombra', me_entristece: 'Me entristece', me_enoja: 'Me enoja'
     };
 
-    // Inicializar cada publicación
-    document.querySelectorAll('.like-container').forEach(container => {
+    // ========================================
+    // FUNCIONES GLOBALES (disponibles para todas las publicaciones)
+    // ========================================
+    
+    function loadReactionsData(postId) {
+        console.log(`🔄 ========== CARGANDO DATOS POST ${postId} ==========`);
+        console.log('URL Reacciones:', `/Converza/app/presenters/get_reactions.php?postId=${postId}`);
+        console.log('URL Comentarios:', `/Converza/app/presenters/get_comentarios.php?postId=${postId}`);
+        
+        Promise.all([
+            fetch(`/Converza/app/presenters/get_reactions.php?postId=${postId}`),
+            fetch(`/Converza/app/presenters/get_comentarios.php?postId=${postId}`)
+        ])
+        .then(responses => {
+            console.log('📥 Respuestas recibidas:', responses);
+            // Verificar que las respuestas sean exitosas
+            responses.forEach((response, index) => {
+                console.log(`  [${index}] Status:`, response.status, response.statusText);
+                if (!response.ok) {
+                    throw new Error(`HTTP error ${response.status} en ${index === 0 ? 'reacciones' : 'comentarios'}`);
+                }
+            });
+            return Promise.all(responses.map(r => r.json()));
+        })
+        .then(([reactionsData, commentsData]) => {
+            console.log(`📊 ========== DATOS PARSEADOS POST ${postId} ==========`);
+            console.log('Reacciones:', reactionsData);
+            console.log('Comentarios:', commentsData);
+            
+            // Actualizar reacciones
+            if (reactionsData && reactionsData.success) {
+                console.log('✅ Reacciones exitosas, actualizando...');
+                updateReactionsSummary(reactionsData.reactions, postId);
+                
+                // Solo actualizar el botón si existe (usuario puede reaccionar)
+                const likeBtn = document.getElementById(`like_btn_${postId}`);
+                if (likeBtn && reactionsData.userReaction) {
+                    updateLikeButton(likeBtn, reactionsData.userReaction);
+                }
+            } else {
+                console.error('❌ Error en datos de reacciones:', reactionsData);
+                // Mostrar contador vacío
+                updateReactionsSummary([], postId);
+            }
+            
+            // Actualizar comentarios
+            if (commentsData && commentsData.success) {
+                console.log('✅ Comentarios exitosos, actualizando...');
+                updateCommentsSummary(commentsData.total, commentsData.comentarios, postId);
+            } else {
+                console.error('❌ Error en datos de comentarios:', commentsData);
+                // Mostrar contador vacío
+                updateCommentsSummary(0, [], postId);
+            }
+        })
+        .catch(error => {
+            console.error('❌ ========== ERROR CARGANDO DATOS ==========');
+            console.error('Post ID:', postId);
+            console.error('Error:', error);
+            console.error('Stack:', error.stack);
+            // Mostrar contadores vacíos en caso de error
+            updateReactionsSummary([], postId);
+            updateCommentsSummary(0, [], postId);
+        });
+    }
+
+    function updateReactionsSummary(reactionsArray, postId) {
+        const counterElement = document.getElementById(`reaction_counter_${postId}`);
+        console.log('🔄 Actualizando contador de reacciones para post:', postId);
+        console.log('  - Elemento contador encontrado:', !!counterElement);
+        console.log('  - Datos de reacciones recibidos:', reactionsArray);
+        
+        if (!counterElement) {
+            console.error('❌ No se encontró elemento contador para post:', postId);
+            return;
+        }
+        
+        if (!reactionsArray || reactionsArray.length === 0) {
+            console.log('  - Sin reacciones, mostrando (0)');
+            counterElement.innerHTML = '(0)';
+            counterElement.setAttribute('data-tooltip', 'Sin reacciones');
+            counterElement.style.display = 'inline-block';
+            counterElement.style.cursor = 'default';
+            return;
+        }
+
+        let total = 0;
+        let tooltip = '';
+
+        // Ordenar por total descendente
+        reactionsArray.sort((a, b) => parseInt(b.total) - parseInt(a.total));
+
+        // Mostrar solo la reacción más popular
+        const topReaction = reactionsArray[0];
+        const count = parseInt(topReaction.total);
+        total = reactionsArray.reduce((sum, r) => sum + parseInt(r.total), 0);
+        
+        const emoji = reactions[topReaction.tipo_reaccion];
+        const reactionName = reactionNames[topReaction.tipo_reaccion];
+        
+        if (!emoji || !reactionName) {
+            console.error(`❌ Reacción no encontrada para tipo: "${topReaction.tipo_reaccion}"`);
+            return;
+        }
+
+        // Construir tooltip: reacción y usuario en la misma línea
+        const tooltipLines = [];
+        reactionsArray.forEach((reaction) => {
+            const reactionCount = parseInt(reaction.total);
+            const reactionEmoji = reactions[reaction.tipo_reaccion];
+            const usuarios = reaction.usuarios ? reaction.usuarios.split(', ') : [];
+            
+            // Agregar cada usuario con su emoji
+            usuarios.forEach((usuario) => {
+                tooltipLines.push(`${reactionEmoji} ${usuario}`);
+            });
+            
+            // Si hay más usuarios
+            if (reactionCount > usuarios.length) {
+                tooltipLines.push(`${reactionEmoji} y ${reactionCount - usuarios.length} más`);
+            }
+        });
+        
+        tooltip = tooltipLines.join('\n');
+
+        // Formato del contador
+        let displayText = '';
+        if (reactionsArray.length > 1) {
+            displayText = `y ${reactionsArray.length - 1} más (${total})`;
+        } else {
+            displayText = `(${count})`;
+        }
+
+        // Actualizar el contador
+        counterElement.innerHTML = displayText;
+        counterElement.setAttribute('data-tooltip', tooltip.trim());
+        counterElement.style.cursor = 'pointer';
+        counterElement.style.display = 'inline-block';
+    }
+
+    function updateCommentsSummary(total, comentarios, postId) {
+        const counterElement = document.getElementById(`comment_counter_${postId}`);
+        console.log('🔄 Actualizando contador de comentarios para post:', postId);
+        console.log('  - Elemento contador encontrado:', !!counterElement);
+        console.log('  - Total comentarios:', total);
+        
+        if (!counterElement) {
+            console.error('❌ No se encontró elemento contador de comentarios para post:', postId);
+            return;
+        }
+        
+        if (total === 0) {
+            console.log('  - Sin comentarios, mostrando (0)');
+            counterElement.textContent = '(0)';
+            counterElement.removeAttribute('title');
+            counterElement.setAttribute('data-tooltip', 'Sin comentarios');
+            counterElement.style.display = 'inline-block';
+            return;
+        }
+
+        // Obtener nombres únicos de usuarios que comentaron
+        const usuarios = [...new Set(comentarios.map(comment => comment.usuario))];
+        const totalUsuarios = usuarios.length;
+        
+        // Construir tooltip
+        const tooltipLines = [];
+        usuarios.forEach((usuario) => {
+            tooltipLines.push(`💬 ${usuario}`);
+        });
+        
+        // Si hay más usuarios
+        if (totalUsuarios > usuarios.length) {
+            tooltipLines.push(`💬 y ${totalUsuarios - usuarios.length} más`);
+        }
+        
+        const tooltip = tooltipLines.join('\n');
+
+        console.log(`✅ Actualizando contador de comentarios:`, {
+            postId,
+            total,
+            tooltip,
+            elementId: counterElement.id
+        });
+        counterElement.textContent = `(${total})`;
+        counterElement.setAttribute('data-tooltip', tooltip);
+        counterElement.style.cursor = 'pointer';
+        counterElement.style.display = 'inline-block';
+    }
+
+    function updateLikeButton(likeBtn, reaction) {
+        if (!likeBtn) return;
+        
+        const icon = likeBtn.querySelector('.like-icon');
+        const text = likeBtn.querySelector('.like-text');
+        
+        console.log(`🔄 Actualizando botón con reacción del usuario: "${reaction}"`);
+        
+        // Animación de cambio
+        likeBtn.style.transform = 'scale(0.95)';
+        setTimeout(() => {
+            likeBtn.style.transform = 'scale(1)';
+        }, 150);
+        
+        if (reaction && reactions[reaction]) {
+            console.log(`✅ Usuario reaccionó con: ${reactions[reaction]} ${reactionNames[reaction]}`);
+            icon.textContent = reactions[reaction];
+            text.textContent = reactionNames[reaction];
+            
+            likeBtn.classList.remove('btn-outline-secondary', 'btn-primary', 'btn-reaction-active');
+            likeBtn.classList.add('btn-outline-primary');
+            likeBtn.style.backgroundColor = 'transparent';
+            likeBtn.style.borderColor = '#007bff';
+            likeBtn.style.color = '#007bff';
+        } else {
+            console.log(`🔄 Usuario no ha reaccionado`);
+            icon.textContent = '👍';
+            text.textContent = 'Me gusta';
+            
+            likeBtn.classList.remove('btn-primary', 'btn-reaction-active', 'btn-outline-primary');
+            likeBtn.classList.add('btn-outline-secondary');
+            likeBtn.style.backgroundColor = 'transparent';
+            likeBtn.style.borderColor = '#6c757d';
+            likeBtn.style.color = '#6c757d';
+        }
+    }
+
+    // ========================================
+    // INICIALIZAR CADA PUBLICACIÓN
+    // ========================================
+    console.log('🚀 ========== INICIALIZANDO PUBLICACIONES ==========');
+    const likeContainers = document.querySelectorAll('.like-container');
+    console.log(`📊 Total de publicaciones encontradas: ${likeContainers.length}`);
+    
+    likeContainers.forEach((container, index) => {
         const likeBtn = container.querySelector('.like-main-btn');
         const reactionsPopup = container.querySelector('.reactions-popup');
-        const postId = likeBtn.dataset.postId;
+        
+        // Obtener postId desde el contador si no hay botón de like
+        let postId = null;
+        if (likeBtn) {
+            postId = likeBtn.dataset.postId;
+        } else {
+            // Buscar el postId desde el contador de reacciones o comentarios
+            const reactionCounter = container.querySelector('.reaction-counter');
+            const commentCounter = container.querySelector('.comment-counter');
+            if (reactionCounter) {
+                postId = reactionCounter.id.replace('reaction_counter_', '');
+            } else if (commentCounter) {
+                postId = commentCounter.id.replace('comment_counter_', '');
+            }
+        }
+        
+        if (!postId) {
+            console.warn(`⚠️ [${index}] No se pudo obtener postId`);
+            return;
+        }
+        
+        console.log(`✅ [${index}] Publicación ${postId} inicializada (botón: ${!!likeBtn})`);
+        
         let currentUserReaction = null;
 
-        // Cargar estado inicial
+        // ✅ SIEMPRE cargar datos de reacciones/comentarios (para tooltips)
+        console.log(`🔄 [${index}] Llamando loadReactionsData(${postId})...`);
         loadReactionsData(postId);
 
-        // Mostrar menú de reacciones en hover (solo en botón, NO en contador)
-        likeBtn.addEventListener('mouseenter', () => {
-            reactionsPopup.style.display = 'block';
-        });
+        // Solo agregar interactividad si hay botón de like (usuario puede reaccionar)
+        if (likeBtn && reactionsPopup) {
+            // Mostrar menú de reacciones en hover (solo en botón, NO en contador)
+            likeBtn.addEventListener('mouseenter', () => {
+                reactionsPopup.style.display = 'block';
+            });
 
-        container.addEventListener('mouseleave', () => {
+            container.addEventListener('mouseleave', () => {
             setTimeout(() => {
                 if (!reactionsPopup.matches(':hover')) {
                     reactionsPopup.style.display = 'none';
@@ -705,56 +1208,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
 
-        function loadReactionsData(postId) {
-            console.log(`🔄 Cargando datos para post ${postId}...`);
-            
-            Promise.all([
-                fetch(`/Converza/app/presenters/get_reactions.php?postId=${postId}`),
-                fetch(`/Converza/app/presenters/get_comentarios.php?postId=${postId}`)
-            ])
-            .then(responses => {
-                // Verificar que las respuestas sean exitosas
-                responses.forEach((response, index) => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP error ${response.status} en ${index === 0 ? 'reacciones' : 'comentarios'}`);
-                    }
-                });
-                return Promise.all(responses.map(r => r.json()));
-            })
-            .then(([reactionsData, commentsData]) => {
-                console.log(`📊 Datos recibidos para post ${postId}:`);
-                console.log('  - Reacciones:', reactionsData);
-                console.log('  - Comentarios:', commentsData);
-                
-                // Actualizar reacciones
-                if (reactionsData && reactionsData.success) {
-                    currentUserReaction = reactionsData.userReaction;
-                    console.log(`👤 Reacción del usuario actual: "${currentUserReaction}"`);
-                    updateLikeButton(currentUserReaction);
-                    updateReactionsSummary(reactionsData.reactions, postId);
-                } else {
-                    console.error('❌ Error en datos de reacciones:', reactionsData);
-                    // Mostrar contador vacío
-                    updateReactionsSummary([], postId);
-                }
-                
-                // Actualizar comentarios
-                if (commentsData && commentsData.success) {
-                    updateCommentsSummary(commentsData.total, commentsData.comentarios, postId);
-                } else {
-                    console.error('❌ Error en datos de comentarios:', commentsData);
-                    // Mostrar contador vacío
-                    updateCommentsSummary(0, [], postId);
-                }
-            })
-            .catch(error => {
-                console.error('❌ Error cargando datos:', error);
-                // Mostrar contadores vacíos en caso de error
-                updateReactionsSummary([], postId);
-                updateCommentsSummary(0, [], postId);
-            });
-        }
-
+        // Función sendReaction local que usa currentUserReaction
         function sendReaction(postId, reactionType) {
             console.log('Enviando reacción:', reactionType, 'para post:', postId);
             
@@ -771,38 +1225,17 @@ document.addEventListener('DOMContentLoaded', function() {
             formData.append('id_publicacion', postId);
             formData.append('tipo_reaccion', reactionType);
             
-            // Debug: verificar todo antes de enviar
-            console.log('📤 ANÁLISIS COMPLETO ANTES DE ENVIAR:');
-            console.log('  - Usuario ID:', userId, '(tipo:', typeof userId, ')');
-            console.log('  - Post ID:', postId, '(tipo:', typeof postId, ')');
-            console.log('  - Reaction Type:', `"${reactionType}"`, '(tipo:', typeof reactionType, ', longitud:', reactionType?.length, ')');
-            
-            if (!reactionType || reactionType.length === 0) {
-                console.error('🚨 REACTION TYPE ESTÁ VACÍO!');
-                alert('Error: Tipo de reacción vacío');
-                return;
-            }
-            
-            // Verificar FormData completo
-            console.log('  - FormData contents:');
-            for (let pair of formData.entries()) {
-                console.log(`    ${pair[0]}: "${pair[1]}" (longitud: ${pair[1].length})`);
-            }
-
             fetch('/Converza/app/presenters/save_reaction.php', {
                 method: 'POST',
                 body: formData
             })
-            .then(response => {
-                console.log('Status de respuesta:', response.status);
-                return response.json();
-            })
+            .then(response => response.json())
             .then(data => {
                 console.log('Respuesta completa del servidor:', data);
                 if (data.success) {
                     currentUserReaction = data.tipo_reaccion;
-                    updateLikeButton(currentUserReaction);
-                    setTimeout(() => loadReactionsData(postId), 100); // Pequeño delay para asegurar que se actualice
+                    updateLikeButton(likeBtn, currentUserReaction);
+                    setTimeout(() => loadReactionsData(postId), 100);
                 } else {
                     console.error('Error del servidor:', data.message);
                     alert('Error: ' + data.message);
@@ -813,203 +1246,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 alert('Error de conexión');
             });
         }
-
-        function updateLikeButton(reaction) {
-            const icon = likeBtn.querySelector('.like-icon');
-            const text = likeBtn.querySelector('.like-text');
-            
-            console.log(`🔄 Actualizando botón con reacción del usuario: "${reaction}"`);
-            
-            // Animación de cambio
-            likeBtn.style.transform = 'scale(0.95)';
-            setTimeout(() => {
-                likeBtn.style.transform = 'scale(1)';
-            }, 150);
-            
-            if (reaction && reactions[reaction]) {
-                console.log(`✅ Usuario reaccionó con: ${reactions[reaction]} ${reactionNames[reaction]}`);
-                // Mostrar la reacción específica del usuario
-                icon.textContent = reactions[reaction];
-                text.textContent = reactionNames[reaction];
-                
-                // Estilo activo (usuario ha reaccionado)
-                likeBtn.classList.remove('btn-outline-secondary', 'btn-primary', 'btn-reaction-active');
-                likeBtn.classList.add('btn-outline-primary');
-                
-                // Aplicar estilos sin fondo colorido
-                likeBtn.style.backgroundColor = 'transparent';
-                likeBtn.style.borderColor = '#007bff';
-                likeBtn.style.color = '#007bff';
-                
-            } else {
-                console.log(`🔄 Usuario no ha reaccionado`);
-                // Estado por defecto - Me gusta
-                icon.textContent = '👍';
-                text.textContent = 'Me gusta';
-                
-                // Estado por defecto (usuario no ha reaccionado)
-                likeBtn.classList.remove('btn-primary', 'btn-reaction-active', 'btn-outline-primary');
-                likeBtn.classList.add('btn-outline-secondary');
-                
-                // Aplicar estilos sin fondo
-                likeBtn.style.backgroundColor = 'transparent';
-                likeBtn.style.borderColor = '#6c757d';
-                likeBtn.style.color = '#6c757d';
-            }
-        }
-
-        function updateReactionsSummary(reactionsArray, postId) {
-            const counterElement = document.getElementById(`reaction_counter_${postId}`);
-            console.log('🔄 Actualizando contador de reacciones para post:', postId);
-            console.log('  - Elemento contador encontrado:', !!counterElement);
-            console.log('  - Datos de reacciones recibidos:', reactionsArray);
-            
-            if (!counterElement) {
-                console.error('❌ No se encontró elemento contador para post:', postId);
-                return;
-            }
-            
-            if (!reactionsArray || reactionsArray.length === 0) {
-                console.log('  - Sin reacciones, mostrando (0)');
-                console.log('  - Elemento antes del cambio:', counterElement.innerHTML, counterElement.style.display);
-                counterElement.innerHTML = '(0)';
-                counterElement.setAttribute('data-tooltip', 'Sin reacciones');
-                counterElement.style.display = 'inline-block';
-                counterElement.style.cursor = 'default';
-                console.log('  - Elemento después del cambio:', counterElement.innerHTML, counterElement.style.display);
-                return;
-            }
-
-            let total = 0;
-            let tooltip = '';
-
-            // Ordenar por total descendente
-            reactionsArray.sort((a, b) => parseInt(b.total) - parseInt(a.total));
-
-            // Mostrar solo la reacción más popular en formato "❤️ Me encanta (2)"
-            const topReaction = reactionsArray[0];
-            const count = parseInt(topReaction.total);
-            total = reactionsArray.reduce((sum, r) => sum + parseInt(r.total), 0);
-            
-            console.log(`🔍 Procesando reacción principal:`, topReaction);
-            console.log(`  - Tipo: "${topReaction.tipo_reaccion}"`);
-            console.log(`  - Count: ${count}`);
-            console.log(`  - Total general: ${total}`);
-            
-            const emoji = reactions[topReaction.tipo_reaccion];
-            const reactionName = reactionNames[topReaction.tipo_reaccion];
-            
-            console.log(`  - Emoji encontrado:`, emoji);
-            console.log(`  - Nombre encontrado:`, reactionName);
-            
-            if (!emoji || !reactionName) {
-                console.error(`❌ Reacción no encontrada para tipo: "${topReaction.tipo_reaccion}"`);
-                console.log('Reacciones disponibles:', Object.keys(reactions));
-                return;
-            }
-
-            // Construir tooltip: reacción y usuario en la misma línea
-            const tooltipLines = [];
-            reactionsArray.forEach((reaction, index) => {
-                const reactionCount = parseInt(reaction.total);
-                const reactionEmoji = reactions[reaction.tipo_reaccion];
-                const usuarios = reaction.usuarios ? reaction.usuarios.split(', ') : [];
-                
-                // Agregar cada usuario con su emoji en la misma línea
-                usuarios.forEach((usuario) => {
-                    tooltipLines.push(`${reactionEmoji} ${usuario}`);
-                });
-                
-                // Si hay más usuarios
-                if (reactionCount > usuarios.length) {
-                    tooltipLines.push(`${reactionEmoji} y ${reactionCount - usuarios.length} más`);
-                }
-            });
-            
-            tooltip = tooltipLines.join('\n');
-
-            // Formato solo numérico: "(2)" o "y 3 más" 
-            let displayText = '';
-            
-            if (reactionsArray.length > 1) {
-                // Múltiples tipos: "y 3 más"
-                displayText = `y ${reactionsArray.length - 1} más (${total})`;
-            } else {
-                // Un solo tipo: "(2)"
-                displayText = `(${count})`;
-            }
-
-            console.log('Texto final del contador:', displayText);
-            console.log('Tooltip:', tooltip.trim());
-
-            // Mostrar siempre el contador
-            if (total > 0) {
-                console.log(`✅ Actualizando contador de reacciones:`, {
-                    postId,
-                    displayText,
-                    tooltip: tooltip.trim(),
-                    elementId: counterElement.id
-                });
-                counterElement.innerHTML = displayText;
-                counterElement.setAttribute('data-tooltip', tooltip.trim());
-                counterElement.style.cursor = 'pointer';
-            } else {
-                console.log(`⚪ Mostrando contador en 0 para post ${postId}`);
-                counterElement.innerHTML = '(0)';
-                counterElement.setAttribute('data-tooltip', 'Sin reacciones');
-                counterElement.style.cursor = 'default';
-            }
-            counterElement.style.display = 'inline-block';
-        }
-
-        function updateCommentsSummary(total, comentarios, postId) {
-            const counterElement = document.getElementById(`comment_counter_${postId}`);
-            console.log('🔄 Actualizando contador de comentarios para post:', postId);
-            console.log('  - Elemento contador encontrado:', !!counterElement);
-            console.log('  - Total comentarios:', total);
-            
-            if (!counterElement) {
-                console.error('❌ No se encontró elemento contador de comentarios para post:', postId);
-                return;
-            }
-            
-            if (total === 0) {
-                console.log('  - Sin comentarios, mostrando (0)');
-                counterElement.textContent = '(0)';
-                counterElement.removeAttribute('title');
-                counterElement.setAttribute('data-tooltip', 'Sin comentarios');
-                return;
-            }
-
-            // Obtener nombres únicos de usuarios que comentaron (máximo 3)
-            const usuarios = [...new Set(comentarios.map(comment => comment.usuario))];
-            const totalUsuarios = usuarios.length;
-            
-            let tooltip = '';
-            // Formato: emoji y usuario en la misma línea
-            const tooltipLines = [];
-            usuarios.forEach((usuario) => {
-                tooltipLines.push(`💬 ${usuario}`);
-            });
-            
-            // Si hay más usuarios de los que se muestran en la lista
-            if (totalUsuarios > usuarios.length) {
-                tooltipLines.push(`💬 y ${totalUsuarios - usuarios.length} más`);
-            }
-            
-            tooltip = tooltipLines.join('\n');
-
-            console.log(`✅ Actualizando contador de comentarios:`, {
-                postId,
-                total,
-                tooltip,
-                elementId: counterElement.id
-            });
-            counterElement.textContent = `(${total})`;
-            counterElement.setAttribute('data-tooltip', tooltip);
-            counterElement.style.cursor = 'pointer';
-        }
-    });
+        } // ✅ Cerrar el if (likeBtn && reactionsPopup)
+    }); // Cerrar forEach
 
     // Sistema de compartir con menús
     document.querySelectorAll('.share-container').forEach(container => {

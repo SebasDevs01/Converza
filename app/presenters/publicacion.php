@@ -1,4 +1,5 @@
 <?php
+$notificacionesTriggers->notificarNuevaPublicacion($conexion, $autor_id, $nombre_autor, $publicacion_id, $contenido);
 session_start();
 require_once __DIR__.'/../models/config.php'; // Aquí debe estar la conexión PDO en $conexion
 require_once __DIR__.'/../models/socialnetwork-lib.php';

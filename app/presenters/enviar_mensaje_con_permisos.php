@@ -2,6 +2,7 @@
 session_start();
 require_once __DIR__.'/../models/config.php';
 require_once __DIR__.'/../models/chat-permisos-helper.php';
+require_once __DIR__.'/../models/notificaciones-triggers.php';
 
 header('Content-Type: application/json');
 
@@ -20,6 +21,9 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 $para = isset($_POST['para']) ? (int)$_POST['para'] : 0;
 $mensaje = isset($_POST['mensaje']) ? trim($_POST['mensaje']) : '';
 $de = $_SESSION['id'];
+
+// Instanciar sistema de notificaciones
+$notificacionesTriggers = new NotificacionesTriggers($conexion);
 
 if ($para <= 0 || empty($mensaje)) {
     http_response_code(400);
@@ -42,6 +46,15 @@ try {
             ':para' => $para,
             ':mensaje' => $mensaje
         ]);
+        
+        // Obtener nombre del usuario que envía el mensaje
+        $stmtNombre = $conexion->prepare("SELECT usuario FROM usuarios WHERE id_use = :id");
+        $stmtNombre->execute([':id' => $de]);
+        $datosUsuario = $stmtNombre->fetch(PDO::FETCH_ASSOC);
+        $nombreUsuario = $datosUsuario['usuario'] ?? 'Usuario';
+        
+        // Enviar notificación de nuevo mensaje
+        $notificacionesTriggers->nuevoMensaje($de, $para, $nombreUsuario, $mensaje);
         
         echo json_encode([
             'success' => true,
@@ -73,6 +86,15 @@ try {
         } else {
             // Crear solicitud de mensaje con el ÚNICO mensaje permitido
             if (crearSolicitudMensaje($conexion, $de, $para, $mensaje)) {
+                // Obtener nombre del usuario que envía la solicitud
+                $stmtNombre = $conexion->prepare("SELECT usuario FROM usuarios WHERE id_use = :id");
+                $stmtNombre->execute([':id' => $de]);
+                $datosUsuario = $stmtNombre->fetch(PDO::FETCH_ASSOC);
+                $nombreUsuario = $datosUsuario['usuario'] ?? 'Usuario';
+                
+                // Enviar notificación al usuario destino
+                $notificacionesTriggers->solicitudMensajeEnviada($de, $para, $nombreUsuario, $mensaje);
+                
                 echo json_encode([
                     'success' => true,
                     'tipo' => 'solicitud_creada',

@@ -1,12 +1,16 @@
 <?php
 session_start();
 require_once __DIR__.'/../models/config.php';
+require_once __DIR__.'/../models/notificaciones-triggers.php';
 
 if (!isset($_SESSION['id'])) {
     http_response_code(403);
     echo 'No autorizado.';
     exit;
 }
+
+// Inicializar sistema de notificaciones
+$notificacionesTriggers = new NotificacionesTriggers($conexion);
 
 $action = $_GET['action'] ?? '';
 $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
@@ -62,8 +66,12 @@ if ($action === 'agregar') {
     $stmt->bindParam(':id', $id, PDO::PARAM_INT);
     $stmt->execute();
 
-    // Notificación (simulada)
-    $_SESSION['notificaciones'][] = "Solicitud enviada a usuario #$id";
+    // 🔔 Generar notificación automática
+    $stmtUsuario = $conexion->prepare('SELECT usuario FROM usuarios WHERE id_use = :yo');
+    $stmtUsuario->execute([':yo' => $yo]);
+    $miNombre = $stmtUsuario->fetch(PDO::FETCH_ASSOC)['usuario'] ?? 'Alguien';
+    $notificacionesTriggers->solicitudAmistadEnviada($yo, $id, $miNombre);
+
     echo 'Solicitud enviada correctamente.';
     header('Location: /Converza/app/view/index.php');
     exit;
@@ -75,8 +83,13 @@ if ($action === 'aceptar') {
     $stmt->bindParam(':yo', $yo, PDO::PARAM_INT);
     $stmt->bindParam(':id', $id, PDO::PARAM_INT);
     $stmt->execute();
-    // Notificación (simulada)
-    $_SESSION['notificaciones'][] = "Has aceptado la solicitud de usuario #$id";
+    
+    // 🔔 Generar notificación automática
+    $stmtUsuario = $conexion->prepare('SELECT usuario FROM usuarios WHERE id_use = :yo');
+    $stmtUsuario->execute([':yo' => $yo]);
+    $miNombre = $stmtUsuario->fetch(PDO::FETCH_ASSOC)['usuario'] ?? 'Alguien';
+    $notificacionesTriggers->solicitudAmistadAceptada($yo, $id, $miNombre);
+    
     echo 'Solicitud aceptada.';
     header('Location: /Converza/app/view/index.php');
     exit;
@@ -87,6 +100,13 @@ if ($action === 'rechazar') {
     $stmt->bindParam(':yo', $yo, PDO::PARAM_INT);
     $stmt->bindParam(':id', $id, PDO::PARAM_INT);
     $stmt->execute();
+    
+    // 🔔 Generar notificación automática
+    $stmtUsuario = $conexion->prepare('SELECT usuario FROM usuarios WHERE id_use = :yo');
+    $stmtUsuario->execute([':yo' => $yo]);
+    $miNombre = $stmtUsuario->fetch(PDO::FETCH_ASSOC)['usuario'] ?? 'Alguien';
+    $notificacionesTriggers->solicitudAmistadRechazada($yo, $id, $miNombre);
+    
     echo 'Solicitud rechazada.';
     header('Location: /Converza/app/view/index.php');
     exit;

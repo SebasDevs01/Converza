@@ -125,40 +125,7 @@ $navActive = [
         <li class="nav-item"><a class="nav-link<?php if($navActive['inicio']) echo ' active'; ?>" href="/Converza/app/view/index.php" aria-current="<?php if($navActive['inicio']) echo 'page'; ?>"><i class="bi bi-house-door"></i> Inicio</a></li>
         <li class="nav-item"><a class="nav-link<?php if($navActive['perfil']) echo ' active'; ?>" href="/Converza/app/presenters/perfil.php?id=<?php echo (int)$_SESSION['id']; ?>" aria-current="<?php if($navActive['perfil']) echo 'page'; ?>"><i class="bi bi-person-circle"></i> Perfil</a></li>
         <li class="nav-item">
-            <a class="nav-link position-relative<?php if($navActive['chat']) echo ' active'; ?>" href="/Converza/app/presenters/chat.php" aria-current="<?php if($navActive['chat']) echo 'page'; ?>">
-                <i class="bi bi-chat-dots"></i> Mensajes
-                <?php
-                // Contar mensajes no leídos
-                $countMensajes = 0;
-                try {
-                    $stmtCheckTable = $conexion->query("SHOW TABLES LIKE 'chats'");
-                    if ($stmtCheckTable->rowCount() > 0) {
-                        // Contar solo mensajes recibidos no leídos
-                        $stmtMensajes = $conexion->prepare("
-                            SELECT COUNT(DISTINCT c.id_cha) as total 
-                            FROM chats c
-                            WHERE c.para = :usuario_id 
-                            AND c.leido = 0
-                            AND c.de != :usuario_id2
-                        ");
-                        $stmtMensajes->execute([
-                            ':usuario_id' => $_SESSION['id'],
-                            ':usuario_id2' => $_SESSION['id']
-                        ]);
-                        $result = $stmtMensajes->fetch(PDO::FETCH_ASSOC);
-                        $countMensajes = $result['total'] ?? 0;
-                    }
-                } catch (Exception $e) {
-                    // Si hay error, simplemente no mostrar contador
-                    $countMensajes = 0;
-                }
-                if ($countMensajes > 0):
-                ?>
-                <span class="position-absolute badge rounded-pill bg-danger notification-badge">
-                    <?php echo $countMensajes > 9 ? '9+' : $countMensajes; ?>
-                </span>
-                <?php endif; ?>
-            </a>
+            <?php include __DIR__.'/../view/components/mensajes-badge.php'; ?>
         </li>
         <li class="nav-item"><a class="nav-link<?php if($navActive['albumes']) echo ' active'; ?>" href="/Converza/app/presenters/albumes.php?id=<?php echo (int)$_SESSION['id']; ?>" aria-current="<?php if($navActive['albumes']) echo 'page'; ?>"><i class="bi bi-images"></i> Álbumes</a></li>
         <li class="nav-item">
@@ -168,23 +135,15 @@ $navActive = [
         </li>
         <li class="nav-item"><a class="nav-link" href="#" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSearch" title="Buscar usuarios"><i class="bi bi-search"></i></a></li>
         <li class="nav-item">
-            <a class="nav-link position-relative" href="#" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSolicitudes" title="Solicitudes de amistad">
-                <i class="bi bi-person-plus"></i>
-                <?php
-                // Contar solicitudes pendientes
-                $stmtCount = $conexion->prepare("SELECT COUNT(*) as total FROM amigos WHERE para = :usuario_id AND estado = 0");
-                $stmtCount->bindParam(':usuario_id', $_SESSION['id'], PDO::PARAM_INT);
-                $stmtCount->execute();
-                $countSolicitudes = $stmtCount->fetch(PDO::FETCH_ASSOC)['total'];
-                if ($countSolicitudes > 0):
-                ?>
-                <span class="position-absolute badge rounded-pill bg-danger notification-badge">
-                    <?php echo $countSolicitudes > 9 ? '9+' : $countSolicitudes; ?>
-                </span>
-                <?php endif; ?>
-            </a>
+            <?php include __DIR__.'/../view/components/solicitudes-badge.php'; ?>
         </li>
         <li class="nav-item"><a class="nav-link" href="#" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNuevos" title="Nuevos usuarios"><i class="bi bi-people"></i></a></li>
+        
+        <!-- 🔔 Sistema de Notificaciones -->
+        <li class="nav-item">
+            <?php include __DIR__.'/../view/components/notificaciones-widget.php'; ?>
+        </li>
+        
         <li class="nav-item"><a class="nav-link" href="/Converza/app/presenters/logout.php"><i class="bi bi-box-arrow-right"></i> Cerrar sesión</a></li>
         <?php if (isset($_SESSION['tipo']) && $_SESSION['tipo'] === 'admin'): ?>
         <li class="nav-item"><a class="nav-link text-warning fw-bold<?php if($navActive['admin']) echo ' active'; ?>" href="/Converza/app/view/admin.php" aria-current="<?php if($navActive['admin']) echo 'page'; ?>"><i class="bi bi-shield-lock"></i> Panel Admin</a></li>

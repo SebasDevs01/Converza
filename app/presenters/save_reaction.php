@@ -1,9 +1,13 @@
 <?php
 require_once(__DIR__.'/../models/config.php');
 require_once(__DIR__.'/../models/bloqueos-helper.php');
+require_once(__DIR__.'/../models/notificaciones-triggers.php');
 session_start();
 
 header('Content-Type: application/json');
+
+// Instanciar sistema de notificaciones
+$notificacionesTriggers = new NotificacionesTriggers($conexion);
 
 // Verificar si el usuario está bloqueado antes de permitir reacciones
 if (isset($_SESSION['id']) && isUserBlocked($_SESSION['id'], $conexion)) {
@@ -136,6 +140,32 @@ try {
             error_log("Error SQL: " . print_r($stmt->errorInfo(), true));
         }
         $action = 'added';
+        
+        // 🔔 Enviar notificación al autor de la publicación
+        if ($result && $publicacion) {
+            $autorPublicacion = $publicacion['usuario'];
+            // Solo notificar si no es el mismo usuario
+            if ($autorPublicacion != $id_usuario) {
+                // Obtener nombre del usuario que reaccionó
+                $stmtNombre = $conexion->prepare("SELECT usuario FROM usuarios WHERE id_use = :id");
+                $stmtNombre->execute([':id' => $id_usuario]);
+                $datosUsuario = $stmtNombre->fetch(PDO::FETCH_ASSOC);
+                $nombreUsuario = $datosUsuario['usuario'] ?? 'Usuario';
+                
+                // Convertir tipo de reacción a formato correcto
+                $tipoMapeado = [
+                    'me_gusta' => 'like',
+                    'me_encanta' => 'love',
+                    'me_divierte' => 'haha',
+                    'me_asombra' => 'wow',
+                    'me_entristece' => 'sad',
+                    'me_enoja' => 'angry'
+                ];
+                $tipoReaccionFinal = $tipoMapeado[$tipo_reaccion] ?? 'like';
+                
+                $notificacionesTriggers->nuevaReaccion($id_usuario, $autorPublicacion, $nombreUsuario, $id_publicacion, $tipoReaccionFinal);
+            }
+        }
     }
 
     echo json_encode([

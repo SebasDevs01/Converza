@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prueba de Badges</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-item {
+            margin: 20px 0;
+            padding: 15px;
+            border-left: 4px solid #007bff;
+            background: #f8f9fa;
+        }
+        .success { border-color: #28a745; }
+        .error { border-color: #dc3545; }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            background: #007bff;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover { background: #0056b3; }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            background: #e9ecef;
+            border-radius: 5px;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🧪 Prueba de APIs de Badges</h1>
+        <p>Esta página prueba las 3 APIs de badges del navbar</p>
+
+        <div class="test-item" id="test-notificaciones">
+            <h3>🔔 API de Notificaciones</h3>
+            <button onclick="testNotificaciones()">Probar API</button>
+            <div class="result" id="result-notificaciones">Esperando prueba...</div>
+        </div>
+
+        <div class="test-item" id="test-mensajes">
+            <h3>💬 API de Mensajes</h3>
+            <button onclick="testMensajes()">Probar API</button>
+            <div class="result" id="result-mensajes">Esperando prueba...</div>
+        </div>
+
+        <div class="test-item" id="test-solicitudes">
+            <h3>👥 API de Solicitudes</h3>
+            <button onclick="testSolicitudes()">Probar API</button>
+            <div class="result" id="result-solicitudes">Esperando prueba...</div>
+        </div>
+
+        <div class="test-item">
+            <h3>🚀 Probar Todas las APIs</h3>
+            <button onclick="testTodas()">Ejecutar Todas</button>
+        </div>
+    </div>
+
+    <script>
+        async function testNotificaciones() {
+            const resultDiv = document.getElementById('result-notificaciones');
+            const testDiv = document.getElementById('test-notificaciones');
+            
+            try {
+                resultDiv.textContent = 'Probando...';
+                
+                const response = await fetch('/Converza/app/presenters/notificaciones_api.php?action=obtener');
+                const data = await response.json();
+                
+                resultDiv.innerHTML = `
+                    <strong>Status:</strong> ${response.status}<br>
+                    <strong>Success:</strong> ${data.success}<br>
+                    <strong>Total:</strong> ${data.total}<br>
+                    <strong>Respuesta completa:</strong><br>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                `;
+                
+                testDiv.classList.add(data.success ? 'success' : 'error');
+            } catch (error) {
+                resultDiv.textContent = '❌ Error: ' + error.message;
+                testDiv.classList.add('error');
+            }
+        }
+
+        async function testMensajes() {
+            const resultDiv = document.getElementById('result-mensajes');
+            const testDiv = document.getElementById('test-mensajes');
+            
+            try {
+                resultDiv.textContent = 'Probando...';
+                
+                const response = await fetch('/Converza/app/presenters/mensajes_api.php?action=contar_no_leidos');
+                const data = await response.json();
+                
+                resultDiv.innerHTML = `
+                    <strong>Status:</strong> ${response.status}<br>
+                    <strong>Success:</strong> ${data.success}<br>
+                    <strong>Total:</strong> ${data.total}<br>
+                    <strong>Respuesta completa:</strong><br>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                `;
+                
+                testDiv.classList.add(data.success ? 'success' : 'error');
+            } catch (error) {
+                resultDiv.textContent = '❌ Error: ' + error.message;
+                testDiv.classList.add('error');
+            }
+        }
+
+        async function testSolicitudes() {
+            const resultDiv = document.getElementById('result-solicitudes');
+            const testDiv = document.getElementById('test-solicitudes');
+            
+            try {
+                resultDiv.textContent = 'Probando...';
+                
+                const response = await fetch('/Converza/app/presenters/solicitudes_api.php?action=contar_pendientes');
+                const data = await response.json();
+                
+                resultDiv.innerHTML = `
+                    <strong>Status:</strong> ${response.status}<br>
+                    <strong>Success:</strong> ${data.success}<br>
+                    <strong>Total:</strong> ${data.total}<br>
+                    <strong>Respuesta completa:</strong><br>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                `;
+                
+                testDiv.classList.add(data.success ? 'success' : 'error');
+            } catch (error) {
+                resultDiv.textContent = '❌ Error: ' + error.message;
+                testDiv.classList.add('error');
+            }
+        }
+
+        async function testTodas() {
+            await testNotificaciones();
+            await new Promise(resolve => setTimeout(resolve, 500));
+            await testMensajes();
+            await new Promise(resolve => setTimeout(resolve, 500));
+            await testSolicitudes();
+        }
+    </script>
+</body>
+</html>

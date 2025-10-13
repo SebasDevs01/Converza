@@ -2,6 +2,7 @@
 session_start();
 require_once __DIR__.'/../models/config.php';
 require_once __DIR__.'/../models/socialnetwork-lib.php';
+require_once __DIR__.'/../models/notificaciones-triggers.php';
 
 if(!isset($_SESSION['usuario'])) {
   header("Location: login.php");

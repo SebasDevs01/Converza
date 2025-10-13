@@ -1,31 +1,32 @@
 <?php
+// Iniciar sesión PRIMERO (si no está iniciada)
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Deshabilitar warnings y notices para JSON limpio
+error_reporting(E_ERROR | E_PARSE);
+ini_set('display_errors', '0');
+ini_set('log_errors', '1');
+ini_set('error_log', __DIR__ . '/../../comentarios_debug.log');
+
+// Limpiar cualquier salida accidental antes de enviar JSON
+ob_start();
+
 require(__DIR__.'/../models/config.php'); // Aquí tienes tu conexión PDO en $conexion
 require_once(__DIR__.'/../models/bloqueos-helper.php');
+require_once(__DIR__.'/../models/notificaciones-triggers.php');
 
-// Verificar si el usuario está logueado (opcional, depende de tu sistema)
-session_start();
+// Instanciar sistema de notificaciones
+$notificacionesTriggers = new NotificacionesTriggers($conexion);
 
 // Verificar si el usuario está bloqueado antes de permitir comentarios
 if (isset($_SESSION['id']) && isUserBlocked($_SESSION['id'], $conexion)) {
+    ob_end_clean(); // Limpiar buffer
     http_response_code(403);
-    echo json_encode(['success' => false, 'message' => 'Usuario bloqueado. No puedes realizar esta acción.']);
+    header('Content-Type: application/json');
+    echo json_encode(['status' => 'error', 'message' => 'Usuario bloqueado. No puedes realizar esta acción.']);
     exit();
-}
-
-// Cambiar la ruta base para reflejar la URL correcta del proyecto
-if (!defined('BASE_URL')) {
-    define('BASE_URL', '/converza/app/view/');
-}
-
-// Cambiar la ruta de redireccionamiento para que se ajuste correctamente
-if (!defined('REDIRECT_URL')) {
-    define('REDIRECT_URL', '/converza/app/view/agregarcomentario.php');
-}
-
-// Redirigir en caso de error
-if (!file_exists(__FILE__)) {
-    header('Location: ' . BASE_URL . 'error.php');
-    exit;
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -62,6 +63,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     ':comentario' => $comentario,
                     ':publicacion' => $publicacion
                 ]);
+                
+                // Obtener el ID del comentario recién insertado
+                $comentarioId = (int)$conexion->lastInsertId();
+                
+                if ($comentarioId === 0) {
+                    // Fallback: buscar el último comentario insertado
+                    $stmtLastId = $conexion->prepare("
+                        SELECT id_com FROM comentarios 
+                        WHERE usuario = :usuario AND publicacion = :publicacion 
+                        ORDER BY id_com DESC LIMIT 1
+                    ");
+                    $stmtLastId->execute([
+                        ':usuario' => $usuario,
+                        ':publicacion' => $publicacion
+                    ]);
+                    $lastComment = $stmtLastId->fetch(PDO::FETCH_ASSOC);
+                    $comentarioId = (int)($lastComment['id_com'] ?? 0);
+                }
 
                 // Obtener usuario de la publicación para notificación
                 $stmt2 = $conexion->prepare("SELECT usuario FROM publicaciones WHERE id_pub = :id_pub");
@@ -73,6 +92,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     // Solo crear notificación si el comentario no es del mismo usuario que hizo la publicación
                     if ($usuario !== $usuario2) {
+                        // Obtener nombre del comentador
+                        $stmtNombre = $conexion->prepare("SELECT usuario FROM usuarios WHERE id_use = :id");
+                        $stmtNombre->execute([':id' => $usuario]);
+                        $datosComentador = $stmtNombre->fetch(PDO::FETCH_ASSOC);
+                        $nombreComentador = $datosComentador['usuario'] ?? 'Usuario';
+                        
+                        // Enviar notificación usando el sistema de triggers
+                        $notificacionesTriggers->nuevoComentario($usuario, $usuario2, $nombreComentador, $publicacion, $comentario);
+                        
+                        // NOTA: No insertamos en tabla notificaciones porque el sistema de triggers YA lo hace
+                        // Si tu tabla usa la estructura VIEJA (user1, user2), descomentar:
+                        /*
                         $stmt3 = $conexion->prepare("INSERT INTO notificaciones (user1, user2, tipo, leido, fecha, id_pub) 
                                                     VALUES (:user1, :user2, 'ha comentado', 0, NOW(), :id_pub)");
                         $stmt3->execute([
@@ -80,22 +111,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             ':user2' => $usuario2,
                             ':id_pub' => $publicacion
                         ]);
+                        */
                     }
                 }
 
-                // Respuesta exitosa
+                // Respuesta exitosa con datos del comentario
+                // Obtener datos del usuario que comentó
+                $stmtUser = $conexion->prepare("SELECT usuario, avatar FROM usuarios WHERE id_use = :id");
+                $stmtUser->execute([':id' => $usuario]);
+                $userData = $stmtUser->fetch(PDO::FETCH_ASSOC);
+                
                 $response = [
                     'status' => 'success',
-                    'message' => 'Tu comentario ha sido publicado.'
+                    'message' => 'Tu comentario ha sido publicado.',
+                    'comentario' => [
+                        'id' => $comentarioId, // Usar el ID capturado
+                        'usuario' => $userData['usuario'] ?? 'Usuario',
+                        'avatar' => $userData['avatar'] ?? 'defect.jpg',
+                        'comentario' => htmlspecialchars($comentario),
+                        'fecha' => date('Y-m-d H:i:s')
+                    ]
                 ];
 
             } catch (PDOException $e) {
-                error_log("Error en base de datos: " . $e->getMessage());
+                error_log("ERROR PDO: " . $e->getMessage());
                 $response = [
                     'status' => 'error',
                     'message' => 'Ocurrió un problema al guardar el comentario. Por favor, inténtalo de nuevo.'
                 ];
             } catch (Exception $e) {
+                error_log("ERROR Exception: " . $e->getMessage());
                 $response = [
                     'status' => 'error',
                     'message' => $e->getMessage()
@@ -115,17 +160,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ];
     }
 
-    // Si es una petición AJAX, devolver JSON
-    if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
-        header('Content-Type: application/json');
-        echo json_encode($response);
-        exit;
-    }
-
-    // Ajustar la lógica para redirigir directamente al index
-    if ($response['status'] === 'success') {
-        header('Location: ' . BASE_URL . 'index.php');
-        exit;
-    }
+    // Siempre devolver JSON para compatibilidad con AJAX
+    ob_end_clean(); // Limpiar cualquier salida accidental
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode($response);
+    exit;
 }
 ?>
