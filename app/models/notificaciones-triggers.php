@@ -274,5 +274,68 @@ class NotificacionesTriggers {
             $url
         );
     }
+    
+    /**
+     * CONEXIONES MÍSTICAS - COINCIDENCE ALERTS
+     */
+    
+    /**
+     * Notifica cuando se detecta una coincidencia significativa entre usuarios
+     * Solo se envía cuando la puntuación es >= 80 (coincidencia muy alta)
+     * 
+     * @param int $usuario1_id ID del primer usuario
+     * @param int $usuario2_id ID del segundo usuario
+     * @param string $tipo_conexion Tipo de conexión detectada
+     * @param string $descripcion Descripción de la coincidencia
+     * @param int $puntuacion Puntuación de la conexión (0-100)
+     * @param string $nombre_usuario1 Nombre del primer usuario
+     * @param string $nombre_usuario2 Nombre del segundo usuario
+     */
+    public function coincidenciaSignificativa($usuario1_id, $usuario2_id, $tipo_conexion, $descripcion, $puntuacion, $nombre_usuario1, $nombre_usuario2) {
+        // Solo notificar si la puntuación es >= 80 (coincidencia muy significativa)
+        if ($puntuacion < 80) {
+            return false;
+        }
+        
+        // Determinar emoji según tipo de conexión
+        $emojis = [
+            'gustos_compartidos' => '💫',
+            'intereses_comunes' => '🎯',
+            'amigos_de_amigos' => '🌟',
+            'horarios_coincidentes' => '🌙'
+        ];
+        
+        $emoji = $emojis[$tipo_conexion] ?? '✨';
+        $porcentaje = $puntuacion . '%';
+        
+        // Crear URL para abrir el panel de conexiones místicas
+        $url = "/Converza/app/view/index.php?open_conexiones=1";
+        
+        // Notificar al usuario 1 sobre usuario 2
+        $mensaje1 = "<strong>¡Conexión Mística!</strong> {$emoji} Tienes una coincidencia del {$porcentaje} con <strong>{$nombre_usuario2}</strong>. {$descripcion}";
+        $resultado1 = $this->notificacionesHelper->crear(
+            $usuario1_id,
+            'conexion_mistica',
+            $mensaje1,
+            $usuario2_id,
+            null,
+            'conexion_mistica',
+            $url
+        );
+        
+        // Notificar al usuario 2 sobre usuario 1
+        $mensaje2 = "<strong>¡Conexión Mística!</strong> {$emoji} Tienes una coincidencia del {$porcentaje} con <strong>{$nombre_usuario1}</strong>. {$descripcion}";
+        $resultado2 = $this->notificacionesHelper->crear(
+            $usuario2_id,
+            'conexion_mistica',
+            $mensaje2,
+            $usuario1_id,
+            null,
+            'conexion_mistica',
+            $url
+        );
+        
+        return $resultado1 && $resultado2;
+    }
 }
 ?>

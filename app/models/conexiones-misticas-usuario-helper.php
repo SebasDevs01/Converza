@@ -159,6 +159,27 @@ class ConexionesMisticasUsuario {
      */
     private function guardarConexion($otroUsuarioId, $tipo, $descripcion, $puntuacion) {
         try {
+            // Verificar si la conexión ya existe
+            $sql_check = "
+                SELECT id, puntuacion 
+                FROM conexiones_misticas 
+                WHERE usuario1_id = ? 
+                AND usuario2_id = ? 
+                AND tipo_conexion = ?
+            ";
+            
+            $stmt_check = $this->conexion->prepare($sql_check);
+            $stmt_check->execute([
+                min($this->usuarioId, $otroUsuarioId),
+                max($this->usuarioId, $otroUsuarioId),
+                $tipo
+            ]);
+            
+            $conexion_existente = $stmt_check->fetch(PDO::FETCH_ASSOC);
+            $es_nueva_conexion = !$conexion_existente;
+            $puntuacion_anterior = $conexion_existente ? $conexion_existente['puntuacion'] : 0;
+            
+            // Guardar o actualizar la conexión
             $sql = "
                 INSERT INTO conexiones_misticas 
                 (usuario1_id, usuario2_id, tipo_conexion, descripcion, puntuacion)
@@ -177,8 +198,58 @@ class ConexionesMisticasUsuario {
                 $descripcion,
                 $puntuacion
             ]);
+            
+            // Enviar notificación solo si la conexión es significativa (>=80)
+            // Y solo si es nueva o mejoró significativamente (incremento de al menos 20 puntos)
+            if ($puntuacion >= 80 && ($es_nueva_conexion || ($puntuacion - $puntuacion_anterior) >= 20)) {
+                $this->enviarNotificacionCoincidencia($otroUsuarioId, $tipo, $descripcion, $puntuacion);
+            }
+            
         } catch (Exception $e) {
             // Silenciar errores
+        }
+    }
+    
+    /**
+     * Envía notificación de coincidencia significativa a ambos usuarios
+     */
+    private function enviarNotificacionCoincidencia($otroUsuarioId, $tipo, $descripcion, $puntuacion) {
+        try {
+            // Obtener nombres de ambos usuarios
+            $sql = "SELECT id_use, usuario FROM usuarios WHERE id_use IN (?, ?)";
+            $stmt = $this->conexion->prepare($sql);
+            $stmt->execute([$this->usuarioId, $otroUsuarioId]);
+            $usuarios = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            $nombre_usuario1 = '';
+            $nombre_usuario2 = '';
+            
+            foreach ($usuarios as $usuario) {
+                if ($usuario['id_use'] == $this->usuarioId) {
+                    $nombre_usuario1 = $usuario['usuario'];
+                } else {
+                    $nombre_usuario2 = $usuario['usuario'];
+                }
+            }
+            
+            // Crear trigger de notificaciones
+            require_once __DIR__ . '/notificaciones-triggers.php';
+            $triggers = new NotificacionesTriggers($this->conexion);
+            
+            // Enviar notificación de coincidencia significativa
+            $triggers->coincidenciaSignificativa(
+                $this->usuarioId,
+                $otroUsuarioId,
+                $tipo,
+                $descripcion,
+                $puntuacion,
+                $nombre_usuario1,
+                $nombre_usuario2
+            );
+            
+        } catch (Exception $e) {
+            // Silenciar errores de notificación
+            error_log("Error al enviar notificación de coincidencia: " . $e->getMessage());
         }
     }
 }

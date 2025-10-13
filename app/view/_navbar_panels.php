@@ -585,6 +585,22 @@ document.getElementById('offcanvasConexiones')?.addEventListener('show.bs.offcan
     cargarConexionesMisticas();
 });
 
+// Auto-abrir offcanvas si viene desde una notificación
+document.addEventListener('DOMContentLoaded', function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('open_conexiones') === '1') {
+        const offcanvasElement = document.getElementById('offcanvasConexiones');
+        if (offcanvasElement) {
+            const bsOffcanvas = new bootstrap.Offcanvas(offcanvasElement);
+            bsOffcanvas.show();
+            
+            // Limpiar el parámetro de la URL sin recargar la página
+            const newUrl = window.location.pathname + window.location.search.replace(/[?&]open_conexiones=1/, '').replace(/^&/, '?');
+            window.history.replaceState({}, document.title, newUrl);
+        }
+    }
+});
+
 function cargarConexionesMisticas() {
     const loading = document.getElementById('conexiones-loading');
     const container = document.getElementById('conexiones-container');
