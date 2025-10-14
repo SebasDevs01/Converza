@@ -1,8 +1,15 @@
 <?php
 session_start();
 require_once __DIR__.'/../models/config.php';
+require_once __DIR__.'/../models/recompensas-aplicar-helper.php'; // 🎁 Sistema de recompensas
+
 $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 $album = isset($_GET['album']) ? $_GET['album'] : '';
+
+// 🎁 Inicializar sistema de recompensas
+$recompensasHelper = new RecompensasAplicarHelper($conexion);
+$temaCSS = $recompensasHelper->getTemaCSS($id);
+
 // 1. Imágenes de la tabla fotos (álbumes clásicos)
 $stmtFotos = $conexion->prepare("SELECT ruta FROM fotos WHERE usuario = :id AND album = :album ORDER BY id_fot DESC");
 $stmtFotos->bindParam(':id', $id, PDO::PARAM_INT);
@@ -52,6 +59,13 @@ $navActive = [
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <link rel="stylesheet" href="/Converza/public/css/component.css" />
     <link rel="stylesheet" href="/Converza/public/css/navbar-animations.css" />
+    <link rel="stylesheet" href="/Converza/public/css/karma-recompensas.css" />
+    
+    <?php if ($temaCSS): ?>
+    <!-- 🎨 Tema personalizado equipado -->
+    <style><?php echo $temaCSS; ?></style>
+    <?php endif; ?>
+    
     <style>
       /* Estilo para contador de notificaciones estilo Facebook */
       .notification-badge {
@@ -117,11 +131,16 @@ $navActive = [
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm mb-4 sticky-top">
   <div class="container-fluid">
     <a class="navbar-brand fw-bold" href="/Converza/app/view/index.php" style="letter-spacing:2px;">Converza</a>
+    
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav ms-auto align-items-center">
+        <!-- 🏆 KARMA BADGE -->
+        <li class="nav-item">
+          <?php include __DIR__.'/../view/components/karma-navbar-badge.php'; ?>
+        </li>
         <li class="nav-item"><a class="nav-link<?php if($navActive['inicio']) echo ' active'; ?>" href="/Converza/app/view/index.php" aria-current="<?php if($navActive['inicio']) echo 'page'; ?>"><i class="bi bi-house-door"></i> Inicio</a></li>
         <li class="nav-item"><a class="nav-link<?php if($navActive['perfil']) echo ' active'; ?>" href="/Converza/app/presenters/perfil.php?id=<?php echo (int)$_SESSION['id']; ?>" aria-current="<?php if($navActive['perfil']) echo 'page'; ?>"><i class="bi bi-person-circle"></i> Perfil</a></li>
         <li class="nav-item">
@@ -155,6 +174,7 @@ $navActive = [
     </div>
   </div>
 </nav>
+
 <?php include __DIR__.'/../view/_navbar_panels.php'; ?>
 <div class="container py-4">
   <div class="row g-2 mt-2">

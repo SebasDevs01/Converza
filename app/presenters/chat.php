@@ -3,6 +3,7 @@ session_start();
 require_once __DIR__.'/../models/config.php';
 require_once __DIR__.'/../models/socialnetwork-lib.php';
 require_once __DIR__.'/../models/chat-permisos-helper.php';
+require_once __DIR__.'/../models/recompensas-aplicar-helper.php'; // 🎁 Sistema de recompensas
 
 if(!isset($_SESSION['usuario'])) {
   header("Location: login.php");
@@ -12,6 +13,10 @@ if(!isset($_SESSION['usuario'])) {
 // Acepta tanto 'usuario' como 'id' para compatibilidad
 $user = isset($_GET['id']) ? (int)$_GET['id'] : (isset($_GET['usuario']) ? (int)$_GET['usuario'] : 0);
 $sess = $_SESSION['id'];
+
+// 🎁 Inicializar sistema de recompensas
+$recompensasHelper = new RecompensasAplicarHelper($conexion);
+$temaCSS = $recompensasHelper->getTemaCSS($sess);
 
 // ✅ Obtener usuarios con los que puede chatear (SIN DUPLICADOS)
 // PRIORIDAD: Amigos > Seguidores mutuos > Solicitudes aceptadas
@@ -119,6 +124,11 @@ $countSolicitudesMensaje = count($solicitudesMensaje);
   <title>Coverza - Chat</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+  
+  <?php if ($temaCSS): ?>
+  <!-- 🎨 Tema personalizado equipado -->
+  <style><?php echo $temaCSS; ?></style>
+  <?php endif; ?>
   
   <style>
     /* Estilos para burbujas de chat modernas */

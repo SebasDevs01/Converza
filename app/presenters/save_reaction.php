@@ -2,12 +2,15 @@
 require_once(__DIR__.'/../models/config.php');
 require_once(__DIR__.'/../models/bloqueos-helper.php');
 require_once(__DIR__.'/../models/notificaciones-triggers.php');
+require_once(__DIR__.'/../models/karma-social-triggers.php'); // 🌟 KARMA SOCIAL
 session_start();
 
 header('Content-Type: application/json');
 
 // Instanciar sistema de notificaciones
 $notificacionesTriggers = new NotificacionesTriggers($conexion);
+// 🌟 Instanciar sistema de Karma Social
+$karmaTriggers = new KarmaSocialTriggers($conexion);
 
 // Verificar si el usuario está bloqueado antes de permitir reacciones
 if (isset($_SESSION['id']) && isUserBlocked($_SESSION['id'], $conexion)) {
@@ -164,15 +167,38 @@ try {
                 $tipoReaccionFinal = $tipoMapeado[$tipo_reaccion] ?? 'like';
                 
                 $notificacionesTriggers->nuevaReaccion($id_usuario, $autorPublicacion, $nombreUsuario, $id_publicacion, $tipoReaccionFinal);
+                
+                // 🌟 REGISTRAR KARMA SOCIAL AUTOMÁTICAMENTE (CUALQUIER reacción, excepto negativas)
+                $karmaTriggers->nuevaReaccion($id_usuario, $id_publicacion, $tipoReaccionFinal);
             }
         }
     }
 
+    // 🚀 OPTIMIZACIÓN: Incluir karma actualizado en la respuesta para evitar petición adicional
+    $karmaActualizado = null;
+    if (isset($_SESSION['id'])) {
+        try {
+            require_once(__DIR__.'/../models/karma-social-helper.php');
+            $karmaHelper = new KarmaSocialHelper($conexion);
+            $karmaData = $karmaHelper->obtenerKarmaUsuario($_SESSION['id']);
+            
+            $karmaActualizado = [
+                'karma' => $karmaData['karma_total'],
+                'nivel' => $karmaData['nivel_data']['nivel'] ?? 1,
+                'nivel_titulo' => $karmaData['nivel_data']['titulo'] ?? $karmaData['nivel'],
+                'nivel_emoji' => $karmaData['nivel_emoji']
+            ];
+        } catch (Exception $e) {
+            error_log("Error obteniendo karma actualizado: " . $e->getMessage());
+        }
+    }
+    
     echo json_encode([
         'success' => true, 
         'message' => 'Reacción procesada',
         'action' => $action,
-        'tipo_reaccion' => $action === 'removed' ? null : $tipo_reaccion
+        'tipo_reaccion' => $action === 'removed' ? null : $tipo_reaccion,
+        'karma_actualizado' => $karmaActualizado // 🚀 Karma incluido en la respuesta
     ]);
 } catch (PDOException $e) {
     echo json_encode(['success' => false, 'message' => 'Error en la base de datos']);

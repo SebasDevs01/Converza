@@ -5,6 +5,11 @@ if (!isset($_SESSION['id']) || !isset($_SESSION['usuario']) || ($_SESSION['tipo'
     exit();
 }
 require_once __DIR__.'/../models/config.php';
+require_once __DIR__.'/../models/recompensas-aplicar-helper.php'; // 🎁 Sistema de recompensas
+
+// 🎁 Inicializar sistema de recompensas
+$recompensasHelper = new RecompensasAplicarHelper($conexion);
+$temaCSS = $recompensasHelper->getTemaCSS($_SESSION['id']);
 
 // Función para determinar el tipo de publicación
 function determinarTipoPublicacion($contenido, $imagenes, $totalImagenes) {
@@ -325,6 +330,11 @@ try {
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
   <link rel="stylesheet" href="/public/css/component.css" />
+  
+  <?php if ($temaCSS): ?>
+  <!-- 🎨 Tema personalizado equipado -->
+  <style><?php echo $temaCSS; ?></style>
+  <?php endif; ?>
 </head>
 <body class="bg-light">
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top mb-4">

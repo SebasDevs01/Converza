@@ -16,6 +16,8 @@ session_start();
 require_once __DIR__.'/../models/config.php';
 require_once __DIR__.'/../models/socialnetwork-lib.php';
 require_once __DIR__.'/../models/notificaciones-triggers.php';
+require_once __DIR__.'/../models/recompensas-aplicar-helper.php'; // 🎁 Sistema de recompensas
+
 // Eliminar todas las publicaciones si se solicita por el usuario (solo para admin o debug)
 if (isset($_GET['eliminar_todo']) && isset($_SESSION['tipo']) && $_SESSION['tipo'] === 'admin') {
     $conexion->exec('DELETE FROM publicaciones');
@@ -32,6 +34,10 @@ if (!isset($_SESSION['id']) || !isset($_SESSION['usuario']) || !isset($_SESSION[
     header("Location: login.php");
     exit();
 }
+
+// 🎁 Inicializar sistema de recompensas
+$recompensasHelper = new RecompensasAplicarHelper($conexion);
+$temaCSS = $recompensasHelper->getTemaCSS($_SESSION['id']);
 
 // Instanciar sistema de notificaciones
 $notificacionesTriggers = new NotificacionesTriggers($conexion);
@@ -174,6 +180,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['publicacion']) || (i
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <link rel="stylesheet" href="/Converza/public/css/component.css" />
     <link rel="stylesheet" href="/Converza/public/css/navbar-animations.css" />
+    <link rel="stylesheet" href="/Converza/public/css/karma-recompensas.css" />
+    
+    <?php 
+    // 🎨 SISTEMA DE TEMAS GLOBAL - Aplicar tema equipado a todo el sistema
+    require_once __DIR__ . '/../models/tema-global-aplicar.php';
+    ?>
+    
+    <?php if ($temaCSS): ?>
+    <!-- 🎨 Tema personalizado equipado (CSS adicional - DEPRECATED, usar tema-global-aplicar.php) -->
+    <style><?php echo $temaCSS; ?></style>
+    <?php endif; ?>
+    
     <style>
         /* Estilo para contador de notificaciones estilo Facebook */
         .notification-badge {
@@ -250,6 +268,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['publicacion']) || (i
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto align-items-center">
+                <!-- 🏆 Karma Button -->
+                <li class="nav-item">
+                    <?php include __DIR__.'/components/karma-navbar-badge.php'; ?>
+                </li>
+                
                 <li class="nav-item"><a class="nav-link active" href="index.php" aria-current="page"><i class="bi bi-house-door"></i> Inicio</a></li>
                 <li class="nav-item"><a class="nav-link" href="../presenters/perfil.php?id=<?php echo (int)$_SESSION['id']; ?>"><i class="bi bi-person-circle"></i> Perfil</a></li>
                 <li class="nav-item">
@@ -287,6 +310,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['publicacion']) || (i
     </div>
 </nav>
     <?php include __DIR__.'/_navbar_panels.php'; ?>
+    
     <?php
     // Mostrar notificaciones de la sesión
     if (!empty($_SESSION['notificaciones'])) {
@@ -310,11 +334,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['publicacion']) || (i
                     <?php
                         $avatar = htmlspecialchars($_SESSION['avatar']);
                         $avatarPath = realpath(__DIR__.'/../../public/avatars/'.$avatar);
-                        $avatarWebPath = '/converza/public/avatars/'.$avatar;
+                        $avatarWebPath = '/Converza/public/avatars/'.$avatar;
                         if ($avatar && $avatar !== 'default_avatar.svg' && $avatarPath && file_exists($avatarPath)) {
                             echo '<img src="'.$avatarWebPath.'" class="rounded-circle me-3" width="60" height="60" alt="Avatar" loading="lazy" title="Tu avatar">';
                         } else {
-                            echo '<img src="/converza/public/avatars/defect.jpg" class="rounded-circle me-3" width="60" height="60" alt="Avatar por defecto" loading="lazy" title="Avatar por defecto">';
+                            echo '<img src="/Converza/public/avatars/defect.jpg" class="rounded-circle me-3" width="60" height="60" alt="Avatar por defecto" loading="lazy" title="Avatar por defecto">';
                         }
                     ?>
                     <textarea name="publicacion" class="form-control" rows="2" placeholder="¿Qué estás pensando?"></textarea>

@@ -1,0 +1,740 @@
+/* ================================================================
+   SISTEMA DE TEMAS GLOBALES PARA CONVERZA - VERSIÓN 3.0
+   TODO EL SISTEMA SE ADAPTA AL TEMA EQUIPADO
+   ================================================================ */
+
+/* ============================================
+   TEMA DEFAULT (Converza Original)
+   SIN TEMA EQUIPADO - Navbar azul, fondo blanco
+   ============================================ */
+
+/* CUERPO Y FONDO - BLANCO LIMPIO */
+body.tema-default,
+html.tema-default body {
+    background: #ffffff !important;
+    color: #333 !important;
+    min-height: 100vh;
+}
+
+/* NAVBAR - AZUL CONVERZA SÓLIDO */
+body.tema-default .navbar,
+body.tema-default nav.navbar,
+.tema-default .navbar {
+    background: #007bff !important;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1) !important;
+    border-bottom: none !important;
+}
+
+body.tema-default .navbar a,
+body.tema-default .navbar .nav-link,
+body.tema-default .navbar-brand,
+body.tema-default .navbar .badge,
+body.tema-default .navbar .btn,
+body.tema-default .navbar span {
+    color: white !important;
+}
+
+body.tema-default .navbar a:hover,
+body.tema-default .navbar .nav-link:hover {
+    color: rgba(255, 255, 255, 0.8) !important;
+}
+
+/* KARMA BADGE - BLANCO VISIBLE */
+body.tema-default .karma-badge,
+body.tema-default [class*="karma"],
+body.tema-default .badge,
+body.tema-default .navbar .badge {
+    color: white !important;
+    background-color: rgba(255, 255, 255, 0.2) !important;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.3) !important;
+}
+
+/* CARDS Y CONTENEDORES - BLANCO LIMPIO */
+body.tema-default .card,
+body.tema-default .list-group-item,
+body.tema-default .modal-content {
+    background: white !important;
+    border: 1px solid #dee2e6 !important;
+    color: #333 !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important;
+}
+
+body.tema-default .card-header {
+    background: #f8f9fa !important;
+    border-bottom: 1px solid #dee2e6 !important;
+    color: #333 !important;
+}
+
+/* FORMULARIOS - ESTILO NORMAL */
+body.tema-default .form-control,
+body.tema-default textarea,
+body.tema-default input[type="text"],
+body.tema-default input[type="password"],
+body.tema-default input[type="email"],
+body.tema-default select {
+    background: white !important;
+    color: #333 !important;
+    border: 1px solid #ced4da !important;
+}
+
+body.tema-default .form-control:focus,
+body.tema-default textarea:focus {
+    background: white !important;
+    border-color: #007bff !important;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25) !important;
+}
+
+/* BOTONES - AZUL BOOTSTRAP */
+body.tema-default .btn-primary,
+body.tema-default button[type="submit"] {
+    background: #007bff !important;
+    border: none !important;
+    color: white !important;
+}
+
+body.tema-default .btn-primary:hover,
+body.tema-default button[type="submit"]:hover {
+    background: #0056b3 !important;
+    transform: translateY(-1px);
+}
+
+body.tema-default .btn-secondary {
+    background: #6c757d !important;
+    border: none !important;
+    color: white !important;
+}
+
+body.tema-default .btn-outline-primary {
+    border-color: #007bff !important;
+    color: #007bff !important;
+}
+
+/* MODALES */
+body.tema-default .modal-header {
+    background: #007bff !important;
+    color: white !important;
+}
+
+body.tema-default .modal-footer {
+    background: #f8f9fa !important;
+}
+
+/* OFFCANVAS */
+body.tema-default .offcanvas {
+    background: white !important;
+}
+
+body.tema-default .offcanvas-header {
+    background: #007bff !important;
+    color: white !important;
+}
+
+/* TEXTOS */
+body.tema-default h1, body.tema-default h2, 
+body.tema-default h3, body.tema-default h4,
+body.tema-default h5, body.tema-default h6 {
+    color: #333 !important;
+}
+
+body.tema-default p,
+body.tema-default span {
+    color: #333 !important;
+}
+
+body.tema-default a {
+    color: #007bff !important;
+}
+
+body.tema-default a:hover {
+    color: #0056b3 !important;
+}
+
+body.tema-default .text-muted {
+    color: #6c757d !important;
+}
+
+body.tema-default .bg-light {
+    background: #f8f9fa !important;
+}
+
+/* FORMULARIOS */
+body.tema-default .form-control,
+body.tema-default textarea,
+body.tema-default input[type="text"],
+body.tema-default input[type="password"],
+body.tema-default input[type="email"],
+body.tema-default select {
+    background: white !important;
+    color: #333 !important;
+    border: 1px solid #ced4da !important;
+}
+
+body.tema-default .form-control:focus,
+body.tema-default textarea:focus {
+    background: white !important;
+    border-color: #667eea !important;
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25) !important;
+}
+
+/* BOTONES */
+body.tema-default .btn-primary,
+body.tema-default button[type="submit"] {
+    background: linear-gradient(135deg, #667eea, #764ba2) !important;
+    border: none !important;
+    color: white !important;
+}
+
+body.tema-default .btn-primary:hover,
+body.tema-default button[type="submit"]:hover {
+    background: linear-gradient(135deg, #764ba2, #667eea) !important;
+    transform: translateY(-1px);
+}
+
+body.tema-default .btn-secondary {
+    background: #6c757d !important;
+    border: none !important;
+    color: white !important;
+}
+
+body.tema-default .btn-outline-primary {
+    border-color: #667eea !important;
+    color: #667eea !important;
+}
+
+/* MODALES */
+body.tema-default .modal-header {
+    background: linear-gradient(135deg, #667eea, #764ba2) !important;
+    color: white !important;
+}
+
+body.tema-default .modal-footer {
+    background: rgba(102, 126, 234, 0.05) !important;
+}
+
+/* OFFCANVAS - CONEXIONES MÍSTICAS */
+body.tema-default .offcanvas {
+    background: white !important;
+}
+
+body.tema-default .offcanvas-header {
+    background: linear-gradient(135deg, #667eea, #764ba2) !important;
+    color: white !important;
+}
+
+/* ============================================
+   TEMA OSCURO PREMIUM (Elegante Negro/Rojo)
+   ============================================ */
+
+/* CUERPO Y FONDO */
+body.tema-oscuro {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f1419 100%) !important;
+    color: #e0e0e0 !important;
+    min-height: 100vh;
+}
+
+/* NAVBAR */
+body.tema-oscuro .navbar {
+    background: linear-gradient(135deg, #16213e, #0f3460) !important;
+    border-bottom: 2px solid #e94560 !important;
+    box-shadow: 0 4px 15px rgba(233, 69, 96, 0.3) !important;
+}
+
+body.tema-oscuro .navbar a,
+body.tema-oscuro .navbar .nav-link,
+body.tema-oscuro .navbar-brand,
+body.tema-oscuro .navbar .badge,
+body.tema-oscuro .navbar .btn {
+    color: #e0e0e0 !important;
+}
+
+body.tema-oscuro .navbar a:hover,
+body.tema-oscuro .navbar .nav-link:hover {
+    color: #e94560 !important;
+}
+
+/* KARMA BADGE - VISIBLE */
+body.tema-oscuro .karma-badge,
+body.tema-oscuro [class*="karma"],
+body.tema-oscuro .badge {
+    color: #e0e0e0 !important;
+}
+
+/* CARDS */
+body.tema-oscuro .card,
+body.tema-oscuro .list-group-item,
+body.tema-oscuro .modal-content,
+body.tema-oscuro .offcanvas {
+    background: linear-gradient(135deg, rgba(22, 33, 62, 0.95), rgba(15, 52, 96, 0.9)) !important;
+    border: 1px solid rgba(233, 69, 96, 0.3) !important;
+    color: #e0e0e0 !important;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4) !important;
+}
+
+body.tema-oscuro .card-header,
+body.tema-oscuro .modal-header,
+body.tema-oscuro .offcanvas-header {
+    background: linear-gradient(135deg, rgba(233, 69, 96, 0.2), rgba(233, 69, 96, 0.1)) !important;
+    border-bottom: 1px solid rgba(233, 69, 96, 0.3) !important;
+    color: #e94560 !important;
+}
+
+/* FORMULARIOS */
+body.tema-oscuro .form-control,
+body.tema-oscuro textarea,
+body.tema-oscuro input[type="text"],
+body.tema-oscuro input[type="password"],
+body.tema-oscuro input[type="email"],
+body.tema-oscuro select {
+    background: rgba(15, 20, 25, 0.8) !important;
+    color: #e0e0e0 !important;
+    border: 1px solid rgba(233, 69, 96, 0.3) !important;
+}
+
+body.tema-oscuro .form-control::placeholder,
+body.tema-oscuro textarea::placeholder {
+    color: rgba(224, 224, 224, 0.5) !important;
+}
+
+body.tema-oscuro .form-control:focus,
+body.tema-oscuro textarea:focus {
+    background: rgba(15, 20, 25, 0.95) !important;
+    border-color: #e94560 !important;
+    box-shadow: 0 0 15px rgba(233, 69, 96, 0.3) !important;
+}
+
+/* BOTONES */
+body.tema-oscuro .btn-primary,
+body.tema-oscuro button[type="submit"] {
+    background: linear-gradient(135deg, #e94560, #d63447) !important;
+    border: none !important;
+    color: white !important;
+    box-shadow: 0 4px 15px rgba(233, 69, 96, 0.4) !important;
+}
+
+body.tema-oscuro .btn-primary:hover {
+    background: linear-gradient(135deg, #d63447, #e94560) !important;
+    box-shadow: 0 6px 20px rgba(233, 69, 96, 0.6) !important;
+}
+
+body.tema-oscuro .btn-secondary,
+body.tema-oscuro .btn-outline-secondary {
+    background: rgba(22, 33, 62, 0.8) !important;
+    border: 1px solid rgba(233, 69, 96, 0.5) !important;
+    color: #e0e0e0 !important;
+}
+
+/* TEXTOS */
+body.tema-oscuro h1, body.tema-oscuro h2, 
+body.tema-oscuro h3, body.tema-oscuro h4,
+body.tema-oscuro h5, body.tema-oscuro h6 {
+    color: #e94560 !important;
+}
+
+body.tema-oscuro p,
+body.tema-oscuro span,
+body.tema-oscuro .text-muted {
+    color: #e0e0e0 !important;
+}
+
+body.tema-oscuro a {
+    color: #e94560 !important;
+}
+
+/* ============================================
+   TEMA GALAXY (Espacio con estrellas)
+   ============================================ */
+
+/* CUERPO CON ESTRELLAS */
+body.tema-galaxy {
+    background: #0a0e27 !important;
+    color: #e0e0ff !important;
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+}
+
+body.tema-galaxy::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+        radial-gradient(2px 2px at 20% 30%, white, transparent),
+        radial-gradient(2px 2px at 60% 70%, white, transparent),
+        radial-gradient(1px 1px at 50% 50%, white, transparent),
+        radial-gradient(1px 1px at 80% 10%, white, transparent),
+        radial-gradient(2px 2px at 90% 60%, white, transparent);
+    background-size: 200% 200%;
+    animation: galaxy-drift 120s ease-in-out infinite;
+    opacity: 0.4;
+    pointer-events: none;
+    z-index: 0;
+}
+
+@keyframes galaxy-drift {
+    0%, 100% { background-position: 0% 0%; }
+    50% { background-position: 100% 100%; }
+}
+
+/* NAVBAR */
+body.tema-galaxy .navbar {
+    background: linear-gradient(135deg, rgba(10, 14, 39, 0.95), rgba(15, 20, 50, 0.95)) !important;
+    border-bottom: 2px solid #7d5fff !important;
+    box-shadow: 0 4px 20px rgba(125, 95, 255, 0.4) !important;
+    z-index: 10;
+}
+
+body.tema-galaxy .navbar a,
+body.tema-galaxy .navbar .nav-link,
+body.tema-galaxy .navbar-brand,
+body.tema-galaxy .navbar .badge,
+body.tema-galaxy .navbar .btn {
+    color: #e0e0ff !important;
+}
+
+body.tema-galaxy .navbar a:hover {
+    color: #7d5fff !important;
+}
+
+/* KARMA BADGE */
+body.tema-galaxy .karma-badge,
+body.tema-galaxy [class*="karma"],
+body.tema-galaxy .badge {
+    color: #e0e0ff !important;
+}
+
+/* CARDS */
+body.tema-galaxy .card,
+body.tema-galaxy .list-group-item,
+body.tema-galaxy .modal-content,
+body.tema-galaxy .offcanvas {
+    background: linear-gradient(135deg, rgba(10, 14, 39, 0.9), rgba(20, 25, 60, 0.85)) !important;
+    border: 2px solid rgba(125, 95, 255, 0.4) !important;
+    color: #e0e0ff !important;
+    box-shadow: 0 8px 30px rgba(125, 95, 255, 0.2) !important;
+    z-index: 2;
+}
+
+body.tema-galaxy .card-header,
+body.tema-galaxy .modal-header,
+body.tema-galaxy .offcanvas-header {
+    background: linear-gradient(135deg, rgba(125, 95, 255, 0.2), rgba(125, 95, 255, 0.1)) !important;
+    border-bottom: 1px solid rgba(125, 95, 255, 0.3) !important;
+    color: #7d5fff !important;
+}
+
+/* FORMULARIOS */
+body.tema-galaxy .form-control,
+body.tema-galaxy textarea,
+body.tema-galaxy input[type="text"],
+body.tema-galaxy input[type="password"],
+body.tema-galaxy input[type="email"],
+body.tema-galaxy select {
+    background: rgba(10, 14, 39, 0.9) !important;
+    color: #e0e0ff !important;
+    border: 2px solid rgba(125, 95, 255, 0.4) !important;
+}
+
+body.tema-galaxy .form-control:focus,
+body.tema-galaxy textarea:focus {
+    border-color: #7d5fff !important;
+    box-shadow: 0 0 20px rgba(125, 95, 255, 0.4) !important;
+}
+
+/* BOTONES */
+body.tema-galaxy .btn-primary,
+body.tema-galaxy button[type="submit"] {
+    background: linear-gradient(135deg, #7d5fff, #5a3fb8) !important;
+    border: none !important;
+    color: white !important;
+    box-shadow: 0 4px 15px rgba(125, 95, 255, 0.5) !important;
+}
+
+body.tema-galaxy .btn-primary:hover {
+    background: linear-gradient(135deg, #9370ff, #7d5fff) !important;
+    box-shadow: 0 6px 25px rgba(125, 95, 255, 0.7) !important;
+}
+
+body.tema-galaxy .btn-secondary {
+    background: rgba(10, 14, 39, 0.8) !important;
+    border: 2px solid rgba(125, 95, 255, 0.5) !important;
+    color: #e0e0ff !important;
+}
+
+/* TEXTOS */
+body.tema-galaxy h1, body.tema-galaxy h2,
+body.tema-galaxy h3, body.tema-galaxy h4,
+body.tema-galaxy h5, body.tema-galaxy h6 {
+    color: #7d5fff !important;
+}
+
+body.tema-galaxy p,
+body.tema-galaxy span {
+    color: #e0e0ff !important;
+}
+
+body.tema-galaxy a {
+    color: #a78bfa !important;
+}
+
+/* ============================================
+   TEMA SUNSET (Cálido naranja/rosa)
+   ============================================ */
+
+/* CUERPO */
+body.tema-sunset {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ff8e53 30%, #ffbb54 70%, #ff6b9d 100%) !important;
+    color: #2d1b2e !important;
+    min-height: 100vh;
+}
+
+/* NAVBAR */
+body.tema-sunset .navbar {
+    background: linear-gradient(135deg, rgba(255, 107, 107, 0.95), rgba(255, 142, 83, 0.95)) !important;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.3) !important;
+    box-shadow: 0 4px 20px rgba(255, 107, 107, 0.3) !important;
+}
+
+body.tema-sunset .navbar a,
+body.tema-sunset .navbar .nav-link,
+body.tema-sunset .navbar-brand,
+body.tema-sunset .navbar .badge,
+body.tema-sunset .navbar .btn {
+    color: white !important;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+/* KARMA BADGE */
+body.tema-sunset .karma-badge,
+body.tema-sunset [class*="karma"],
+body.tema-sunset .badge {
+    color: white !important;
+}
+
+/* CARDS */
+body.tema-sunset .card,
+body.tema-sunset .list-group-item,
+body.tema-sunset .modal-content,
+body.tema-sunset .offcanvas {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.9)) !important;
+    border: 2px solid rgba(255, 142, 83, 0.3) !important;
+    color: #2d1b2e !important;
+    box-shadow: 0 8px 30px rgba(255, 107, 107, 0.2) !important;
+}
+
+body.tema-sunset .card-header,
+body.tema-sunset .modal-header,
+body.tema-sunset .offcanvas-header {
+    background: linear-gradient(135deg, rgba(255, 107, 107, 0.2), rgba(255, 142, 83, 0.2)) !important;
+    border-bottom: 2px solid rgba(255, 142, 83, 0.3) !important;
+    color: #ff6b6b !important;
+}
+
+/* FORMULARIOS */
+body.tema-sunset .form-control,
+body.tema-sunset textarea,
+body.tema-sunset input,
+body.tema-sunset select {
+    background: rgba(255, 255, 255, 0.9) !important;
+    color: #2d1b2e !important;
+    border: 2px solid rgba(255, 142, 83, 0.4) !important;
+}
+
+body.tema-sunset .form-control:focus,
+body.tema-sunset textarea:focus {
+    background: white !important;
+    border-color: #ff8e53 !important;
+    box-shadow: 0 0 20px rgba(255, 142, 83, 0.3) !important;
+}
+
+/* BOTONES */
+body.tema-sunset .btn-primary,
+body.tema-sunset button[type="submit"] {
+    background: linear-gradient(135deg, #ff6b6b, #ff8e53) !important;
+    border: none !important;
+    color: white !important;
+    box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4) !important;
+}
+
+body.tema-sunset .btn-primary:hover {
+    background: linear-gradient(135deg, #ff8e53, #ff6b6b) !important;
+    box-shadow: 0 6px 25px rgba(255, 107, 107, 0.6) !important;
+}
+
+body.tema-sunset .btn-secondary {
+    background: rgba(255, 255, 255, 0.8) !important;
+    border: 2px solid rgba(255, 107, 107, 0.5) !important;
+    color: #ff6b6b !important;
+}
+
+/* TEXTOS */
+body.tema-sunset h1, body.tema-sunset h2,
+body.tema-sunset h3, body.tema-sunset h4,
+body.tema-sunset h5, body.tema-sunset h6 {
+    color: #ff6b6b !important;
+}
+
+body.tema-sunset p,
+body.tema-sunset span {
+    color: #2d1b2e !important;
+}
+
+body.tema-sunset a {
+    color: #ff6b6b !important;
+}
+
+/* ============================================
+   TEMA NEON (Cyberpunk cyan/magenta)
+   ============================================ */
+
+/* CUERPO CON SCANLINES */
+body.tema-neon {
+    background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #0a0e27 100%) !important;
+    color: #00ffff !important;
+    min-height: 100vh;
+    position: relative;
+}
+
+body.tema-neon::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: repeating-linear-gradient(
+        0deg,
+        rgba(0, 255, 255, 0.03) 0px,
+        rgba(0, 255, 255, 0.03) 1px,
+        transparent 1px,
+        transparent 2px
+    );
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* NAVBAR */
+body.tema-neon .navbar {
+    background: linear-gradient(135deg, #0a0e27, #1a1f3a) !important;
+    border-bottom: 2px solid #00ffff !important;
+    box-shadow: 0 4px 20px rgba(0, 255, 255, 0.3) !important;
+    z-index: 10;
+}
+
+body.tema-neon .navbar a,
+body.tema-neon .navbar .nav-link,
+body.tema-neon .navbar-brand,
+body.tema-neon .navbar .badge,
+body.tema-neon .navbar .btn {
+    color: #00ffff !important;
+}
+
+body.tema-neon .navbar a:hover {
+    color: #ff00ff !important;
+    text-shadow: 0 0 10px #ff00ff;
+}
+
+/* KARMA BADGE */
+body.tema-neon .karma-badge,
+body.tema-neon [class*="karma"],
+body.tema-neon .badge {
+    color: #00ffff !important;
+}
+
+/* CARDS */
+body.tema-neon .card,
+body.tema-neon .list-group-item,
+body.tema-neon .modal-content,
+body.tema-neon .offcanvas {
+    background: linear-gradient(135deg, rgba(10, 14, 39, 0.95), rgba(26, 31, 58, 0.95)) !important;
+    border: 2px solid #00ffff !important;
+    color: #00ffff !important;
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.3) !important;
+    z-index: 2;
+}
+
+body.tema-neon .card-header,
+body.tema-neon .modal-header,
+body.tema-neon .offcanvas-header {
+    background: linear-gradient(135deg, rgba(0, 255, 255, 0.15), rgba(255, 0, 255, 0.1)) !important;
+    border-bottom: 1px solid rgba(0, 255, 255, 0.5) !important;
+    color: #00ffff !important;
+}
+
+/* FORMULARIOS */
+body.tema-neon .form-control,
+body.tema-neon textarea,
+body.tema-neon input,
+body.tema-neon select {
+    background: rgba(10, 14, 39, 0.9) !important;
+    color: #00ffff !important;
+    border: 2px solid rgba(0, 255, 255, 0.5) !important;
+}
+
+body.tema-neon .form-control:focus,
+body.tema-neon textarea:focus {
+    border-color: #00ffff !important;
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.5) !important;
+}
+
+/* BOTONES */
+body.tema-neon .btn-primary,
+body.tema-neon button[type="submit"] {
+    background: linear-gradient(135deg, #00ffff, #ff00ff) !important;
+    border: none !important;
+    color: #0a0e27 !important;
+    font-weight: bold;
+    box-shadow: 0 4px 15px rgba(0, 255, 255, 0.5) !important;
+}
+
+body.tema-neon .btn-primary:hover {
+    box-shadow: 0 6px 25px rgba(0, 255, 255, 0.8) !important;
+}
+
+body.tema-neon .btn-secondary {
+    background: rgba(10, 14, 39, 0.8) !important;
+    border: 2px solid #00ffff !important;
+    color: #00ffff !important;
+}
+
+/* TEXTOS */
+body.tema-neon h1, body.tema-neon h2, 
+body.tema-neon h3, body.tema-neon h4,
+body.tema-neon h5, body.tema-neon h6 {
+    color: #00ffff !important;
+    text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+}
+
+body.tema-neon p,
+body.tema-neon span {
+    color: #e0e0ff !important;
+}
+
+body.tema-neon a {
+    color: #ff00ff !important;
+}
+
+/* ================================================================
+   ESTILOS GLOBALES - APLICAN A TODOS LOS TEMAS
+   ================================================================ */
+
+/* Transiciones suaves */
+body,
+.navbar,
+.card,
+.form-control,
+.btn,
+.modal-content,
+.offcanvas {
+    transition: all 0.3s ease !important;
+}
+
+/* Asegurar que los badges de karma siempre sean visibles */
+[class*="karma-badge"],
+.badge-karma,
+.karma-display {
+    font-weight: 600 !important;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.2) !important;
+}

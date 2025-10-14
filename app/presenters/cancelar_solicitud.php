@@ -2,6 +2,9 @@
 session_start();
 require_once '../models/config.php';
 
+// ✅ Establecer Content-Type JSON
+header('Content-Type: application/json');
+
 // Verificar que el usuario esté logueado
 if (!isset($_SESSION['id'])) {
     http_response_code(401);
@@ -39,14 +42,24 @@ try {
     $stmtCancelar->execute();
     
     if ($stmtCancelar->rowCount() > 0) {
-        echo json_encode(['success' => true, 'message' => 'Solicitud cancelada exitosamente']);
+        // ✅ Éxito
+        http_response_code(200);
+        echo json_encode([
+            'success' => true, 
+            'message' => 'Solicitud cancelada exitosamente'
+        ]);
     } else {
+        http_response_code(500);
         echo json_encode(['success' => false, 'message' => 'Error al cancelar la solicitud']);
     }
     
 } catch (Exception $e) {
     error_log("Error al cancelar solicitud: " . $e->getMessage());
     http_response_code(500);
-    echo json_encode(['success' => false, 'message' => 'Error interno del servidor']);
+    echo json_encode([
+        'success' => false, 
+        'message' => 'Error interno del servidor',
+        'error' => $e->getMessage()
+    ]);
 }
 ?>

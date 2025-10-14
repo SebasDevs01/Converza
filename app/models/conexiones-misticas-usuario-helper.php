@@ -159,6 +159,9 @@ class ConexionesMisticasUsuario {
      */
     private function guardarConexion($otroUsuarioId, $tipo, $descripcion, $puntuacion) {
         try {
+            // ✨ KARMA SOCIAL: Aplicar multiplicador basado en karma
+            $puntuacion = $this->aplicarMultiplicadorKarma($otroUsuarioId, $puntuacion);
+            
             // Verificar si la conexión ya existe
             $sql_check = "
                 SELECT id, puntuacion 
@@ -252,5 +255,35 @@ class ConexionesMisticasUsuario {
             error_log("Error al enviar notificación de coincidencia: " . $e->getMessage());
         }
     }
+    
+    /**
+     * ✨ KARMA SOCIAL: Aplicar multiplicador basado en karma de ambos usuarios
+     */
+    private function aplicarMultiplicadorKarma($otroUsuarioId, $puntuacion) {
+        try {
+            require_once __DIR__ . '/karma-social-helper.php';
+            $karmaHelper = new KarmaSocialHelper($this->conexion);
+            
+            // Obtener karma de ambos usuarios
+            $karma1 = $karmaHelper->obtenerKarmaTotal($this->usuarioId);
+            $karma2 = $karmaHelper->obtenerKarmaTotal($otroUsuarioId);
+            
+            // Calcular multiplicador promedio
+            $mult1 = $karmaHelper->calcularMultiplicadorConexiones($karma1['karma_total']);
+            $mult2 = $karmaHelper->calcularMultiplicadorConexiones($karma2['karma_total']);
+            $multiplicador_promedio = ($mult1 + $mult2) / 2;
+            
+            // Aplicar multiplicador (máximo 100 puntos)
+            $puntuacion_con_karma = min(100, $puntuacion * $multiplicador_promedio);
+            
+            return round($puntuacion_con_karma);
+            
+        } catch (Exception $e) {
+            // Si hay error, devolver puntuación original
+            error_log("Error al aplicar multiplicador de karma: " . $e->getMessage());
+            return $puntuacion;
+        }
+    }
 }
 ?>
+

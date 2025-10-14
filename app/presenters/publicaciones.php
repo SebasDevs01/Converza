@@ -225,10 +225,10 @@ $publicaciones = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     $avatar = htmlspecialchars($pub['avatar']);
                     $avatarPath = __DIR__.'/../../public/avatars/'.$avatar;
                     if ($avatar && file_exists($avatarPath)) {
-                        $src = '/converza/public/avatars/'.$avatar;
+                        $src = '/Converza/public/avatars/'.$avatar;
                         echo '<img src="'.$src.'" class="rounded-circle me-2" width="48" height="48" alt="Avatar">';
                     } else {
-                        echo '<img src="/converza/public/avatars/defect.jpg" class="rounded-circle me-2" width="48" height="48" alt="Avatar por defecto">';
+                        echo '<img src="/Converza/public/avatars/defect.jpg" class="rounded-circle me-2" width="48" height="48" alt="Avatar por defecto">';
                     }
                 ?>
                 <div>
@@ -415,11 +415,15 @@ $publicaciones = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     }
                 ?>
                 <div class="d-flex align-items-center mb-2">
-                    <?php echo $imgC; ?>
+                    <a href="/Converza/app/presenters/perfil.php?id=<?php echo (int)$com['usuario']; ?>" style="text-decoration:none;">
+                        <?php echo $imgC; ?>
+                    </a>
                     <div class="bg-light rounded-4 p-2 flex-grow-1" style="max-width:80%;">
                         <div class="d-flex justify-content-between align-items-start">
                             <div class="flex-grow-1">
-                                <span class="fw-bold text-primary"> <?php echo htmlspecialchars($com['nombre_usuario']);?> </span>
+                                <a href="/Converza/app/presenters/perfil.php?id=<?php echo (int)$com['usuario']; ?>" class="fw-bold text-primary" style="text-decoration:none;">
+                                    <?php echo htmlspecialchars($com['nombre_usuario']);?>
+                                </a>
                                 <span class="text-muted small ms-2"> <?php echo htmlspecialchars($com['fecha']);?> </span><br>
                                 <?php echo nl2br(htmlspecialchars($com['comentario']));?>
                             </div>
@@ -839,6 +843,40 @@ document.addEventListener('DOMContentLoaded', function() {
                     
                     console.log('✅ ===== COMENTARIO AGREGADO EXITOSAMENTE =====');
                     
+                    // 🚀 ACTUALIZACIÓN INSTANTÁNEA DE KARMA (sin petición adicional)
+                    if (data.karma_actualizado) {
+                        const karmaActualizado = data.karma_actualizado;
+                        console.log('⚡ Karma actualizado instantáneamente:', karmaActualizado);
+                        
+                        // Actualizar el elemento de karma en el header si existe
+                        const karmaDisplay = document.querySelector('#karma-display, .karma-display');
+                        if (karmaDisplay) {
+                            karmaDisplay.textContent = karmaActualizado.karma + ' pts';
+                        }
+                        
+                        // Actualizar nivel si existe
+                        const nivelDisplay = document.querySelector('#nivel-display, .nivel-display');
+                        if (nivelDisplay) {
+                            nivelDisplay.textContent = karmaActualizado.nivel_titulo;
+                        }
+                        
+                        // Actualizar emoji de nivel si existe
+                        const nivelEmoji = document.querySelector('#nivel-emoji, .nivel-emoji');
+                        if (nivelEmoji) {
+                            nivelEmoji.textContent = karmaActualizado.nivel_emoji;
+                        }
+                    }
+                    
+                    // 🔔 Verificar notificaciones de karma después (popup animado)
+                    if (typeof window.verificarKarmaPendiente === 'function') {
+                        setTimeout(() => {
+                            console.log('🔔 Verificando notificación de karma...');
+                            window.verificarKarmaPendiente();
+                        }, 100); // Solo 100ms para que sea casi instantáneo
+                    } else {
+                        console.warn('⚠️ verificarKarmaPendiente no está definida');
+                    }
+                    
                 } else {
                     // Error del servidor (status = 'error' o 'warning')
                     console.error('❌ ===== ERROR DEL SERVIDOR =====');
@@ -1236,6 +1274,38 @@ document.addEventListener('DOMContentLoaded', function() {
                     currentUserReaction = data.tipo_reaccion;
                     updateLikeButton(likeBtn, currentUserReaction);
                     setTimeout(() => loadReactionsData(postId), 100);
+                    
+                    // 🚀 ACTUALIZACIÓN INSTANTÁNEA DE KARMA (sin petición adicional)
+                    if (data.karma_actualizado) {
+                        const karmaActualizado = data.karma_actualizado;
+                        console.log('⚡ Karma actualizado instantáneamente:', karmaActualizado);
+                        
+                        // Actualizar el elemento de karma en el header si existe
+                        const karmaDisplay = document.querySelector('#karma-display, .karma-display');
+                        if (karmaDisplay) {
+                            karmaDisplay.textContent = karmaActualizado.karma + ' pts';
+                        }
+                        
+                        // Actualizar nivel si existe
+                        const nivelDisplay = document.querySelector('#nivel-display, .nivel-display');
+                        if (nivelDisplay) {
+                            nivelDisplay.textContent = karmaActualizado.nivel_titulo;
+                        }
+                        
+                        // Actualizar emoji de nivel si existe
+                        const nivelEmoji = document.querySelector('#nivel-emoji, .nivel-emoji');
+                        if (nivelEmoji) {
+                            nivelEmoji.textContent = karmaActualizado.nivel_emoji;
+                        }
+                    }
+                    
+                    // 🔔 Verificar notificaciones de karma después (popup animado)
+                    if (typeof window.verificarKarmaPendiente === 'function') {
+                        setTimeout(() => {
+                            console.log('🔔 Verificando notificación de karma...');
+                            window.verificarKarmaPendiente();
+                        }, 150);
+                    }
                 } else {
                     console.error('Error del servidor:', data.message);
                     alert('Error: ' + data.message);

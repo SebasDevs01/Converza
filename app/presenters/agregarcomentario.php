@@ -16,9 +16,12 @@ ob_start();
 require(__DIR__.'/../models/config.php'); // Aquí tienes tu conexión PDO en $conexion
 require_once(__DIR__.'/../models/bloqueos-helper.php');
 require_once(__DIR__.'/../models/notificaciones-triggers.php');
+require_once(__DIR__.'/../models/karma-social-triggers.php'); // 🌟 KARMA SOCIAL
 
 // Instanciar sistema de notificaciones
 $notificacionesTriggers = new NotificacionesTriggers($conexion);
+// 🌟 Instanciar sistema de Karma Social
+$karmaTriggers = new KarmaSocialTriggers($conexion);
 
 // Verificar si el usuario está bloqueado antes de permitir comentarios
 if (isset($_SESSION['id']) && isUserBlocked($_SESSION['id'], $conexion)) {
@@ -101,6 +104,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         // Enviar notificación usando el sistema de triggers
                         $notificacionesTriggers->nuevoComentario($usuario, $usuario2, $nombreComentador, $publicacion, $comentario);
                         
+                        // 🌟 REGISTRAR KARMA SOCIAL AUTOMÁTICAMENTE
+                        $karmaTriggers->nuevoComentario($usuario, $comentarioId, $comentario);
+                        
                         // NOTA: No insertamos en tabla notificaciones porque el sistema de triggers YA lo hace
                         // Si tu tabla usa la estructura VIEJA (user1, user2), descomentar:
                         /*
@@ -121,6 +127,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmtUser->execute([':id' => $usuario]);
                 $userData = $stmtUser->fetch(PDO::FETCH_ASSOC);
                 
+                // 🚀 OPTIMIZACIÓN: Incluir karma actualizado en la respuesta
+                $karmaActualizado = null;
+                if (isset($_SESSION['id'])) {
+                    try {
+                        require_once(__DIR__.'/../models/karma-social-helper.php');
+                        $karmaHelper = new KarmaSocialHelper($conexion);
+                        $karmaData = $karmaHelper->obtenerKarmaUsuario($_SESSION['id']);
+                        
+                        $karmaActualizado = [
+                            'karma' => $karmaData['karma_total'],
+                            'nivel' => $karmaData['nivel_data']['nivel'] ?? 1,
+                            'nivel_titulo' => $karmaData['nivel_data']['titulo'] ?? $karmaData['nivel'],
+                            'nivel_emoji' => $karmaData['nivel_emoji']
+                        ];
+                    } catch (Exception $e) {
+                        error_log("Error obteniendo karma actualizado: " . $e->getMessage());
+                    }
+                }
+                
                 $response = [
                     'status' => 'success',
                     'message' => 'Tu comentario ha sido publicado.',
@@ -130,7 +155,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         'avatar' => $userData['avatar'] ?? 'defect.jpg',
                         'comentario' => htmlspecialchars($comentario),
                         'fecha' => date('Y-m-d H:i:s')
-                    ]
+                    ],
+                    'karma_actualizado' => $karmaActualizado // 🚀 Karma incluido en la respuesta
                 ];
 
             } catch (PDOException $e) {

@@ -2,15 +2,21 @@
 session_start();
 require_once __DIR__.'/../models/config.php';
 require_once __DIR__.'/../models/notificaciones-triggers.php';
+require_once __DIR__.'/../models/karma-social-triggers.php'; // 🌟 KARMA SOCIAL
+
+// Para respuestas AJAX
+header('Content-Type: application/json');
 
 if (!isset($_SESSION['id'])) {
     http_response_code(403);
-    echo 'No autorizado.';
+    echo json_encode(['success' => false, 'error' => 'No autorizado']);
     exit;
 }
 
 // Inicializar sistema de notificaciones
 $notificacionesTriggers = new NotificacionesTriggers($conexion);
+// 🌟 Instanciar sistema de Karma Social
+$karmaTriggers = new KarmaSocialTriggers($conexion);
 
 $action = $_GET['action'] ?? '';
 $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
@@ -18,7 +24,7 @@ $yo = $_SESSION['id'];
 
 
 if ($id <= 0 || $id == $yo) {
-    echo 'Solicitud inválida.';
+    echo json_encode(['success' => false, 'error' => 'Solicitud inválida']);
     exit;
 }
 
@@ -27,7 +33,7 @@ $stmt = $conexion->prepare('SELECT id_use FROM usuarios WHERE id_use = :id');
 $stmt->bindParam(':id', $id, PDO::PARAM_INT);
 $stmt->execute();
 if (!$stmt->fetch()) {
-    echo 'El usuario no existe.';
+    echo json_encode(['success' => false, 'error' => 'El usuario no existe']);
     exit;
 }
 
@@ -36,8 +42,10 @@ if ($action === 'agregar') {
     require_once __DIR__.'/../models/bloqueos-helper.php';
     $bloqueoInfo = verificarBloqueoMutuo($conexion, $yo, $id);
     if ($bloqueoInfo['bloqueado']) {
-        echo 'No es posible enviar solicitud a este usuario.';
-        header('Location: /Converza/app/view/index.php');
+        echo json_encode([
+            'success' => false,
+            'error' => 'No es posible enviar solicitud a este usuario.'
+        ]);
         exit;
     }
     
@@ -55,8 +63,10 @@ if ($action === 'agregar') {
 
     $existe = $stmt->fetch();
     if ($existe) {
-        echo 'Ya existe una solicitud o amistad.';
-        header('Location: /Converza/app/view/index.php');
+        echo json_encode([
+            'success' => false,
+            'error' => 'Ya existe una solicitud o amistad.'
+        ]);
         exit;
     }
 
@@ -72,8 +82,10 @@ if ($action === 'agregar') {
     $miNombre = $stmtUsuario->fetch(PDO::FETCH_ASSOC)['usuario'] ?? 'Alguien';
     $notificacionesTriggers->solicitudAmistadEnviada($yo, $id, $miNombre);
 
-    echo 'Solicitud enviada correctamente.';
-    header('Location: /Converza/app/view/index.php');
+    echo json_encode([
+        'success' => true,
+        'message' => 'Solicitud enviada correctamente'
+    ]);
     exit;
 }
 
@@ -89,6 +101,9 @@ if ($action === 'aceptar') {
     $stmtUsuario->execute([':yo' => $yo]);
     $miNombre = $stmtUsuario->fetch(PDO::FETCH_ASSOC)['usuario'] ?? 'Alguien';
     $notificacionesTriggers->solicitudAmistadAceptada($yo, $id, $miNombre);
+    
+    // 🌟 REGISTRAR KARMA SOCIAL AUTOMÁTICAMENTE (para quien acepta la amistad)
+    $karmaTriggers->amistadAceptada($yo, $id);
     
     echo 'Solicitud aceptada.';
     header('Location: /Converza/app/view/index.php');

@@ -1,0 +1,1044 @@
+/**
+ * SISTEMA DE RECOMPENSAS KARMA - ESTILOS VISUALES
+ * Marcos de avatar, insignias y efectos especiales
+ */
+
+/* ============================================
+   CONTENEDORES DE AVATAR
+   ============================================ */
+.avatar-karma-container {
+    position: relative;
+    display: inline-block;
+    line-height: 0;
+    border-radius: 50%;
+}
+
+.avatar-karma-img {
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+}
+
+/* ============================================
+   MARCO DORADO
+   ============================================ */
+.marco-dorado {
+    padding: 6px;
+    background: linear-gradient(135deg, #FFD700, #FFA500, #FFD700);
+    background-size: 200% 200%;
+    border-radius: 50%;
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.6),
+                inset 0 0 20px rgba(255, 215, 0, 0.3);
+    animation: marco-dorado-brillo 3s ease-in-out infinite;
+    display: inline-block;
+}
+
+@keyframes marco-dorado-brillo {
+    0%, 100% { 
+        background-position: 0% 50%;
+        box-shadow: 0 0 20px rgba(255, 215, 0, 0.6),
+                    inset 0 0 20px rgba(255, 215, 0, 0.3);
+    }
+    50% { 
+        background-position: 100% 50%;
+        box-shadow: 0 0 30px rgba(255, 215, 0, 0.9),
+                    inset 0 0 30px rgba(255, 215, 0, 0.5);
+    }
+}
+
+/* ============================================
+   MARCO DIAMANTE
+   ============================================ */
+.marco-diamante {
+    padding: 6px;
+    background: linear-gradient(135deg, #b8d9f3, #e3f2fd, #b8d9f3, #e3f2fd);
+    background-size: 300% 300%;
+    border-radius: 50%;
+    box-shadow: 0 0 25px rgba(184, 217, 243, 0.8),
+                inset 0 0 15px rgba(255, 255, 255, 0.6);
+    animation: marco-diamante-destello 4s ease-in-out infinite;
+    position: relative;
+    display: inline-block;
+}
+
+.marco-diamante::before {
+    content: '✨';
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    font-size: 20px;
+    animation: diamante-particula 2s infinite;
+    pointer-events: none;
+}
+
+@keyframes marco-diamante-destello {
+    0%, 100% { 
+        background-position: 0% 50%;
+        filter: brightness(1);
+    }
+    25% { 
+        background-position: 50% 0%;
+        filter: brightness(1.3);
+    }
+    50% { 
+        background-position: 100% 50%;
+        filter: brightness(1.6);
+    }
+    75% { 
+        background-position: 50% 100%;
+        filter: brightness(1.3);
+    }
+}
+
+@keyframes diamante-particula {
+    0%, 100% { opacity: 0; transform: scale(0.5) rotate(0deg); }
+    50% { opacity: 1; transform: scale(1.2) rotate(180deg); }
+}
+
+/* ============================================
+   MARCO DE FUEGO
+   ============================================ */
+.marco-fuego {
+    padding: 6px;
+    background: linear-gradient(135deg, #ff4500, #ff8c00, #ff4500, #ff0000);
+    background-size: 300% 300%;
+    border-radius: 50%;
+    box-shadow: 0 0 30px rgba(255, 69, 0, 0.9),
+                inset 0 0 20px rgba(255, 140, 0, 0.5);
+    animation: marco-fuego-llamas 1.5s ease-in-out infinite;
+    position: relative;
+    display: inline-block;
+}
+
+.marco-fuego::before,
+.marco-fuego::after {
+    content: '🔥';
+    position: absolute;
+    font-size: 18px;
+    animation: fuego-particula 2s infinite;
+    pointer-events: none;
+}
+
+.marco-fuego::before {
+    top: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.marco-fuego::after {
+    bottom: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    animation-delay: 1s;
+}
+
+@keyframes marco-fuego-llamas {
+    0%, 100% { 
+        background-position: 0% 50%;
+        box-shadow: 0 0 30px rgba(255, 69, 0, 0.9),
+                    inset 0 0 20px rgba(255, 140, 0, 0.5);
+        transform: scale(1);
+    }
+    25% { 
+        background-position: 25% 25%;
+        transform: scale(1.03);
+    }
+    50% { 
+        background-position: 100% 50%;
+        box-shadow: 0 0 40px rgba(255, 140, 0, 1),
+                    inset 0 0 30px rgba(255, 69, 0, 0.7);
+        transform: scale(1.05);
+    }
+    75% { 
+        background-position: 75% 75%;
+        transform: scale(1.03);
+    }
+}
+
+@keyframes fuego-particula {
+    0%, 100% { 
+        opacity: 0.3; 
+        transform: translateY(0) scale(0.8);
+    }
+    50% { 
+        opacity: 1; 
+        transform: translateY(-5px) scale(1.2);
+    }
+}
+
+/* ============================================
+   MARCO ARCOÍRIS
+   ============================================ */
+.marco-arcoiris {
+    padding: 6px;
+    background: linear-gradient(
+        135deg, 
+        #ff0000 0%, 
+        #ff7f00 14%, 
+        #ffff00 28%, 
+        #00ff00 42%, 
+        #0000ff 56%, 
+        #4b0082 70%, 
+        #8b00ff 84%, 
+        #ff0000 100%
+    );
+    background-size: 400% 400%;
+    border-radius: 50%;
+    box-shadow: 
+        0 0 25px rgba(255, 255, 255, 0.8),
+        0 0 35px rgba(255, 127, 0, 0.4),
+        inset 0 0 15px rgba(255, 255, 255, 0.3);
+    animation: marco-arcoiris-rotacion 5s linear infinite;
+    display: inline-block;
+    position: relative;
+}
+
+.marco-arcoiris::after {
+    content: '🌈';
+    position: absolute;
+    top: -8px;
+    right: -5px;
+    font-size: 20px;
+    animation: arcoiris-brillo 2s ease-in-out infinite;
+    pointer-events: none;
+}
+
+@keyframes marco-arcoiris-rotacion {
+    0% { background-position: 0% 50%; }
+    25% { background-position: 50% 100%; }
+    50% { background-position: 100% 50%; }
+    75% { background-position: 50% 0%; }
+    100% { background-position: 0% 50%; }
+}
+
+@keyframes arcoiris-brillo {
+    0%, 100% { opacity: 0.7; transform: scale(0.9); }
+    50% { opacity: 1; transform: scale(1.1); }
+}
+
+/* ============================================
+   MARCO LEGENDARIO
+   ============================================ */
+.marco-legendario {
+    padding: 7px;
+    background: linear-gradient(135deg, #ffd700, #ffed4e, #ffd700);
+    background-size: 200% 200%;
+    border-radius: 50%;
+    position: relative;
+    box-shadow: 0 0 40px rgba(255, 215, 0, 1),
+                0 0 60px rgba(255, 215, 0, 0.6),
+                inset 0 0 30px rgba(255, 215, 0, 0.5);
+    animation: marco-legendario-pulso 2s ease-in-out infinite;
+    display: inline-block;
+}
+
+.marco-legendario::before,
+.marco-legendario::after {
+    content: '✨';
+    position: absolute;
+    font-size: 24px;
+    animation: legendario-particulas 3s infinite;
+    pointer-events: none;
+}
+
+.marco-legendario::before {
+    top: -12px;
+    right: -5px;
+}
+
+.marco-legendario::after {
+    bottom: -12px;
+    left: -5px;
+    animation-delay: 1.5s;
+}
+
+@keyframes marco-legendario-pulso {
+    0%, 100% { 
+        background-position: 0% 50%;
+        transform: scale(1) rotate(0deg);
+        filter: brightness(1);
+        box-shadow: 0 0 40px rgba(255, 215, 0, 1),
+                    0 0 60px rgba(255, 215, 0, 0.6),
+                    inset 0 0 30px rgba(255, 215, 0, 0.5);
+    }
+    33% {
+        transform: scale(1.05) rotate(3deg);
+    }
+    50% { 
+        background-position: 100% 50%;
+        transform: scale(1.08) rotate(0deg);
+        filter: brightness(1.4);
+        box-shadow: 0 0 60px rgba(255, 215, 0, 1),
+                    0 0 80px rgba(255, 215, 0, 0.8),
+                    inset 0 0 40px rgba(255, 215, 0, 0.7);
+    }
+    66% {
+        transform: scale(1.05) rotate(-3deg);
+    }
+}
+
+@keyframes legendario-particulas {
+    0%, 100% { 
+        opacity: 0; 
+        transform: translateY(0) scale(0.5) rotate(0deg);
+    }
+    25% {
+        opacity: 0.5;
+        transform: translateY(-10px) scale(0.8) rotate(90deg);
+    }
+    50% { 
+        opacity: 1; 
+        transform: translateY(-20px) scale(1.2) rotate(180deg);
+    }
+    75% {
+        opacity: 0.5;
+        transform: translateY(-10px) scale(0.8) rotate(270deg);
+    }
+}
+
+/* ============================================
+   INSIGNIAS
+   ============================================ */
+.insignias-karma-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 12px;
+    margin-bottom: 16px; /* ✅ MÁS ESPACIO DESPUÉS DE LAS INSIGNIAS */
+}
+
+.insignia-karma-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 12px;
+    background: linear-gradient(135deg, #0d6efd, #0a58ca);
+    color: white;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);
+    transition: all 0.3s ease;
+    cursor: default;
+}
+
+.insignia-karma-badge:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(13, 110, 253, 0.5);
+}
+
+/* Colores especiales por nivel de insignia */
+.insignia-karma-badge:nth-child(1) {
+    background: linear-gradient(135deg, #10b981, #059669); /* Verde - Novato */
+}
+
+.insignia-karma-badge:nth-child(2) {
+    background: linear-gradient(135deg, #3b82f6, #2563eb); /* Azul - Intermedio */
+}
+
+.insignia-karma-badge:nth-child(3) {
+    background: linear-gradient(135deg, #8b5cf6, #7c3aed); /* Púrpura - Avanzado */
+}
+
+.insignia-karma-badge:nth-child(4) {
+    background: linear-gradient(135deg, #f59e0b, #d97706); /* Naranja - Experto */
+}
+
+.insignia-karma-badge:nth-child(5) {
+    background: linear-gradient(135deg, #ef4444, #dc2626); /* Rojo - Maestro */
+}
+
+.insignia-karma-badge:nth-child(6) {
+    background: linear-gradient(135deg, #ffd700, #ffa500); /* Dorado - Legendario */
+    animation: insignia-legendaria 2s infinite;
+}
+
+@keyframes insignia-legendaria {
+    0%, 100% { 
+        transform: scale(1);
+        box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
+    }
+    50% { 
+        transform: scale(1.05);
+        box-shadow: 0 6px 20px rgba(255, 215, 0, 0.6);
+    }
+}
+
+/* ============================================
+   ÍCONOS ESPECIALES JUNTO AL NOMBRE
+   ============================================ */
+.icono-especial {
+    display: inline-block;
+    font-size: 1.2rem;
+    margin-left: 5px;
+    animation: icono-brillo 2s ease-in-out infinite;
+}
+
+.icono-estrella {
+    color: #ffd700;
+    animation: icono-estrella-brillo 2s ease-in-out infinite;
+}
+
+.icono-corona {
+    color: #ffd700;
+    animation: icono-corona-float 2s ease-in-out infinite;
+}
+
+.icono-fuego {
+    color: #ff4500;
+    animation: icono-fuego-flicker 1.5s ease-in-out infinite;
+}
+
+.icono-corazon {
+    color: #ff69b4;
+    animation: icono-corazon-pulso 1.5s ease-in-out infinite;
+}
+
+.icono-rayo {
+    color: #00d4ff;
+    animation: icono-rayo-destello 1.2s ease-in-out infinite;
+}
+
+.icono-diamante {
+    color: #b9f2ff;
+    animation: icono-diamante-brillo 2s ease-in-out infinite;
+}
+
+@keyframes icono-estrella-brillo {
+    0%, 100% { 
+        transform: scale(1) rotate(-5deg);
+        filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.6));
+    }
+    50% { 
+        transform: scale(1.15) rotate(5deg);
+        filter: drop-shadow(0 0 15px rgba(255, 215, 0, 0.9));
+    }
+}
+
+@keyframes icono-corona-float {
+    0%, 100% { 
+        transform: translateY(0) rotate(-3deg);
+        filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.6));
+    }
+    50% { 
+        transform: translateY(-5px) rotate(3deg);
+        filter: drop-shadow(0 0 12px rgba(255, 215, 0, 0.8));
+    }
+}
+
+@keyframes icono-fuego-flicker {
+    0%, 100% { 
+        transform: scale(1);
+        filter: drop-shadow(0 0 10px rgba(255, 69, 0, 0.7));
+    }
+    25% { 
+        transform: scale(1.12);
+        filter: drop-shadow(0 0 15px rgba(255, 69, 0, 0.9));
+    }
+    50% {
+        transform: scale(1.05);
+        filter: drop-shadow(0 0 12px rgba(255, 69, 0, 0.8));
+    }
+    75% { 
+        transform: scale(1.08);
+        filter: drop-shadow(0 0 13px rgba(255, 69, 0, 0.85));
+    }
+}
+
+@keyframes icono-corazon-pulso {
+    0%, 100% { 
+        transform: scale(1);
+        filter: drop-shadow(0 0 8px rgba(255, 105, 180, 0.6));
+    }
+    50% { 
+        transform: scale(1.25);
+        filter: drop-shadow(0 0 15px rgba(255, 105, 180, 0.9));
+    }
+}
+
+@keyframes icono-rayo-destello {
+    0%, 100% { 
+        transform: scale(1) rotate(0deg);
+        filter: drop-shadow(0 0 8px rgba(0, 212, 255, 0.7));
+    }
+    25% {
+        transform: scale(1.15) rotate(-8deg);
+        filter: drop-shadow(0 0 15px rgba(0, 212, 255, 1));
+    }
+    50% { 
+        transform: scale(1.1) rotate(0deg);
+        filter: drop-shadow(0 0 12px rgba(0, 212, 255, 0.85));
+    }
+    75% {
+        transform: scale(1.15) rotate(8deg);
+        filter: drop-shadow(0 0 15px rgba(0, 212, 255, 1));
+    }
+}
+
+@keyframes icono-diamante-brillo {
+    0%, 100% { 
+        transform: rotate(0deg) scale(1);
+        filter: drop-shadow(0 0 8px rgba(185, 242, 255, 0.7));
+    }
+    50% { 
+        transform: rotate(180deg) scale(1.1);
+        filter: drop-shadow(0 0 15px rgba(185, 242, 255, 1));
+    }
+}
+
+/* ============================================
+   COLORES DE NOMBRE PERSONALIZADOS
+   ============================================ */
+.nombre-usuario {
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+/* Color Dorado Premium */
+.nombre-dorado {
+    background: linear-gradient(135deg, #ffd700, #ffed4e, #ffd700);
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: nombre-dorado-brillo 3s ease-in-out infinite;
+}
+
+@keyframes nombre-dorado-brillo {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+}
+
+/* Color Arcoíris */
+.nombre-arcoiris {
+    background: linear-gradient(
+        90deg,
+        #ff0000, #ff7f00, #ffff00, #00ff00,
+        #0000ff, #4b0082, #9400d3
+    );
+    background-size: 400% 400%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: nombre-arcoiris-rotacion 5s linear infinite;
+}
+
+@keyframes nombre-arcoiris-rotacion {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 400% 50%; }
+}
+
+/* Color Fuego */
+.nombre-fuego {
+    background: linear-gradient(135deg, #ff4500, #ff8c00, #ffd700);
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: nombre-fuego-ondula 2s ease-in-out infinite;
+    text-shadow: 0 0 10px rgba(255, 69, 0, 0.5);
+}
+
+@keyframes nombre-fuego-ondula {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+}
+
+/* Color Océano */
+.nombre-oceano {
+    background: linear-gradient(135deg, #00d4ff, #0099ff, #0066cc);
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: nombre-oceano-ola 4s ease-in-out infinite;
+}
+
+@keyframes nombre-oceano-ola {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+}
+
+/* Color Neon Cyan */
+.nombre-neon-cyan {
+    background: linear-gradient(135deg, #00d4d4, #00b8b8, #00d4d4);
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(0 0 3px rgba(0, 200, 200, 0.4));
+    animation: nombre-neon-cyan-pulso 2s ease-in-out infinite;
+}
+
+@keyframes nombre-neon-cyan-pulso {
+    0%, 100% { 
+        background-position: 0% 50%;
+        filter: drop-shadow(0 0 3px rgba(0, 200, 200, 0.4)) brightness(1);
+    }
+    50% { 
+        background-position: 100% 50%;
+        filter: drop-shadow(0 0 6px rgba(0, 200, 200, 0.5)) brightness(1.15);
+    }
+}
+
+/* Color Neon Rosa */
+.nombre-neon-rosa {
+    background: linear-gradient(135deg, #e91e63, #d81b60, #e91e63);
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(0 0 3px rgba(233, 30, 99, 0.4));
+    animation: nombre-neon-rosa-pulso 2s ease-in-out infinite;
+}
+
+@keyframes nombre-neon-rosa-pulso {
+    0%, 100% { 
+        background-position: 0% 50%;
+        filter: drop-shadow(0 0 3px rgba(233, 30, 99, 0.4)) brightness(1);
+    }
+    50% { 
+        background-position: 100% 50%;
+        filter: drop-shadow(0 0 6px rgba(233, 30, 99, 0.5)) brightness(1.15);
+    }
+}
+
+/* Color Galaxia */
+.nombre-galaxia {
+    background: linear-gradient(135deg, #667eea, #764ba2, #f093fb, #667eea);
+    background-size: 300% 300%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: nombre-galaxia-giro 5s ease-in-out infinite;
+}
+
+@keyframes nombre-galaxia-giro {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* ============================================
+   NUEVOS COLORES DE NOMBRE (4 ADICIONALES)
+   ============================================ */
+
+/* Color Púrpura Real */
+.nombre-purpura-real {
+    background: linear-gradient(135deg, #7C3AED, #9333EA, #7C3AED);
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: nombre-purpura-brillo 2.5s ease-in-out infinite;
+}
+
+@keyframes nombre-purpura-brillo {
+    0%, 100% { 
+        background-position: 0% 50%;
+        filter: brightness(1);
+    }
+    50% { 
+        background-position: 100% 50%;
+        filter: brightness(1.2);
+    }
+}
+
+/* Color Rosa Neón */
+.nombre-rosa-neon {
+    background: linear-gradient(135deg, #EC4899, #F472B6, #EC4899);
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: 0 0 15px rgba(236, 72, 153, 0.5);
+    animation: nombre-rosa-neon-pulso 2s ease-in-out infinite;
+}
+
+@keyframes nombre-rosa-neon-pulso {
+    0%, 100% { 
+        background-position: 0% 50%;
+        filter: brightness(1);
+    }
+    50% { 
+        background-position: 100% 50%;
+        filter: brightness(1.3);
+    }
+}
+
+/* Color Esmeralda */
+.nombre-esmeralda {
+    background: linear-gradient(135deg, #10B981, #34D399, #10B981);
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: nombre-esmeralda-brillo 3s ease-in-out infinite;
+}
+
+@keyframes nombre-esmeralda-brillo {
+    0%, 100% { 
+        background-position: 0% 50%;
+        filter: brightness(1);
+    }
+    50% { 
+        background-position: 100% 50%;
+        filter: brightness(1.25);
+    }
+}
+
+/* Color Oro Premium */
+.nombre-oro-premium {
+    background: linear-gradient(135deg, #F59E0B, #FBBF24, #F59E0B);
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: nombre-oro-premium-brillo 2s ease-in-out infinite;
+    filter: drop-shadow(0 0 8px rgba(245, 158, 11, 0.4));
+}
+
+@keyframes nombre-oro-premium-brillo {
+    0%, 100% { 
+        background-position: 0% 50%;
+        filter: brightness(1) drop-shadow(0 0 8px rgba(245, 158, 11, 0.4));
+    }
+    50% { 
+        background-position: 100% 50%;
+        filter: brightness(1.4) drop-shadow(0 0 12px rgba(245, 158, 11, 0.6));
+    }
+}
+
+/* ============================================
+   STICKERS / ESTADOS DE ÁNIMO
+   ============================================ */
+.stickers-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 15px;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 15px;
+    border: 2px dashed rgba(255, 255, 255, 0.2);
+}
+
+.sticker-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border-radius: 25px;
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.sticker-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    transition: left 0.5s;
+}
+
+.sticker-item:hover {
+    transform: translateY(-5px) scale(1.1);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+    filter: brightness(1.15);
+}
+
+.sticker-item:hover::before {
+    left: 100%;
+}
+
+.sticker-emoji {
+    font-size: 20px;
+    animation: sticker-emoji-float 2s ease-in-out infinite;
+}
+
+@keyframes sticker-emoji-float {
+    0%, 100% { 
+        transform: translateY(0) scale(1); 
+    }
+    50% { 
+        transform: translateY(-4px) scale(1.05); 
+    }
+}
+
+/* Stickers por categoría */
+.sticker-feliz {
+    background: linear-gradient(135deg, #f093fb, #f5576c);
+}
+
+.sticker-triste {
+    background: linear-gradient(135deg, #4facfe, #00f2fe);
+}
+
+.sticker-emocionado {
+    background: linear-gradient(135deg, #fa709a, #fee140);
+}
+
+.sticker-relajado {
+    background: linear-gradient(135deg, #30cfd0, #330867);
+}
+
+.sticker-motivado {
+    background: linear-gradient(135deg, #ff6b6b, #feca57);
+}
+
+.sticker-creativo {
+    background: linear-gradient(135deg, #a8edea, #fed6e3);
+}
+
+.sticker-pensativo {
+    background: linear-gradient(135deg, #d299c2, #fef9d7);
+}
+
+.sticker-energetico {
+    background: linear-gradient(135deg, #f83600, #f9d423);
+    animation: sticker-energetico-pulso 1s ease-in-out infinite;
+}
+
+@keyframes sticker-energetico-pulso {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+/* Título de sección de stickers */
+.stickers-titulo {
+    font-size: 18px;
+    font-weight: 700;
+    color: #667eea;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.stickers-titulo::before {
+    content: '😊';
+    font-size: 24px;
+}
+
+/* ============================================
+   PREVIEWS EN TIENDA
+   ============================================ */
+.marco-preview-container {
+    padding: 20px;
+}
+
+.avatar-preview-img {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+}
+
+.tema-preview-container {
+    padding: 10px;
+}
+
+.tema-preview-box {
+    padding: 20px;
+    border-radius: 10px;
+    font-weight: 600;
+    text-align: center;
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.tema-preview-box:hover {
+    transform: scale(1.05);
+}
+
+/* Preview de Insignias */
+.insignia-preview-container {
+    padding: 20px;
+}
+
+.insignia-preview-container .insignia-karma-badge {
+    display: inline-block;
+    transition: all 0.3s ease;
+}
+
+.insignia-preview-container .insignia-karma-badge:hover {
+    transform: scale(1.1) rotate(5deg);
+}
+
+/* Preview de Íconos Especiales */
+.icono-preview-container {
+    padding: 15px;
+}
+
+.icono-preview-demo {
+    transition: all 0.3s ease;
+}
+
+.icono-preview-demo:hover {
+    transform: scale(1.05);
+    background: rgba(102, 126, 234, 0.2) !important;
+}
+
+/* Preview de Colores de Nombre */
+.color-nombre-preview-container {
+    padding: 15px;
+}
+
+.color-preview-demo {
+    transition: all 0.3s ease;
+}
+
+.color-preview-demo:hover {
+    transform: scale(1.05);
+    background: rgba(102, 126, 234, 0.1) !important;
+}
+
+/* Preview de Stickers */
+.sticker-preview-container {
+    padding: 15px;
+}
+
+.sticker-preview-container .stickers-container {
+    background: transparent;
+    border: 2px dashed rgba(102, 126, 234, 0.3);
+}
+
+.sticker-preview-container .sticker-item {
+    transform: scale(0.9);
+}
+
+.sticker-preview-container .sticker-item:hover {
+    transform: scale(1);
+}
+
+/* ============================================
+   INSIGNIAS MEJORADAS CON TOOLTIPS
+   ============================================ */
+.insignia-karma-badge[data-tooltip] {
+    position: relative;
+    cursor: help;
+}
+
+.insignia-karma-badge[data-tooltip]::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-5px);
+    padding: 8px 12px;
+    background: rgba(0, 0, 0, 0.9);
+    color: white;
+    font-size: 12px;
+    border-radius: 8px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s, transform 0.3s;
+    z-index: 1000;
+}
+
+.insignia-karma-badge[data-tooltip]:hover::after {
+    opacity: 1;
+    transform: translateX(-50%) translateY(-10px);
+}
+
+/* ============================================
+   RESPONSIVIDAD
+   ============================================ */
+@media (max-width: 768px) {
+    .marco-dorado,
+    .marco-diamante,
+    .marco-fuego,
+    .marco-arcoiris,
+    .marco-legendario {
+        padding: 3px;
+    }
+    
+    .marco-diamante::before,
+    .marco-fuego::before,
+    .marco-fuego::after,
+    .marco-legendario::before,
+    .marco-legendario::after {
+        font-size: 14px;
+    }
+    
+    .insignia-karma-badge {
+        font-size: 0.75rem;
+        padding: 4px 10px;
+    }
+}
+
+/* ============================================
+   ANIMACIÓN PARA STICKERS INDIVIDUALES
+   ============================================ */
+@keyframes sticker-bounce {
+    0%, 100% { 
+        transform: translateY(0) scale(1);
+    }
+    50% { 
+        transform: translateY(-10px) scale(1.05);
+    }
+}
+
+/* ============================================
+   ESTILOS ESPECÍFICOS PARA PERFIL
+   ============================================ */
+/* Avatar principal en perfil - centrado y destacado */
+.avatar-karma-perfil-principal {
+    display: flex !important;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto 1.5rem auto !important; /* ✅ Centrado y espacio inferior */
+}
+
+/* Asegurar que el marco se vea perfectamente circular y centrado */
+.avatar-karma-perfil-principal.marco-dorado,
+.avatar-karma-perfil-principal.marco-diamante,
+.avatar-karma-perfil-principal.marco-fuego,
+.avatar-karma-perfil-principal.marco-arcoiris,
+.avatar-karma-perfil-principal.marco-legendario {
+    display: flex !important;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Avatar dentro del marco - perfectamente circular */
+.avatar-karma-perfil-principal .avatar-karma-img {
+    display: block !important;
+    width: 120px !important;
+    height: 120px !important;
+    object-fit: cover;
+    border-radius: 50% !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important; /* ✅ Sombra profesional */
+}
+
+/* Separación entre insignias y elementos siguientes */
+.insignias-karma-container {
+    margin-bottom: 20px !important; /* ✅ MÁS ESPACIO después de insignias */
+}
+
+/* Mejor espaciado en card-body del perfil */
+.card-body .insignias-karma-container + * {
+    margin-top: 16px !important;
+}
+
+/* Badges de signo y estado - mejor distribución */
+.card-body .d-flex.gap-3.justify-content-center {
+    gap: 12px !important; /* ✅ Más espacio entre badges */
+    margin-top: 16px !important;
+    margin-bottom: 16px !important;
+}

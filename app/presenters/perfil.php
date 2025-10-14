@@ -2,6 +2,7 @@
 require_once __DIR__.'/../models/config.php'; // Conexión PDO en $conexion
 require_once __DIR__.'/../models/socialnetwork-lib.php';
 require_once __DIR__.'/../models/bloqueos-helper.php';
+require_once __DIR__.'/../models/recompensas-aplicar-helper.php'; // 🎁 Sistema de recompensas
 
 // ✅ Verificamos sesión
 if (!isset($_SESSION['id'])) {
@@ -84,6 +85,13 @@ try {
 } catch (Exception $e) {
     // En caso de error, usar valores por defecto
 }
+
+// 🎁 Inicializar sistema de recompensas
+$recompensasHelper = new RecompensasAplicarHelper($conexion);
+$marcoClase = $recompensasHelper->getMarcoClase($id);
+$temaCSS = $recompensasHelper->getTemaCSS($id);
+$insigniasHTML = $recompensasHelper->renderInsignias($id);
+
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -95,6 +103,13 @@ try {
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
   <link rel="stylesheet" href="/Converza/public/css/navbar-animations.css" />
+  <link rel="stylesheet" href="/Converza/public/css/karma-recompensas.css" />
+  
+  <?php if ($temaCSS): ?>
+  <!-- 🎨 Tema personalizado equipado -->
+  <style><?php echo $temaCSS; ?></style>
+  <?php endif; ?>
+  
   <style>
     /* Estilo para contador de notificaciones estilo Facebook */
     .notification-badge {
@@ -123,11 +138,16 @@ try {
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm mb-4 sticky-top">
   <div class="container-fluid">
     <a class="navbar-brand fw-bold" href="/Converza/app/view/index.php" style="letter-spacing:2px;">Converza</a>
+    
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav ms-auto align-items-center">
+        <!-- 🏆 KARMA BADGE -->
+        <li class="nav-item">
+          <?php include __DIR__.'/../view/components/karma-navbar-badge.php'; ?>
+        </li>
         <li class="nav-item"><a class="nav-link" href="/Converza/app/view/index.php"><i class="bi bi-house-door"></i> Inicio</a></li>
         <li class="nav-item"><a class="nav-link active" href="/Converza/app/presenters/perfil.php?id=<?php echo $_SESSION['id']; ?>" aria-current="page"><i class="bi bi-person-circle"></i> Perfil</a></li>
         <li class="nav-item">
@@ -157,6 +177,7 @@ try {
     </div>
   </div>
 </nav>
+
 <?php include '../view/_navbar_panels.php'; ?>
 
 <div class="container py-4">
@@ -167,17 +188,92 @@ try {
           <?php
             $avatar = htmlspecialchars($usuario['avatar']);
             $avatarPath = __DIR__ . '/../../public/avatars/' . $avatar; 
-            $avatarWebPath = '/converza/public/avatars/' . $avatar;
+            $avatarWebPath = '/Converza/public/avatars/' . $avatar;
 
+            // Determinar ruta final del avatar
             if ($avatar && $avatar !== 'default_avatar.svg' && $avatar !== 'defect.jpg' && file_exists($avatarPath)) {
-                echo '<img src="' . $avatarWebPath . '" class="rounded-circle mb-3" width="120" height="120" alt="Avatar">';
+                $avatarFinal = $avatarWebPath;
             } else {
-                echo '<img src="/converza/public/avatars/defect.jpg" class="rounded-circle mb-3" width="120" height="120" alt="Avatar por defecto">';
+                $avatarFinal = '/Converza/public/avatars/defect.jpg';
             }
+            
+            // 🎁 Renderizar avatar con marco de recompensa
+            echo $recompensasHelper->renderAvatar($id, $avatarFinal, 120, 120, 'mb-3');
           ?>
 
-          <h3 class="fw-bold mb-0"><?php echo htmlspecialchars($usuario['nombre']); ?> <?php if ($usuario['verificado'] != 0) { ?><span class="text-primary" title="Verificado"><i class="bi bi-patch-check-fill"></i></span><?php } ?></h3>
+          <h3 class="fw-bold mb-0">
+              <!-- 🎨 Renderizar nombre con color e ícono especial -->
+              <?php echo $recompensasHelper->renderNombreUsuario($id, $usuario['nombre']); ?> 
+              <?php if ($usuario['verificado'] != 0) { ?>
+                  <span class="text-primary" title="Verificado"><i class="bi bi-patch-check-fill"></i></span>
+              <?php } ?>
+              
+              <!-- Ícono de género -->
+              <?php if (!empty($usuario['genero']) && ($usuario['mostrar_icono_genero'] ?? true)): ?>
+                  <?php if ($usuario['genero'] == 'masculino'): ?>
+                      <span style="color: #3b82f6; font-size: 1.2em;" title="Masculino">♂</span>
+                  <?php elseif ($usuario['genero'] == 'femenino'): ?>
+                      <span style="color: #ec4899; font-size: 1.2em;" title="Femenino">♀</span>
+                  <?php elseif ($usuario['genero'] == 'otro'): ?>
+                      <span style="color: #9333ea; font-size: 1.2em;" title="Otro">⚧</span>
+                  <?php endif; ?>
+              <?php endif; ?>
+          </h3>
+          
           <div class="text-muted mb-2">@<?php echo htmlspecialchars($usuario['usuario']); ?></div>
+          
+          <!-- 🏅 Insignias de Karma -->
+          <?php echo $insigniasHTML; ?>
+          
+          <!-- Descripción corta -->
+          <?php if (!empty($usuario['descripcion_corta'])): ?>
+              <div class="text-muted mb-2 fst-italic" style="margin-top: 8px;">
+                  "<?php echo htmlspecialchars($usuario['descripcion_corta']); ?>"
+              </div>
+          <?php endif; ?>
+          
+          <!-- Bio -->
+          <?php if (!empty($usuario['bio'])): ?>
+              <div class="mb-3 p-3 bg-light rounded">
+                  <small class="text-muted d-block mb-1"><i class="bi bi-journal-text"></i> Sobre mí</small>
+                  <?php echo nl2br(htmlspecialchars($usuario['bio'])); ?>
+              </div>
+          <?php endif; ?>
+          
+          <!-- Signo zodiacal y estado de ánimo -->
+          <div class="mb-3 d-flex gap-3 justify-content-center align-items-center flex-wrap">
+              <?php if (!empty($usuario['signo_zodiacal']) && ($usuario['mostrar_signo'] ?? true)): ?>
+                  <?php
+                  $signos_icons = [
+                      'aries' => '♈', 'tauro' => '♉', 'geminis' => '♊', 'cancer' => '♋',
+                      'leo' => '♌', 'virgo' => '♍', 'libra' => '♎', 'escorpio' => '♏',
+                      'sagitario' => '♐', 'capricornio' => '♑', 'acuario' => '♒', 'piscis' => '♓'
+                  ];
+                  ?>
+                  <span class="badge bg-primary" style="font-size: 1.1em;">
+                      <?php echo $signos_icons[$usuario['signo_zodiacal']] ?? ''; ?> 
+                      <?php echo ucfirst($usuario['signo_zodiacal']); ?>
+                  </span>
+              <?php endif; ?>
+              
+              <?php if (!empty($usuario['estado_animo']) && ($usuario['mostrar_estado_animo'] ?? true)): ?>
+                  <?php
+                  $estados_icons = [
+                      'feliz' => '😊', 'emocionado' => '🤩', 'relajado' => '😌', 'creativo' => '🎨',
+                      'cansado' => '😴', 'ocupado' => '⏰', 'triste' => '😢', 'enojado' => '😠',
+                      'motivado' => '💪', 'inspirado' => '✨', 'pensativo' => '🤔', 'nostalgico' => '🌅'
+                  ];
+                  ?>
+                  <span class="badge bg-success" style="font-size: 1.1em;">
+                      <?php echo $estados_icons[$usuario['estado_animo']] ?? ''; ?> 
+                      <?php echo ucfirst($usuario['estado_animo']); ?>
+                  </span>
+              <?php endif; ?>
+          </div>
+          
+          <!-- 😊 Stickers Desbloqueados / Estados de Ánimo Premium -->
+          <?php echo $recompensasHelper->renderStickers($id); ?>
+          
           <div class="mb-3">
             <span class="badge bg-secondary">Miembro desde <?php echo date('d/m/Y', strtotime($usuario['fecha_reg'])); ?></span>
             <?php if ($usuario['tipo'] === 'admin') { ?><span class="badge bg-warning text-dark ms-2">Administrador</span><?php } ?>
@@ -316,9 +412,9 @@ try {
                       }
                       
                       container.innerHTML = `
-                          <a href="solicitud.php?action=agregar&id=<?php echo $usuario['id_use']; ?>" class="btn btn-outline-success btn-sm">
+                          <button onclick="enviarSolicitudAmistad(<?php echo $usuario['id_use']; ?>)" class="btn btn-outline-success btn-sm">
                               <i class="bi bi-person-plus"></i> Añadir Amigo
-                          </a>
+                          </button>
                       `;
                   } else if (amistadData.estado == 1) {
                       // Son amigos - Ocultar botón de seguir
@@ -352,20 +448,23 @@ try {
                       }
                       
                       if (amistadData.direccion === 'enviada') {
+                          // Tarjeta de Solicitud Enviada (como cuando sigues)
                           container.innerHTML = `
-                              <div class="btn-group">
-                                  <span class="btn btn-outline-warning btn-sm disabled">
-                                      <i class="bi bi-clock"></i> Solicitud enviada
-                                  </span>
-                                  <button class="btn btn-outline-danger btn-sm" onclick="cancelarSolicitud()" title="Cancelar solicitud">
-                                      <i class="bi bi-x"></i>
+                              <div class="btn btn-warning btn-sm d-flex align-items-center gap-2" style="cursor: default;">
+                                  <i class="bi bi-clock-history"></i>
+                                  <span>Solicitud Enviada</span>
+                                  <button onclick="cancelarSolicitudAmistad(<?php echo $id; ?>)" 
+                                          class="btn btn-sm btn-link text-white p-0 ms-1" 
+                                          style="text-decoration: none;"
+                                          title="Cancelar solicitud">
+                                      <i class="bi bi-x-circle"></i>
                                   </button>
                               </div>
                           `;
                       } else {
                           container.innerHTML = `
-                              <span class="btn btn-outline-info btn-sm disabled">
-                                  <i class="bi bi-person-plus"></i> Solicitud recibida
+                              <span class="btn btn-info btn-sm">
+                                  <i class="bi bi-person-check"></i> Solicitud Recibida
                               </span>
                           `;
                       }
@@ -515,48 +614,157 @@ try {
                   });
               }
               
-              function cancelarSolicitud() {
-                  if (confirm('¿Estás seguro de que quieres cancelar la solicitud de amistad?')) {
-                      const xhr = new XMLHttpRequest();
-                      xhr.open('POST', '/Converza/app/presenters/cancelar_solicitud.php', true);
-                      xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+              // 🔄 FUNCIÓN UNIFICADA: Cancelar solicitud de amistad (con o sin parámetro)
+              function cancelarSolicitudAmistad(usuarioIdParam) {
+                  // Usar parámetro o el ID del perfil actual
+                  const usuarioId = usuarioIdParam || <?php echo $id; ?>;
+                  
+                  console.log('🔄 Cancelando solicitud para usuario:', usuarioId);
+                  
+                  if (!confirm('¿Estás seguro de que quieres cancelar la solicitud de amistad?')) {
+                      return;
+                  }
+                  
+                  // Mostrar que está procesando
+                  const container = document.getElementById('btn-amistad-container');
+                  if (container) {
+                      container.innerHTML = `
+                          <div class="btn btn-secondary btn-sm" style="cursor: wait;">
+                              <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                              Cancelando...
+                          </div>
+                      `;
+                  }
+                  
+                  const xhr = new XMLHttpRequest();
+                  xhr.open('POST', 'cancelar_solicitud.php', true); // ✅ Ruta relativa corregida
+                  xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+                  
+                  xhr.onload = function() {
+                      console.log('📥 Respuesta recibida - Status:', xhr.status);
+                      console.log('📄 Response Text:', xhr.responseText);
                       
-                      xhr.onreadystatechange = function() {
-                          if (xhr.readyState === 4) {
-                              if (xhr.status === 200) {
-                                  try {
-                                      const response = JSON.parse(xhr.responseText);
-                                      if (response.success) {
-                                          // Actualizar los datos de amistad
-                                          amistadData.tiene_relacion = false;
-                                          amistadData.estado = null;
-                                          amistadData.direccion = null;
-                                          
-                                          // Mostrar el botón de seguir nuevamente
-                                          const btnSeguir = document.getElementById('btn-seguir');
-                                          if (btnSeguir) {
-                                              btnSeguir.style.display = 'block';
-                                          }
-                                          
-                                          // Actualizar la interfaz - volver al botón de enviar solicitud
-                                          actualizarBotonAmistad();
-                                          
-                                          // Mostrar notificación de éxito
-                                          mostrarNotificacion('Solicitud cancelada exitosamente', 'success');
-                                      } else {
-                                          mostrarNotificacion('Error: ' + response.message, 'error');
-                                      }
-                                  } catch (e) {
-                                      mostrarNotificacion('Error al procesar la respuesta', 'error');
+                      if (xhr.status === 200) {
+                          try {
+                              const response = JSON.parse(xhr.responseText);
+                              console.log('✅ JSON parseado:', response);
+                              
+                              if (response.success) {
+                                  // ✅ Solicitud cancelada exitosamente
+                                  console.log('🎉 Solicitud cancelada exitosamente');
+                                  mostrarNotificacion('✅ Solicitud cancelada exitosamente', 'success');
+                                  
+                                  // Actualizar datos de amistad
+                                  amistadData.tiene_relacion = false;
+                                  amistadData.estado = null;
+                                  amistadData.direccion = null;
+                                  
+                                  // Mostrar botón de seguir nuevamente
+                                  const btnSeguir = document.getElementById('btn-seguir');
+                                  if (btnSeguir) {
+                                      btnSeguir.style.display = 'block';
                                   }
+                                  
+                                  // 🔄 ACTUALIZAR CONTENEDOR SIN RECARGAR (con color original)
+                                  if (container) {
+                                      container.innerHTML = `
+                                          <button onclick="enviarSolicitudAmistad(${usuarioId})" class="btn btn-outline-success btn-sm">
+                                              <i class="bi bi-person-plus"></i> Añadir Amigo
+                                          </button>
+                                      `;
+                                  }
+                                  
                               } else {
-                                  mostrarNotificacion('Error al cancelar la solicitud', 'error');
+                                  console.error('❌ Error en respuesta:', response.message);
+                                  mostrarNotificacion('❌ ' + (response.message || response.error || 'Error desconocido'), 'error');
+                                  
+                                  // Restaurar botón de solicitud enviada
+                                  if (container) {
+                                      container.innerHTML = `
+                                          <div class="btn btn-warning btn-sm d-flex align-items-center gap-2" style="cursor: default;">
+                                              <i class="bi bi-clock-history"></i>
+                                              <span>Solicitud Enviada</span>
+                                              <button onclick="cancelarSolicitudAmistad(${usuarioId})" 
+                                                      class="btn btn-sm btn-link text-white p-0 ms-1" 
+                                                      style="text-decoration: none;"
+                                                      title="Cancelar solicitud">
+                                                  <i class="bi bi-x-circle"></i>
+                                              </button>
+                                          </div>
+                                      `;
+                                  }
+                              }
+                          } catch (e) {
+                              console.error('💥 Error al parsear JSON:', e);
+                              console.error('📄 Response que causó el error:', xhr.responseText);
+                              mostrarNotificacion('❌ Error al procesar respuesta', 'error');
+                              
+                              // Restaurar botón de solicitud enviada
+                              if (container) {
+                                  container.innerHTML = `
+                                      <div class="btn btn-warning btn-sm d-flex align-items-center gap-2" style="cursor: default;">
+                                          <i class="bi bi-clock-history"></i>
+                                          <span>Solicitud Enviada</span>
+                                          <button onclick="cancelarSolicitudAmistad(${usuarioId})" 
+                                                  class="btn btn-sm btn-link text-white p-0 ms-1" 
+                                                  style="text-decoration: none;"
+                                                  title="Cancelar solicitud">
+                                              <i class="bi bi-x-circle"></i>
+                                          </button>
+                                      </div>
+                                  `;
                               }
                           }
-                      };
+                      } else {
+                          console.error('❌ Status HTTP:', xhr.status);
+                          mostrarNotificacion('❌ Error de conexión (HTTP ' + xhr.status + ')', 'error');
+                          
+                          // Restaurar botón de solicitud enviada (en caso de error)
+                          if (container) {
+                              container.innerHTML = `
+                                  <div class="btn btn-warning btn-sm d-flex align-items-center gap-2" style="cursor: default;">
+                                      <i class="bi bi-clock-history"></i>
+                                      <span>Solicitud Enviada</span>
+                                      <button onclick="cancelarSolicitudAmistad(${usuarioId})" 
+                                              class="btn btn-sm btn-link text-white p-0 ms-1" 
+                                              style="text-decoration: none;"
+                                              title="Cancelar solicitud">
+                                          <i class="bi bi-x-circle"></i>
+                                      </button>
+                                  </div>
+                              `;
+                          }
+                      }
+                  };
+                  
+                  xhr.onerror = function() {
+                      console.error('💥 Error de red al cancelar solicitud');
+                      mostrarNotificacion('❌ Error de conexión', 'error');
                       
-                      xhr.send('usuario_id=<?php echo $id; ?>');
-                  }
+                      // Restaurar botón de solicitud enviada (en caso de error de red)
+                      if (container) {
+                          container.innerHTML = `
+                              <div class="btn btn-warning btn-sm d-flex align-items-center gap-2" style="cursor: default;">
+                                  <i class="bi bi-clock-history"></i>
+                                  <span>Solicitud Enviada</span>
+                                  <button onclick="cancelarSolicitudAmistad(${usuarioId})" 
+                                          class="btn btn-sm btn-link text-white p-0 ms-1" 
+                                          style="text-decoration: none;"
+                                          title="Cancelar solicitud">
+                                      <i class="bi bi-x-circle"></i>
+                                  </button>
+                              </div>
+                          `;
+                      }
+                  };
+                  
+                  console.log('📤 Enviando petición...');
+                  xhr.send('usuario_id=' + usuarioId);
+              }
+              
+              // 🔄 ALIAS: Para compatibilidad con código antiguo
+              function cancelarSolicitud() {
+                  cancelarSolicitudAmistad(<?php echo $id; ?>);
               }
 
               // Función para mostrar notificaciones
@@ -581,6 +789,55 @@ try {
                           }
                       }, 300);
                   }, 3000);
+              }
+
+              // 📤 NUEVA FUNCIÓN: Enviar solicitud de amistad con AJAX
+              function enviarSolicitudAmistad(usuarioId) {
+                  const xhr = new XMLHttpRequest();
+                  xhr.open('GET', '/Converza/app/presenters/solicitud.php?action=agregar&id=' + usuarioId, true);
+                  
+                  xhr.onload = function() {
+                      if (xhr.status === 200) {
+                          try {
+                              const response = JSON.parse(xhr.responseText);
+                              
+                              if (response.success) {
+                                  // Mostrar notificación de éxito
+                                  mostrarNotificacion('✅ Solicitud de amistad enviada', 'success');
+                                  
+                                  // Actualizar el contenedor con tarjeta de "Solicitud Enviada"
+                                  const container = document.getElementById('btn-amistad-container');
+                                  if (container) {
+                                      container.innerHTML = `
+                                          <div class="btn btn-warning btn-sm d-flex align-items-center gap-2" style="cursor: default;">
+                                              <i class="bi bi-clock-history"></i>
+                                              <span>Solicitud Enviada</span>
+                                              <button onclick="cancelarSolicitudAmistad(${usuarioId})" 
+                                                      class="btn btn-sm btn-link text-white p-0 ms-1" 
+                                                      style="text-decoration: none;"
+                                                      title="Cancelar solicitud">
+                                                  <i class="bi bi-x-circle"></i>
+                                              </button>
+                                          </div>
+                                      `;
+                                  }
+                              } else {
+                                  mostrarNotificacion('❌ ' + response.error, 'error');
+                              }
+                          } catch (e) {
+                              console.error('Error al procesar respuesta:', e);
+                              mostrarNotificacion('❌ Error al enviar solicitud', 'error');
+                          }
+                      } else {
+                          mostrarNotificacion('❌ Error de conexión', 'error');
+                      }
+                  };
+                  
+                  xhr.onerror = function() {
+                      mostrarNotificacion('❌ Error al enviar solicitud', 'error');
+                  };
+                  
+                  xhr.send();
               }
           </script>
         </div>
@@ -659,9 +916,20 @@ try {
           $amigos = $stmtAmigos->fetchAll(PDO::FETCH_ASSOC);
 
           if ($amigos):
-              foreach ($amigos as $am): ?>
+              foreach ($amigos as $am): 
+                  // Validar avatar
+                  $avatarAmigo = htmlspecialchars($am['avatar']);
+                  $avatarPath = realpath(__DIR__.'/../../public/avatars/'.$avatarAmigo);
+                  $avatarWeb = '/Converza/public/avatars/'.$avatarAmigo;
+                  
+                  if ($avatarAmigo && $avatarAmigo !== 'default_avatar.svg' && $avatarPath && file_exists($avatarPath)) {
+                      $imgAmigo = $avatarWeb;
+                  } else {
+                      $imgAmigo = '/Converza/public/avatars/defect.jpg';
+                  }
+              ?>
                   <a href="perfil.php?id=<?php echo (int)$am['id_use']; ?>" class="d-inline-block text-center me-2 mb-2">
-                    <img src="/converza/public/avatars/<?php echo htmlspecialchars($am['avatar']); ?>" class="rounded-circle" width="48" height="48" alt="Avatar">
+                    <img src="<?php echo $imgAmigo; ?>" class="rounded-circle" width="48" height="48" alt="Avatar" loading="lazy">
                     <div class="small fw-bold"><?php echo htmlspecialchars($am['usuario']); ?></div>
                   </a>
               <?php endforeach;

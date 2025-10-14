@@ -1,0 +1,436 @@
+/**
+ * TEMAS DEL SISTEMA DE KARMA - Converza
+ * Aplicación global de temas personalizados
+ */
+
+/* ============================================
+   TEMA POR DEFECTO - CONVERZA ORIGINAL
+   ============================================ */
+body.tema-default {
+    background: #f8f9fa !important;
+    color: #333 !important;
+}
+
+body.tema-default .navbar {
+    background: linear-gradient(135deg, #4e73df 0%, #224abe 100%) !important;
+}
+
+body.tema-default .card,
+body.tema-default .list-group-item {
+    background: #ffffff !important;
+    border: 1px solid #dee2e6 !important;
+    color: #333 !important;
+}
+
+/* ============================================
+   TEMA OSCURO PREMIUM
+   ============================================ */
+body.tema-oscuro {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%) !important;
+    color: #e0e0e0 !important;
+    min-height: 100vh;
+}
+
+body.tema-oscuro .navbar {
+    background: linear-gradient(135deg, #0f3460, #16213e) !important;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+body.tema-oscuro .card,
+body.tema-oscuro .list-group-item,
+body.tema-oscuro .modal-content {
+    background: rgba(30, 30, 46, 0.95) !important;
+    border: 1px solid rgba(255,255,255,0.1) !important;
+    color: #e0e0e0 !important;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+}
+
+body.tema-oscuro .card-header {
+    background: rgba(15, 52, 96, 0.5) !important;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+body.tema-oscuro .form-control,
+body.tema-oscuro .form-select,
+body.tema-oscuro textarea {
+    background: rgba(20, 20, 30, 0.8) !important;
+    color: #e0e0e0 !important;
+    border: 1px solid rgba(255,255,255,0.2) !important;
+}
+
+body.tema-oscuro .form-control:focus,
+body.tema-oscuro textarea:focus {
+    background: rgba(30, 30, 40, 0.9) !important;
+    border-color: #4e73df !important;
+    box-shadow: 0 0 10px rgba(78, 115, 223, 0.3);
+}
+
+body.tema-oscuro .btn-primary {
+    background: linear-gradient(135deg, #4e73df, #224abe) !important;
+    border: none !important;
+}
+
+body.tema-oscuro .text-muted {
+    color: #a0a0a0 !important;
+}
+
+body.tema-oscuro h1, body.tema-oscuro h2, 
+body.tema-oscuro h3, body.tema-oscuro h4 {
+    color: #ffffff !important;
+}
+
+/* ============================================
+   TEMA GALAXY (Espacio con estrellas)
+   ============================================ */
+body.tema-galaxy {
+    background: #0a0e27 !important;
+    color: #e0e0ff !important;
+    position: relative;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+body.tema-galaxy::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+        radial-gradient(2px 2px at 20% 30%, white, transparent),
+        radial-gradient(2px 2px at 60% 70%, white, transparent),
+        radial-gradient(1px 1px at 50% 50%, white, transparent),
+        radial-gradient(1px 1px at 80% 10%, white, transparent),
+        radial-gradient(2px 2px at 90% 60%, white, transparent),
+        radial-gradient(1px 1px at 33% 80%, white, transparent),
+        radial-gradient(1px 1px at 15% 90%, white, transparent);
+    background-size: 200% 200%;
+    background-position: 0% 0%;
+    animation: galaxy-drift 120s ease-in-out infinite;
+    opacity: 0.4;
+    pointer-events: none;
+    z-index: 0;
+}
+
+@keyframes galaxy-drift {
+    0%, 100% { background-position: 0% 0%; }
+    25% { background-position: 100% 0%; }
+    50% { background-position: 100% 100%; }
+    75% { background-position: 0% 100%; }
+}
+
+body.tema-galaxy .navbar {
+    background: rgba(10, 14, 39, 0.95) !important;
+    border-bottom: 2px solid rgba(100, 100, 255, 0.3);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 0 30px rgba(100, 100, 255, 0.2);
+}
+
+body.tema-galaxy .card,
+body.tema-galaxy .list-group-item,
+body.tema-galaxy .modal-content {
+    background: rgba(10, 14, 39, 0.85) !important;
+    border: 2px solid rgba(100, 100, 255, 0.3) !important;
+    color: #e0e0ff !important;
+    backdrop-filter: blur(15px);
+    box-shadow: 0 8px 32px rgba(100, 100, 255, 0.2),
+                inset 0 0 20px rgba(100, 100, 255, 0.05);
+}
+
+body.tema-galaxy .card-header {
+    background: rgba(50, 50, 150, 0.3) !important;
+    border-bottom: 1px solid rgba(100, 100, 255, 0.3);
+}
+
+body.tema-galaxy .form-control,
+body.tema-galaxy textarea {
+    background: rgba(10, 14, 39, 0.9) !important;
+    color: #e0e0ff !important;
+    border: 1px solid rgba(100, 100, 255, 0.4) !important;
+}
+
+body.tema-galaxy .btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    border: none !important;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+body.tema-galaxy h1, body.tema-galaxy h2, 
+body.tema-galaxy h3, body.tema-galaxy h4 {
+    color: #a0a0ff !important;
+    text-shadow: 0 0 20px rgba(160, 160, 255, 0.3);
+}
+
+/* ============================================
+   TEMA SUNSET (Atardecer cálido)
+   ============================================ */
+body.tema-sunset {
+    background: linear-gradient(135deg, #ff6b6b 0%, #feca57 50%, #ff9ff3 100%) !important;
+    color: #333 !important;
+    min-height: 100vh;
+}
+
+body.tema-sunset .navbar {
+    background: linear-gradient(135deg, rgba(255,107,107,0.95), rgba(254,202,87,0.95)) !important;
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255,255,255,0.3);
+    box-shadow: 0 4px 20px rgba(255,107,107,0.3);
+}
+
+body.tema-sunset .card,
+body.tema-sunset .list-group-item,
+body.tema-sunset .modal-content {
+    background: rgba(255, 255, 255, 0.92) !important;
+    border: 2px solid rgba(255, 107, 107, 0.3) !important;
+    color: #333 !important;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 8px 32px rgba(255, 107, 107, 0.25);
+}
+
+body.tema-sunset .card-header {
+    background: linear-gradient(135deg, rgba(255,107,107,0.2), rgba(254,202,87,0.2)) !important;
+    border-bottom: 1px solid rgba(255,107,107,0.3);
+}
+
+body.tema-sunset .form-control,
+body.tema-sunset textarea {
+    background: rgba(255, 255, 255, 0.9) !important;
+    color: #333 !important;
+    border: 1px solid rgba(255, 107, 107, 0.3) !important;
+}
+
+body.tema-sunset .form-control:focus,
+body.tema-sunset textarea:focus {
+    border-color: #ff6b6b !important;
+    box-shadow: 0 0 10px rgba(255, 107, 107, 0.3);
+}
+
+body.tema-sunset .btn-primary {
+    background: linear-gradient(135deg, #ff6b6b, #feca57) !important;
+    border: none !important;
+    color: #fff !important;
+    font-weight: bold;
+    box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+}
+
+body.tema-sunset h1, body.tema-sunset h2, 
+body.tema-sunset h3, body.tema-sunset h4 {
+    color: #ff6b6b !important;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+}
+
+/* ============================================
+   TEMA NEON (Cyberpunk)
+   ============================================ */
+body.tema-neon {
+    background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #0a0e27 100%) !important;
+    color: #00ffff !important;
+    min-height: 100vh;
+    position: relative;
+}
+
+body.tema-neon::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+        repeating-linear-gradient(
+            0deg,
+            rgba(0, 255, 255, 0.03) 0px,
+            rgba(0, 255, 255, 0.03) 1px,
+            transparent 1px,
+            transparent 2px
+        );
+    pointer-events: none;
+    z-index: 1;
+}
+
+body.tema-neon .navbar {
+    background: linear-gradient(135deg, #0a0e27, #1a1f3a) !important;
+    border-bottom: 2px solid #00ffff !important;
+    box-shadow: 0 4px 20px rgba(0, 255, 255, 0.3);
+    position: relative;
+    z-index: 10;
+}
+
+body.tema-neon .navbar a,
+body.tema-neon .navbar .nav-link {
+    color: #00ffff !important;
+}
+
+body.tema-neon .navbar a:hover,
+body.tema-neon .navbar .nav-link:hover {
+    color: #ff00ff !important;
+    text-shadow: 0 0 10px #ff00ff;
+}
+
+body.tema-neon .card,
+body.tema-neon .list-group-item,
+body.tema-neon .modal-content {
+    background: linear-gradient(135deg, rgba(10, 14, 39, 0.95), rgba(26, 31, 58, 0.95)) !important;
+    border: 2px solid #00ffff !important;
+    color: #00ffff !important;
+    box-shadow: 
+        0 0 20px rgba(0, 255, 255, 0.3),
+        inset 0 0 20px rgba(0, 255, 255, 0.05);
+    position: relative;
+    z-index: 2;
+}
+
+body.tema-neon .card::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg, #00ffff, #ff00ff, #00ffff);
+    border-radius: inherit;
+    z-index: -1;
+    opacity: 0.2;
+    filter: blur(8px);
+}
+
+body.tema-neon .card-header {
+    background: linear-gradient(135deg, rgba(0, 255, 255, 0.15), rgba(255, 0, 255, 0.1)) !important;
+    border-bottom: 1px solid rgba(0, 255, 255, 0.5);
+    color: #00ffff !important;
+}
+
+body.tema-neon .form-control,
+body.tema-neon textarea,
+body.tema-neon input[type="text"],
+body.tema-neon input[type="password"],
+body.tema-neon input[type="email"] {
+    background: rgba(10, 14, 39, 0.9) !important;
+    color: #00ffff !important;
+    border: 2px solid rgba(0, 255, 255, 0.5) !important;
+    box-shadow: inset 0 0 10px rgba(0, 255, 255, 0.1);
+}
+
+body.tema-neon .form-control::placeholder,
+body.tema-neon textarea::placeholder {
+    color: rgba(0, 255, 255, 0.5) !important;
+}
+
+body.tema-neon .form-control:focus,
+body.tema-neon textarea:focus {
+    background: rgba(10, 14, 39, 1) !important;
+    border-color: #00ffff !important;
+    color: #00ffff !important;
+    box-shadow: 
+        0 0 20px rgba(0, 255, 255, 0.5),
+        inset 0 0 10px rgba(0, 255, 255, 0.2) !important;
+}
+
+body.tema-neon .btn-primary,
+body.tema-neon button[type="submit"] {
+    background: linear-gradient(135deg, #00ffff, #ff00ff) !important;
+    border: none !important;
+    color: #0a0e27 !important;
+    font-weight: bold;
+    text-shadow: none;
+    box-shadow: 0 4px 15px rgba(0, 255, 255, 0.5);
+    transition: all 0.3s ease;
+}
+
+body.tema-neon .btn-primary:hover,
+body.tema-neon button[type="submit"]:hover {
+    box-shadow: 0 6px 25px rgba(0, 255, 255, 0.8), 0 0 30px rgba(255, 0, 255, 0.4);
+    transform: translateY(-2px);
+}
+
+body.tema-neon .btn-secondary,
+body.tema-neon .btn-outline-secondary {
+    background: rgba(10, 14, 39, 0.8) !important;
+    border: 2px solid #00ffff !important;
+    color: #00ffff !important;
+}
+
+body.tema-neon h1, body.tema-neon h2, 
+body.tema-neon h3, body.tema-neon h4,
+body.tema-neon h5, body.tema-neon h6 {
+    color: #00ffff !important;
+    text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+    font-weight: bold;
+}
+
+body.tema-neon .text-muted,
+body.tema-neon .text-secondary,
+body.tema-neon small {
+    color: rgba(0, 255, 255, 0.7) !important;
+}
+
+body.tema-neon a {
+    color: #ff00ff !important;
+    text-decoration: none;
+}
+
+body.tema-neon a:hover {
+    color: #00ffff !important;
+    text-shadow: 0 0 10px rgba(0, 255, 255, 0.7);
+}
+
+/* Publicaciones en tema neon */
+body.tema-neon .card p,
+body.tema-neon .card span {
+    color: #e0e0ff !important;
+}
+
+body.tema-neon .badge {
+    background: linear-gradient(135deg, #00ffff, #ff00ff) !important;
+    color: #0a0e27 !important;
+}
+
+/* Comentarios */
+body.tema-neon .bg-light {
+    background: rgba(26, 31, 58, 0.6) !important;
+    color: #e0e0ff !important;
+}
+
+/* ============================================
+   COMPATIBILIDAD Y MEJORAS GLOBALES
+   ============================================ */
+
+/* Asegurar que z-index de contenido esté por encima de efectos de fondo */
+.container,
+.navbar,
+.card,
+.modal {
+    position: relative;
+    z-index: 2;
+}
+
+/* Transiciones suaves al cambiar temas */
+body,
+.navbar,
+.card,
+.form-control,
+.btn {
+    transition: all 0.3s ease-in-out;
+}
+
+/* Mejorar legibilidad en todos los temas */
+body[class*="tema-"] .card p,
+body[class*="tema-"] .card span,
+body[class*="tema-"] .list-group-item {
+    line-height: 1.6;
+}
+
+/* Asegurar contraste en botones secundarios */
+body.tema-oscuro .btn-secondary,
+body.tema-galaxy .btn-secondary,
+body.tema-neon .btn-secondary {
+    background: rgba(100, 100, 100, 0.5) !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    color: #fff !important;
+}
+
+/* Mejorar modales en temas oscuros */
+body[class*="tema-"] .modal-backdrop {
+    background: rgba(0, 0, 0, 0.7);
+}

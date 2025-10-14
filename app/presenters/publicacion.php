@@ -126,12 +126,16 @@ try {
                                 <?php else: ?>
                                     <?php foreach ($comentarios as $comentario): ?>
                                         <div class="d-flex mb-3">
-                                            <img src="public/avatars/<?php echo $comentario['avatar'] ?? 'defect.jpg'; ?>"
-                                                 alt="Avatar" class="rounded-circle me-3" width="40" height="40" />
+                                            <a href="/Converza/app/presenters/perfil.php?id=<?php echo (int)$comentario['usuario']; ?>" style="text-decoration:none;">
+                                                <img src="public/avatars/<?php echo $comentario['avatar'] ?? 'defect.jpg'; ?>"
+                                                     alt="Avatar" class="rounded-circle me-3" width="40" height="40" />
+                                            </a>
                                             <div class="flex-grow-1">
                                                 <div class="d-flex justify-content-between align-items-start">
                                                     <div>
-                                                        <strong><?php echo htmlspecialchars($comentario['nombre_usuario']); ?></strong>
+                                                        <a href="/Converza/app/presenters/perfil.php?id=<?php echo (int)$comentario['usuario']; ?>" class="fw-bold" style="text-decoration:none;color:inherit;">
+                                                            <?php echo htmlspecialchars($comentario['nombre_usuario']); ?>
+                                                        </a>
                                                         <p><?php echo nl2br(htmlspecialchars($comentario['comentario'])); ?></p>
                                                         <small class="text-muted"><?php echo date('d/m/Y H:i', strtotime($comentario['fecha'])); ?></small>
                                                     </div>

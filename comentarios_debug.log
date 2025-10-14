@@ -18,3 +18,29 @@
 [13-Oct-2025 18:24:49 Europe/Berlin] Stack trace: #0 C:\xampp\htdocs\Converza\app\presenters\agregarcomentario.php(98): PDO->prepare('INSERT INTO not...')
 #1 {main}
 [13-Oct-2025 18:24:49 Europe/Berlin] 📤 Enviando respuesta: {"status":"error","message":"Ocurri\u00f3 un problema al guardar el comentario. Por favor, int\u00e9ntalo de nuevo.","debug":"SQLSTATE[42S22]: Column not found: 1054 Unknown column 'user1' in 'field list'"}
+[14-Oct-2025 01:00:16 Europe/Berlin] ⚪ KARMA: Comentario neutral, no se otorga karma (comentario ID 175)
+[14-Oct-2025 01:21:02 Europe/Berlin] ✅ KARMA: +8 puntos para usuario 21 - Comentario positivo genuino (1 palabras positivas)
+[14-Oct-2025 01:36:27 Europe/Berlin] ⚪ KARMA: Comentario neutral, no se otorga karma (comentario ID 177)
+[14-Oct-2025 01:40:27 Europe/Berlin] ⚪ KARMA: Comentario neutral, no se otorga karma (comentario ID 178)
+[14-Oct-2025 01:41:13 Europe/Berlin] ❌ KARMA: Palabra negativa 'feo' detectada en comentario ID 179
+[14-Oct-2025 02:06:16 Europe/Berlin] ⚪ KARMA: Comentario neutral, no se otorga karma (comentario ID 180)
+[14-Oct-2025 15:38:47 Europe/Berlin] 🤖 KARMA AI: Comentario 'ODIO ESTA APP' → Sentimiento: negativo (14/100) - Sentimiento negativo detectado (14/100) - Indicadores negativos: 2
+[14-Oct-2025 15:39:06 Europe/Berlin] 🤖 KARMA AI: Comentario 'AMO ESTA APP' → Sentimiento: neutral (36/100) - Sentimiento neutral (36/100) - No hay suficientes indicadores claros
+[14-Oct-2025 15:39:06 Europe/Berlin] ⚪ KARMA: Comentario neutral, no se otorga karma
+[14-Oct-2025 15:39:26 Europe/Berlin] 🤖 KARMA AI: Comentario 'QUE FEA PUBLICACION' → Sentimiento: negativo (14/100) - Sentimiento negativo detectado (14/100) - Indicadores negativos: 2
+[14-Oct-2025 15:40:01 Europe/Berlin] 🤖 KARMA AI: Comentario 'no me gusta el sitio web' → Sentimiento: neutral (41/100) - Sentimiento neutral (41/100) - No hay suficientes indicadores claros
+[14-Oct-2025 15:40:01 Europe/Berlin] ⚪ KARMA: Comentario neutral, no se otorga karma
+[14-Oct-2025 16:08:01 Europe/Berlin] 🤖 KARMA AI: Comentario 'UWU' → Sentimiento: negativo (20/100) - Sentimiento negativo detectado (20/100)
+[14-Oct-2025 16:08:15 Europe/Berlin] 🤖 KARMA AI: Comentario 'UNU' → Sentimiento: negativo (20/100) - Sentimiento negativo detectado (20/100)
+[14-Oct-2025 16:08:36 Europe/Berlin] 🤖 KARMA AI: Comentario 'HOLI' → Sentimiento: negativo (20/100) - Sentimiento negativo detectado (20/100)
+[14-Oct-2025 16:09:09 Europe/Berlin] 🤖 KARMA AI: Comentario 'HOLA' → Sentimiento: negativo (20/100) - Sentimiento negativo detectado (20/100)
+[14-Oct-2025 16:09:45 Europe/Berlin] 🤖 KARMA AI: Comentario 'holi uwu' → Sentimiento: neutral (50/100) - Sentimiento neutral (50/100) - No hay suficientes indicadores claros
+[14-Oct-2025 16:09:45 Europe/Berlin] ⚪ KARMA: Comentario neutral, no se otorga karma
+[14-Oct-2025 16:09:50 Europe/Berlin] 🤖 KARMA AI: Comentario 'uwu' → Sentimiento: neutral (40/100) - Sentimiento neutral (40/100) - No hay suficientes indicadores claros
+[14-Oct-2025 16:09:50 Europe/Berlin] ⚪ KARMA: Comentario neutral, no se otorga karma
+[14-Oct-2025 16:10:00 Europe/Berlin] 🤖 KARMA AI: Comentario 'uwu' → Sentimiento: neutral (40/100) - Sentimiento neutral (40/100) - No hay suficientes indicadores claros
+[14-Oct-2025 16:10:00 Europe/Berlin] ⚪ KARMA: Comentario neutral, no se otorga karma
+[14-Oct-2025 16:10:11 Europe/Berlin] 🤖 KARMA AI: Comentario 'me gusta tu post' → Sentimiento: neutral (56/100) - Sentimiento neutral (56/100) - No hay suficientes indicadores claros
+[14-Oct-2025 16:10:11 Europe/Berlin] ⚪ KARMA: Comentario neutral, no se otorga karma
+[14-Oct-2025 16:10:20 Europe/Berlin] 🤖 KARMA AI: Comentario '😍' → Sentimiento: neutral (36/100) - Sentimiento neutral (36/100) - No hay suficientes indicadores claros
+[14-Oct-2025 16:10:20 Europe/Berlin] ⚪ KARMA: Comentario neutral, no se otorga karma
