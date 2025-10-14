@@ -28,6 +28,139 @@ class ConexionesMisticas {
     }
     
     /**
+     * Actualizar conexiones automáticamente (para cron job)
+     */
+    public function actualizarConexionesAutomatico() {
+        try {
+            // Limpiar conexiones antiguas (más de 30 días)
+            $this->limpiarConexionesAntiguas();
+            
+            // Detectar nuevas conexiones
+            $this->detectarConexiones();
+            
+            // Actualizar contadores
+            $this->actualizarContadores();
+            
+            return true;
+        } catch (Exception $e) {
+            error_log("Error en actualización automática: " . $e->getMessage());
+            return false;
+        }
+    }
+    
+    /**
+     * Limpiar conexiones antiguas de un usuario específico
+     */
+    public function limpiarConexionesUsuario($usuario_id) {
+        try {
+            $stmt = $this->conexion->prepare("
+                DELETE FROM conexiones_misticas
+                WHERE (usuario1_id = ? OR usuario2_id = ?)
+            ");
+            $stmt->execute([$usuario_id, $usuario_id]);
+            
+            // Resetear contador
+            $this->resetearContador($usuario_id);
+            
+            return [
+                'success' => true,
+                'mensaje' => 'Conexiones limpiadas correctamente',
+                'eliminadas' => $stmt->rowCount()
+            ];
+        } catch (PDOException $e) {
+            error_log("Error limpiando conexiones: " . $e->getMessage());
+            return [
+                'success' => false,
+                'mensaje' => 'Error al limpiar conexiones'
+            ];
+        }
+    }
+    
+    /**
+     * Limpiar conexiones de todos los usuarios (más de 30 días)
+     */
+    private function limpiarConexionesAntiguas() {
+        $stmt = $this->conexion->prepare("
+            DELETE FROM conexiones_misticas
+            WHERE fecha_deteccion < DATE_SUB(NOW(), INTERVAL 30 DAY)
+        ");
+        $stmt->execute();
+        echo "🧹 Limpiadas " . $stmt->rowCount() . " conexiones antiguas\n";
+    }
+    
+    /**
+     * Actualizar contador de conexiones por usuario
+     */
+    private function actualizarContadores() {
+        $sql = "
+            INSERT INTO conexiones_misticas_contador (usuario_id, total_conexiones, nuevas_conexiones, ultima_actualizacion)
+            SELECT 
+                usuario_id,
+                COUNT(*) as total,
+                SUM(CASE WHEN fecha_deteccion >= DATE_SUB(NOW(), INTERVAL 7 DAY) THEN 1 ELSE 0 END) as nuevas,
+                NOW()
+            FROM (
+                SELECT usuario1_id as usuario_id, fecha_deteccion FROM conexiones_misticas
+                UNION ALL
+                SELECT usuario2_id as usuario_id, fecha_deteccion FROM conexiones_misticas
+            ) as todas_conexiones
+            GROUP BY usuario_id
+            ON DUPLICATE KEY UPDATE
+                total_conexiones = VALUES(total_conexiones),
+                nuevas_conexiones = VALUES(nuevas_conexiones),
+                ultima_actualizacion = NOW()
+        ";
+        
+        $this->conexion->exec($sql);
+        echo "📊 Contadores actualizados\n";
+    }
+    
+    /**
+     * Resetear contador de un usuario
+     */
+    private function resetearContador($usuario_id) {
+        $stmt = $this->conexion->prepare("
+            DELETE FROM conexiones_misticas_contador WHERE usuario_id = ?
+        ");
+        $stmt->execute([$usuario_id]);
+    }
+    
+    /**
+     * Obtener contador de conexiones de un usuario
+     */
+    public function obtenerContador($usuario_id) {
+        $stmt = $this->conexion->prepare("
+            SELECT 
+                COALESCE(total_conexiones, 0) as total,
+                COALESCE(nuevas_conexiones, 0) as nuevas,
+                ultima_actualizacion
+            FROM conexiones_misticas_contador
+            WHERE usuario_id = ?
+        ");
+        $stmt->execute([$usuario_id]);
+        $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        // Si no existe, calcular en tiempo real
+        if (!$resultado) {
+            $stmtCalc = $this->conexion->prepare("
+                SELECT 
+                    COUNT(*) as total,
+                    SUM(CASE WHEN fecha_deteccion >= DATE_SUB(NOW(), INTERVAL 7 DAY) THEN 1 ELSE 0 END) as nuevas
+                FROM conexiones_misticas
+                WHERE usuario1_id = ? OR usuario2_id = ?
+            ");
+            $stmtCalc->execute([$usuario_id, $usuario_id]);
+            $resultado = $stmtCalc->fetch(PDO::FETCH_ASSOC);
+            
+            if (!$resultado) {
+                return ['total' => 0, 'nuevas' => 0, 'ultima_actualizacion' => null];
+            }
+        }
+        
+        return $resultado;
+    }
+    
+    /**
      * Detecta usuarios que reaccionan a las mismas publicaciones
      */
     private function detectarGustosCompartidos() {

@@ -1,0 +1,249 @@
+<?php
+// 🔇 Suprimir errores para evitar output HTML antes de JSON
+error_reporting(0);
+ini_set('display_errors', 0);
+
+// 🔇 Capturar cualquier output accidental
+ob_start();
+
+require_once(__DIR__.'/../models/config.php');
+require_once(__DIR__.'/../models/bloqueos-helper.php');
+require_once(__DIR__.'/../models/notificaciones-triggers.php');
+require_once(__DIR__.'/../models/karma-social-triggers.php'); // 🌟 KARMA SOCIAL
+
+// 🔇 Limpiar buffer de output antes de enviar JSON
+ob_end_clean();
+
+session_start();
+
+header('Content-Type: application/json');
+
+// Instanciar sistema de notificaciones
+$notificacionesTriggers = new NotificacionesTriggers($conexion);
+// 🌟 Instanciar sistema de Karma Social
+$karmaTriggers = new KarmaSocialTriggers($conexion);
+
+// Verificar si el usuario está bloqueado antes de permitir reacciones
+if (isset($_SESSION['id']) && isUserBlocked($_SESSION['id'], $conexion)) {
+    echo json_encode(['success' => false, 'message' => 'Usuario bloqueado. No puedes realizar esta acción.']);
+    exit();
+}
+
+$id_usuario = $_POST['id_usuario'] ?? null;
+$id_publicacion = $_POST['id_publicacion'] ?? null;
+$tipo_reaccion = $_POST['tipo_reaccion'] ?? null;
+
+// Debug: ver qué se está recibiendo
+error_log("=== SAVE_REACTION DEBUG ===");
+error_log("- Usuario: " . var_export($id_usuario, true));
+error_log("- Publicación: " . var_export($id_publicacion, true));
+error_log("- Tipo reacción: '" . $tipo_reaccion . "' (longitud: " . strlen($tipo_reaccion) . ")");
+error_log("- Tipo reacción hex: " . bin2hex($tipo_reaccion));
+error_log("- POST RAW: " . file_get_contents('php://input'));
+error_log("- POST array: " . print_r($_POST, true));
+error_log("- Content-Type: " . ($_SERVER['CONTENT_TYPE'] ?? 'no definido'));
+
+if (!$id_usuario || !$id_publicacion || !$tipo_reaccion) {
+    echo json_encode([
+        'success' => false, 
+        'message' => 'Datos incompletos',
+        'debug' => [
+            'id_usuario' => $id_usuario,
+            'id_publicacion' => $id_publicacion,
+            'tipo_reaccion' => $tipo_reaccion
+        ]
+    ]);
+    exit;
+}
+
+// Verificar bloqueo con el autor de la publicación
+try {
+    $stmtAutor = $conexion->prepare("SELECT usuario FROM publicaciones WHERE id_pub = :id_pub");
+    $stmtAutor->bindParam(':id_pub', $id_publicacion, PDO::PARAM_INT);
+    $stmtAutor->execute();
+    $publicacion = $stmtAutor->fetch();
+    
+    if ($publicacion) {
+        $bloqueoInfo = verificarBloqueoMutuo($conexion, $id_usuario, $publicacion['usuario']);
+        if ($bloqueoInfo['bloqueado']) {
+            echo json_encode(['success' => false, 'message' => 'No puedes reaccionar a esta publicación']);
+            exit;
+        }
+    }
+} catch (Exception $e) {
+    error_log("Error verificando bloqueo en reacción: " . $e->getMessage());
+}
+
+// 🔧 Normalizar variantes ortográficas y typos comunes
+$tipo_reaccion = trim($tipo_reaccion); // Eliminar espacios
+$tipo_reaccion = str_replace('me_entriste', 'me_entristece', $tipo_reaccion); // me_entriste → me_entristece
+$tipo_reaccion = str_replace('me_entristecece', 'me_entristece', $tipo_reaccion); // typo: 3 "ce" → 2 "ce"
+$tipo_reaccion = str_replace('me_entristese', 'me_entristece', $tipo_reaccion); // typo: se → ce
+
+// Validar que el tipo de reacción sea válido (ortografía corregida)
+$validReactions = ['me_gusta', 'me_encanta', 'me_divierte', 'me_asombra', 'me_entristece', 'me_enoja'];
+error_log("Validando tipo_reaccion: '$tipo_reaccion' contra: " . implode(', ', $validReactions));
+
+if (empty($tipo_reaccion)) {
+    error_log("❌ TIPO_REACCION ESTÁ VACÍO");
+    echo json_encode(['success' => false, 'message' => 'Tipo de reacción vacío']);
+    exit;
+}
+
+if (!in_array($tipo_reaccion, $validReactions)) {
+    error_log("❌ TIPO_REACCION NO VÁLIDO: '$tipo_reaccion'");
+    echo json_encode([
+        'success' => false, 
+        'message' => 'Tipo de reacción no válido: ' . $tipo_reaccion,
+        'valid_types' => $validReactions
+    ]);
+    exit;
+}
+
+// Verificar que la tabla reacciones existe, si no, crearla
+try {
+    $conexion->query("SELECT 1 FROM reacciones LIMIT 1");
+} catch (PDOException $e) {
+    // La tabla no existe, crearla
+    $createTable = "
+    CREATE TABLE reacciones (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        id_usuario INT NOT NULL,
+        id_publicacion INT NOT NULL,
+        tipo_reaccion ENUM('like', 'love', 'laugh', 'wow', 'sad', 'angry') NOT NULL,
+        fecha DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (id_usuario) REFERENCES usuarios(id_use) ON DELETE CASCADE,
+        FOREIGN KEY (id_publicacion) REFERENCES publicaciones(id_pub) ON DELETE CASCADE,
+        UNIQUE KEY unique_user_post_reaction (id_usuario, id_publicacion)
+    )";
+    $conexion->exec($createTable);
+}
+
+try {
+    // Verificar si el usuario ya reaccionó a esta publicación
+    $stmt = $conexion->prepare("SELECT id, tipo_reaccion FROM reacciones WHERE id_publicacion = :id_publicacion AND id_usuario = :id_usuario");
+    $stmt->bindParam(':id_publicacion', $id_publicacion, PDO::PARAM_INT);
+    $stmt->bindParam(':id_usuario', $id_usuario, PDO::PARAM_INT);
+    $stmt->execute();
+    $existingReaction = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    $action = '';
+
+    if ($existingReaction) {
+        if ($existingReaction['tipo_reaccion'] === $tipo_reaccion) {
+            // Si es la misma reacción, eliminarla (toggle)
+            $stmt = $conexion->prepare("DELETE FROM reacciones WHERE id_usuario = :id_usuario AND id_publicacion = :id_publicacion");
+            $stmt->bindParam(':id_usuario', $id_usuario, PDO::PARAM_INT);
+            $stmt->bindParam(':id_publicacion', $id_publicacion, PDO::PARAM_INT);
+            $stmt->execute();
+            $action = 'removed';
+            
+            // 🔄 KARMA: Revertir el karma de la reacción eliminada
+            $reaccion_antigua = $existingReaction['tipo_reaccion'];
+            $karmaTriggers->revertirReaccion($id_usuario, $id_publicacion, $reaccion_antigua);
+            
+        } else {
+            // 🔄 CAMBIO DE REACCIÓN: Ajustar karma inteligentemente
+            $reaccion_antigua = $existingReaction['tipo_reaccion'];
+            $reaccion_nueva = $tipo_reaccion;
+            
+            error_log("🔄 Usuario {$id_usuario} cambió reacción de '{$reaccion_antigua}' a '{$reaccion_nueva}'");
+            
+            // Primero revertir karma de la reacción antigua
+            $karmaTriggers->revertirReaccion($id_usuario, $id_publicacion, $reaccion_antigua);
+            
+            // Luego aplicar karma de la nueva reacción
+            $tipoMapeado = [
+                'me_gusta' => 'like',
+                'me_encanta' => 'love',
+                'me_divierte' => 'haha',
+                'me_asombra' => 'wow',
+                'me_entristece' => 'sad',
+                'me_enoja' => 'angry'
+            ];
+            $tipoReaccionFinal = $tipoMapeado[$reaccion_nueva] ?? 'like';
+            $karmaTriggers->nuevaReaccion($id_usuario, $id_publicacion, $tipoReaccionFinal);
+            
+            // Actualizar en base de datos (convertir español → inglés para ENUM)
+            $stmt = $conexion->prepare("UPDATE reacciones SET tipo_reaccion = :tipo_reaccion, fecha = NOW() WHERE id_usuario = :id_usuario AND id_publicacion = :id_publicacion");
+            $stmt->bindParam(':tipo_reaccion', $tipoReaccionFinal, PDO::PARAM_STR); // ✅ Usar valor en inglés
+            $stmt->bindParam(':id_usuario', $id_usuario, PDO::PARAM_INT);
+            $stmt->bindParam(':id_publicacion', $id_publicacion, PDO::PARAM_INT);
+            $stmt->execute();
+            $action = 'updated';
+        }
+    } else {
+        // Convertir tipo de reacción español → inglés ANTES de insertar
+        $tipoMapeado = [
+            'me_gusta' => 'like',
+            'me_encanta' => 'love',
+            'me_divierte' => 'haha',
+            'me_asombra' => 'wow',
+            'me_entristece' => 'sad',
+            'me_enoja' => 'angry'
+        ];
+        $tipoReaccionFinal = $tipoMapeado[$tipo_reaccion] ?? 'like';
+        
+        // Insertar nueva reacción (usando valor en inglés para ENUM)
+        error_log("Insertando nueva reacción: usuario=$id_usuario, post=$id_publicacion, tipo_español='$tipo_reaccion', tipo_ingles='$tipoReaccionFinal'");
+        $stmt = $conexion->prepare("INSERT INTO reacciones (id_usuario, id_publicacion, tipo_reaccion, fecha) VALUES (:id_usuario, :id_publicacion, :tipo_reaccion, NOW())");
+        $stmt->bindParam(':id_usuario', $id_usuario, PDO::PARAM_INT);
+        $stmt->bindParam(':id_publicacion', $id_publicacion, PDO::PARAM_INT);
+        $stmt->bindParam(':tipo_reaccion', $tipoReaccionFinal, PDO::PARAM_STR); // ✅ Usar valor en inglés
+        
+        $result = $stmt->execute();
+        error_log("Resultado de inserción: " . ($result ? "SUCCESS" : "FAILED"));
+        if (!$result) {
+            error_log("Error SQL: " . print_r($stmt->errorInfo(), true));
+        }
+        $action = 'added';
+        
+        // 🔔 Enviar notificación al autor de la publicación
+        if ($result && $publicacion) {
+            $autorPublicacion = $publicacion['usuario'];
+            // Solo notificar si no es el mismo usuario
+            if ($autorPublicacion != $id_usuario) {
+                // Obtener nombre del usuario que reaccionó
+                $stmtNombre = $conexion->prepare("SELECT usuario FROM usuarios WHERE id_use = :id");
+                $stmtNombre->execute([':id' => $id_usuario]);
+                $datosUsuario = $stmtNombre->fetch(PDO::FETCH_ASSOC);
+                $nombreUsuario = $datosUsuario['usuario'] ?? 'Usuario';
+                
+                $notificacionesTriggers->nuevaReaccion($id_usuario, $autorPublicacion, $nombreUsuario, $id_publicacion, $tipoReaccionFinal);
+                
+                // 🌟 REGISTRAR KARMA SOCIAL AUTOMÁTICAMENTE (CUALQUIER reacción, excepto negativas)
+                $karmaTriggers->nuevaReaccion($id_usuario, $id_publicacion, $tipoReaccionFinal);
+            }
+        }
+    }
+
+    // 🚀 OPTIMIZACIÓN: Incluir karma actualizado en la respuesta para evitar petición adicional
+    $karmaActualizado = null;
+    if (isset($_SESSION['id'])) {
+        try {
+            require_once(__DIR__.'/../models/karma-social-helper.php');
+            $karmaHelper = new KarmaSocialHelper($conexion);
+            $karmaData = $karmaHelper->obtenerKarmaUsuario($_SESSION['id']);
+            
+            $karmaActualizado = [
+                'karma' => $karmaData['karma_total'],
+                'nivel' => $karmaData['nivel_data']['nivel'] ?? 1,
+                'nivel_titulo' => $karmaData['nivel_data']['titulo'] ?? $karmaData['nivel'],
+                'nivel_emoji' => $karmaData['nivel_emoji']
+            ];
+        } catch (Exception $e) {
+            error_log("Error obteniendo karma actualizado: " . $e->getMessage());
+        }
+    }
+    
+    echo json_encode([
+        'success' => true, 
+        'message' => 'Reacción procesada',
+        'action' => $action,
+        'tipo_reaccion' => $action === 'removed' ? null : $tipo_reaccion,
+        'karma_actualizado' => $karmaActualizado // 🚀 Karma incluido en la respuesta
+    ]);
+} catch (PDOException $e) {
+    echo json_encode(['success' => false, 'message' => 'Error en la base de datos']);
+}
+?>

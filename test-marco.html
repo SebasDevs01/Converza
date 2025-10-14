@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Marco Arcoíris</title>
+    <link rel="stylesheet" href="public/css/karma-recompensas.css?v=<?php echo time(); ?>">
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: #f0f0f0;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+        .test-container {
+            text-align: center;
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🌈 Test Marco Arcoíris</h1>
+        
+        <!-- Marco Arcoíris -->
+        <div class="avatar-karma-container marco-arcoiris">
+            <img src="public/img/default-avatar.png" 
+                 class="avatar-karma-img" 
+                 width="120" 
+                 height="120" 
+                 alt="Avatar con marco arcoíris"
+                 style="background: #9b59b6;">
+        </div>
+        
+        <p style="margin-top: 20px; color: #666;">
+            El marco arcoíris debe verse alrededor del avatar
+        </p>
+        
+        <div style="margin-top: 30px; display: flex; gap: 20px; justify-content: center;">
+            <!-- Marco Dorado -->
+            <div>
+                <div class="avatar-karma-container marco-dorado">
+                    <img src="public/img/default-avatar.png" 
+                         class="avatar-karma-img" 
+                         width="80" 
+                         height="80" 
+                         alt="Marco Dorado"
+                         style="background: #9b59b6;">
+                </div>
+                <p style="font-size: 12px; margin-top: 10px;">Dorado</p>
+            </div>
+            
+            <!-- Marco Diamante -->
+            <div>
+                <div class="avatar-karma-container marco-diamante">
+                    <img src="public/img/default-avatar.png" 
+                         class="avatar-karma-img" 
+                         width="80" 
+                         height="80" 
+                         alt="Marco Diamante"
+                         style="background: #9b59b6;">
+                </div>
+                <p style="font-size: 12px; margin-top: 10px;">Diamante</p>
+            </div>
+            
+            <!-- Marco Fuego -->
+            <div>
+                <div class="avatar-karma-container marco-fuego">
+                    <img src="public/img/default-avatar.png" 
+                         class="avatar-karma-img" 
+                         width="80" 
+                         height="80" 
+                         alt="Marco Fuego"
+                         style="background: #9b59b6;">
+                </div>
+                <p style="font-size: 12px; margin-top: 10px;">Fuego</p>
+            </div>
+            
+            <!-- Marco Legendario -->
+            <div>
+                <div class="avatar-karma-container marco-legendario">
+                    <img src="public/img/default-avatar.png" 
+                         class="avatar-karma-img" 
+                         width="80" 
+                         height="80" 
+                         alt="Marco Legendario"
+                         style="background: #9b59b6;">
+                </div>
+                <p style="font-size: 12px; margin-top: 10px;">Legendario</p>
+            </div>
+        </div>
+        
+        <p style="margin-top: 30px; font-size: 14px; color: #999;">
+            Si no ves los marcos, presiona <strong>Ctrl + F5</strong> para limpiar el caché
+        </p>
+    </div>
+</body>
+</html>

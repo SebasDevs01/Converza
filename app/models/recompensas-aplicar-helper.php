@@ -136,7 +136,8 @@ class RecompensasAplicarHelper {
             'Marco de Fuego' => 'marco-fuego',
             'Marco Arcoíris' => 'marco-arcoiris',
             'Marco Arcoiris' => 'marco-arcoiris',  // Sin tilde también
-            'Marco Legendario' => 'marco-legendario'
+            'Marco Legendario' => 'marco-legendario',
+            'Marco Halloween' => 'marco-halloween'
         ];
         return $mapeo[$nombre] ?? '';
     }

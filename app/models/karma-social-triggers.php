@@ -30,6 +30,14 @@ class KarmaSocialTriggers {
     }
     
     /**
+     * 🔄 REVERTIR REACCIÓN (cuando se elimina o cambia)
+     */
+    public function revertirReaccion($usuario_id, $publicacion_id, $tipo_reaccion_antigua) {
+        // Analizar la reacción antigua para saber cuántos puntos revertir
+        return $this->karmaHelper->revertirReaccion($usuario_id, $publicacion_id, $tipo_reaccion_antigua);
+    }
+    
+    /**
      * AMISTAD ACEPTADA
      */
     public function amistadAceptada($usuario_id, $amigo_id) {

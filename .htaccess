@@ -5,7 +5,9 @@
     Header set Expires 0
 </IfModule>
 
-# PHP Cache Control
+# PHP Cache Control y Configuración de Sesiones
 <IfModule mod_php.c>
     php_value session.cache_limiter nocache
+    # Configurar ruta de sesiones personalizada
+    php_value session.save_path "C:/xampp/htdocs/Converza/sessions"
 </IfModule>

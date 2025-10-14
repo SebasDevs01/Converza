@@ -87,8 +87,9 @@ try {
 
                         <div class="card mb-4">
                             <div class="card-header d-flex align-items-center">
-                                <img src="public/avatars/<?php echo $publicacion['avatar'] ?? 'defect.jpg'; ?>"
-                                     alt="Avatar" class="rounded-circle me-3" width="50" height="50" />
+                                <img src="/Converza/public/avatars/<?php echo $publicacion['avatar'] ?? 'defect.jpg'; ?>"
+                                     alt="Avatar" class="rounded-circle me-3" 
+                                     style="width: 50px; height: 50px; object-fit: cover;" />
                                 <div>
                                     <strong><?php echo htmlspecialchars($publicacion['nombre_usuario']); ?></strong><br />
                                     <small class="text-muted"><?php echo date('d/m/Y H:i', strtotime($publicacion['fecha'])); ?></small>
@@ -97,9 +98,15 @@ try {
                             <div class="card-body">
                                 <p><?php echo nl2br(htmlspecialchars($publicacion['contenido'])); ?></p>
                                 <?php if (!empty($publicacion['imagen'])): ?>
-                                    <img src="<?php echo htmlspecialchars($publicacion['imagen']); ?>" class="img-fluid rounded" alt="Imagen de la publicación" />
+                                    <div class="publication-image-container" style="width: 100%; max-height: 500px; overflow: hidden; border-radius: 8px;">
+                                        <img src="<?php echo htmlspecialchars($publicacion['imagen']); ?>" 
+                                             class="img-fluid" 
+                                             style="width: 100%; height: 100%; object-fit: contain; display: block;" 
+                                             alt="Imagen de la publicación" />
+                                    </div>
                                 <?php else:  ?>
                                     <img src="../public/images/invisible.png" alt="">
+                                <?php endif; ?>
                             </div>
                         </div>
 
@@ -127,8 +134,9 @@ try {
                                     <?php foreach ($comentarios as $comentario): ?>
                                         <div class="d-flex mb-3">
                                             <a href="/Converza/app/presenters/perfil.php?id=<?php echo (int)$comentario['usuario']; ?>" style="text-decoration:none;">
-                                                <img src="public/avatars/<?php echo $comentario['avatar'] ?? 'defect.jpg'; ?>"
-                                                     alt="Avatar" class="rounded-circle me-3" width="40" height="40" />
+                                                <img src="/Converza/public/avatars/<?php echo $comentario['avatar'] ?? 'defect.jpg'; ?>"
+                                                     alt="Avatar" class="rounded-circle me-3" 
+                                                     style="width: 40px; height: 40px; object-fit: cover;" />
                                             </a>
                                             <div class="flex-grow-1">
                                                 <div class="d-flex justify-content-between align-items-start">
@@ -168,6 +176,122 @@ try {
 <script src="plugins/sparkline/jquery.sparkline.min.js"></script>
 <script src="plugins/slimScroll/jquery.slimscroll.min.js"></script>
 <script src="js/custom-file-input.js"></script>
+
+<script>
+// 🚀 COMENTARIOS SIN RECARGAR - AJAX
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form[action*="agregarcomentario.php"]');
+    
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault(); // Evitar recarga
+            
+            const formData = new FormData(form);
+            formData.append('usuario', <?php echo $_SESSION['id'] ?? 0; ?>);
+            formData.append('publicacion', <?php echo $publicacion_id; ?>);
+            
+            const textarea = form.querySelector('textarea[name="comentario"]');
+            const btnSubmit = form.querySelector('button[type="submit"]');
+            
+            // Deshabilitar mientras envía
+            textarea.disabled = true;
+            btnSubmit.disabled = true;
+            btnSubmit.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Enviando...';
+            
+            fetch('/Converza/app/presenters/agregarcomentario.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    // ✅ Agregar comentario a la lista SIN recargar
+                    const comentariosContainer = document.querySelector('.card-body');
+                    const noComments = comentariosContainer.querySelector('p.text-muted');
+                    
+                    if (noComments) {
+                        noComments.remove(); // Quitar mensaje "No hay comentarios"
+                    }
+                    
+                    const nuevoComentario = `
+                        <div class="d-flex mb-3">
+                            <a href="/Converza/app/presenters/perfil.php?id=<?php echo $_SESSION['id']; ?>" style="text-decoration:none;">
+                                <img src="/Converza/public/avatars/${data.comentario.avatar}"
+                                     alt="Avatar" class="rounded-circle me-3" 
+                                     style="width: 40px; height: 40px; object-fit: cover;" />
+                            </a>
+                            <div class="flex-grow-1">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <a href="/Converza/app/presenters/perfil.php?id=<?php echo $_SESSION['id']; ?>" class="fw-bold" style="text-decoration:none;color:inherit;">
+                                            ${data.comentario.usuario}
+                                        </a>
+                                        <p>${data.comentario.comentario}</p>
+                                        <small class="text-muted">Justo ahora</small>
+                                    </div>
+                                    <button class="btn btn-link btn-sm text-danger p-0 ms-2 eliminar-comentario" 
+                                            data-comentario-id="${data.comentario.id}" 
+                                            title="Eliminar comentario">
+                                        <i class="bi bi-trash3"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Insertar al FINAL de los comentarios
+                    comentariosContainer.insertAdjacentHTML('beforeend', nuevoComentario);
+                    
+                    // Actualizar contador de comentarios
+                    const contador = document.querySelector('.card-header h5');
+                    if (contador) {
+                        const match = contador.textContent.match(/\d+/);
+                        if (match) {
+                            const nuevoConteo = parseInt(match[0]) + 1;
+                            contador.textContent = `Comentarios (${nuevoConteo})`;
+                        }
+                    }
+                    
+                    // Limpiar textarea
+                    textarea.value = '';
+                    
+                    // ✅ Mostrar mensaje de éxito
+                    const alert = document.createElement('div');
+                    alert.className = 'alert alert-success alert-dismissible fade show mt-2';
+                    alert.innerHTML = `
+                        ${data.message}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    `;
+                    form.parentElement.insertBefore(alert, form);
+                    
+                    setTimeout(() => alert.remove(), 3000);
+                    
+                } else {
+                    // ❌ Error
+                    alert('Error: ' + (data.message || 'No se pudo publicar el comentario'));
+                }
+                
+                // Rehabilitar formulario
+                textarea.disabled = false;
+                btnSubmit.disabled = false;
+                btnSubmit.innerHTML = '<i class="bi bi-send"></i>';
+                
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error de conexión. Por favor, intenta de nuevo.');
+                
+                // Rehabilitar formulario
+                textarea.disabled = false;
+                btnSubmit.disabled = false;
+                btnSubmit.innerHTML = '<i class="bi bi-send"></i>';
+            });
+        });
+    }
+});
+</script>
+
 </body>
 </html>
+
 

@@ -226,9 +226,9 @@ $publicaciones = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     $avatarPath = __DIR__.'/../../public/avatars/'.$avatar;
                     if ($avatar && file_exists($avatarPath)) {
                         $src = '/Converza/public/avatars/'.$avatar;
-                        echo '<img src="'.$src.'" class="rounded-circle me-2" width="48" height="48" alt="Avatar">';
+                        echo '<img src="'.$src.'" class="rounded-circle me-2" width="48" height="48" style="object-fit: cover; display: block; min-width: 48px; min-height: 48px;" alt="Avatar">';
                     } else {
-                        echo '<img src="/Converza/public/avatars/defect.jpg" class="rounded-circle me-2" width="48" height="48" alt="Avatar por defecto">';
+                        echo '<img src="/Converza/public/avatars/defect.jpg" class="rounded-circle me-2" width="48" height="48" style="object-fit: cover; display: block; min-width: 48px; min-height: 48px;" alt="Avatar por defecto">';
                     }
                 ?>
                 <div>
@@ -288,7 +288,9 @@ $publicaciones = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 if ($imagenes) {
                     echo '<div class="d-flex flex-wrap gap-2 mb-2">';
                     foreach ($imagenes as $img) {
-                        echo '<img src="/converza/public/publicaciones/'.htmlspecialchars($img).'" class="rounded-3 mb-2" style="max-width:180px;max-height:180px;object-fit:cover;">';
+                        echo '<div class="position-relative" style="width: 180px; height: 180px; overflow: hidden; border-radius: 8px;">';
+                        echo '<img src="/converza/public/publicaciones/'.htmlspecialchars($img).'" class="w-100 h-100" style="object-fit: contain; display: block;">';
+                        echo '</div>';
                     }
                     echo '</div>';
                 }
@@ -409,9 +411,9 @@ $publicaciones = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     $avatarcPath = __DIR__.'/../../public/avatars/'.$avatarc;
                     if ($avatarc && file_exists($avatarcPath)) {
                         $srcC = '/Converza/public/avatars/'.$avatarc;
-                        $imgC = '<img class="rounded-circle me-2" src="'.$srcC.'" alt="Avatar" width="32" height="32">';
+                        $imgC = '<img class="rounded-circle me-2" src="'.$srcC.'" alt="Avatar" width="32" height="32" style="object-fit: cover; display: block; min-width: 32px; min-height: 32px;">';
                     } else {
-                        $imgC = '<img class="rounded-circle me-2" src="/Converza/public/avatars/defect.jpg" alt="Avatar por defecto" width="32" height="32">';
+                        $imgC = '<img class="rounded-circle me-2" src="/Converza/public/avatars/defect.jpg" alt="Avatar por defecto" width="32" height="32" style="object-fit: cover; display: block; min-width: 32px; min-height: 32px;">';
                     }
                 ?>
                 <div class="d-flex align-items-center mb-2">
@@ -725,7 +727,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     newComment.innerHTML = `
                         <img src="${avatarPath}" 
                              alt="Avatar" class="rounded-circle me-2" width="32" height="32" 
-                             style="object-fit: cover;">
+                             style="object-fit: cover; display: block; min-width: 32px; min-height: 32px;">
                         <div class="bg-light rounded-4 p-2 flex-grow-1" style="max-width:80%;">
                             <div class="d-flex justify-content-between align-items-start">
                                 <div class="flex-grow-1">
@@ -1090,19 +1092,23 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        // Obtener nombres únicos de usuarios que comentaron
+        // Obtener nombres únicos de usuarios que comentaron (sin duplicados)
         const usuarios = [...new Set(comentarios.map(comment => comment.usuario))];
         const totalUsuarios = usuarios.length;
         
-        // Construir tooltip
+        console.log(`  - Usuarios únicos: ${totalUsuarios} (total comentarios: ${total})`);
+        
+        // Construir tooltip mostrando máximo 5 usuarios únicos
         const tooltipLines = [];
-        usuarios.forEach((usuario) => {
+        const maxMostrar = 5;
+        
+        usuarios.slice(0, maxMostrar).forEach((usuario) => {
             tooltipLines.push(`💬 ${usuario}`);
         });
         
-        // Si hay más usuarios
-        if (totalUsuarios > usuarios.length) {
-            tooltipLines.push(`💬 y ${totalUsuarios - usuarios.length} más`);
+        // Si hay más usuarios únicos que no se mostraron
+        if (totalUsuarios > maxMostrar) {
+            tooltipLines.push(`💬 y ${totalUsuarios - maxMostrar} más`);
         }
         
         const tooltip = tooltipLines.join('\n');

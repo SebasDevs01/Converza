@@ -1,27 +1,35 @@
 <?php
+// ==========================================
+// IMPORTANTE: No debe haber NINGÚN espacio o texto antes de <?php
+// ==========================================
+
+// Deshabilitar TODOS los errores para JSON limpio
+error_reporting(0);
+ini_set('display_errors', '0');
+ini_set('log_errors', '1');
+ini_set('error_log', __DIR__ . '/../../comentarios_debug.log');
+
+// Limpiar CUALQUIER salida antes de enviar JSON
+ob_start();
+
 // Iniciar sesión PRIMERO (si no está iniciada)
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Deshabilitar warnings y notices para JSON limpio
-error_reporting(E_ERROR | E_PARSE);
-ini_set('display_errors', '0');
-ini_set('log_errors', '1');
-ini_set('error_log', __DIR__ . '/../../comentarios_debug.log');
-
-// Limpiar cualquier salida accidental antes de enviar JSON
-ob_start();
-
 require(__DIR__.'/../models/config.php'); // Aquí tienes tu conexión PDO en $conexion
 require_once(__DIR__.'/../models/bloqueos-helper.php');
 require_once(__DIR__.'/../models/notificaciones-triggers.php');
-require_once(__DIR__.'/../models/karma-social-triggers.php'); // 🌟 KARMA SOCIAL
+
+// 🌟 Sistema de Karma Social (opcional - no romper si no existe)
+$karmaTriggers = null;
+if (file_exists(__DIR__.'/../models/karma-social-triggers.php')) {
+    require_once(__DIR__.'/../models/karma-social-triggers.php');
+    $karmaTriggers = new KarmaSocialTriggers($conexion);
+}
 
 // Instanciar sistema de notificaciones
 $notificacionesTriggers = new NotificacionesTriggers($conexion);
-// 🌟 Instanciar sistema de Karma Social
-$karmaTriggers = new KarmaSocialTriggers($conexion);
 
 // Verificar si el usuario está bloqueado antes de permitir comentarios
 if (isset($_SESSION['id']) && isUserBlocked($_SESSION['id'], $conexion)) {
@@ -104,8 +112,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         // Enviar notificación usando el sistema de triggers
                         $notificacionesTriggers->nuevoComentario($usuario, $usuario2, $nombreComentador, $publicacion, $comentario);
                         
-                        // 🌟 REGISTRAR KARMA SOCIAL AUTOMÁTICAMENTE
-                        $karmaTriggers->nuevoComentario($usuario, $comentarioId, $comentario);
+                        // 🌟 REGISTRAR KARMA SOCIAL AUTOMÁTICAMENTE (si está disponible)
+                        if ($karmaTriggers !== null) {
+                            $karmaTriggers->nuevoComentario($usuario, $comentarioId, $comentario);
+                        }
                         
                         // NOTA: No insertamos en tabla notificaciones porque el sistema de triggers YA lo hace
                         // Si tu tabla usa la estructura VIEJA (user1, user2), descomentar:

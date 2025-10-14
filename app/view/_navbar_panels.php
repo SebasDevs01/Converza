@@ -1,6 +1,150 @@
 <?php
 // Paneles emergentes para la navbar (offcanvas Bootstrap)
 ?>
+<!-- ========================================
+     ✨ OFFCANVAS: PREDICCIONES
+     ======================================== -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasPredicciones" aria-labelledby="offcanvasPrediccionesLabel" style="width: 400px;">
+  
+  <!-- Banner Header Azul Converza -->
+  <div class="offcanvas-header bg-primary text-white position-relative overflow-hidden" style="padding: 24px 20px; border-bottom: 3px solid rgba(255,255,255,0.3);">
+    <!-- Efectos de fondo -->
+    <div style="position: absolute; top: -50px; right: -50px; width: 150px; height: 150px; background: rgba(255,255,255,0.1); border-radius: 50%; filter: blur(40px);"></div>
+    <div style="position: absolute; bottom: -30px; left: -30px; width: 100px; height: 100px; background: rgba(255,255,255,0.1); border-radius: 50%; filter: blur(30px);"></div>
+    
+    <div class="position-relative w-100">
+      <h5 class="offcanvas-title mb-1" id="offcanvasPrediccionesLabel" style="font-size: 1.3rem; font-weight: 700; letter-spacing: 0.5px;">
+        <i class="bi bi-stars me-2" style="font-size: 1.4rem;"></i>Predicciones
+      </h5>
+      <p class="mb-0 opacity-90" style="font-size: 0.85rem; font-weight: 300;">Descubre tus gustos e intereses</p>
+    </div>
+    
+    <button type="button" class="btn-close position-absolute" data-bs-dismiss="offcanvas" aria-label="Cerrar" style="top: 20px; right: 20px; background: transparent url('data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27 fill=%27%23fff%27%3e%3cpath d=%27M.293.293a1 1 0 0 1 1.414 0L8 6.586 14.293.293a1 1 0 1 1 1.414 1.414L9.414 8l6.293 6.293a1 1 0 0 1-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 0 1-1.414-1.414L6.586 8 .293 1.707a1 1 0 0 1 0-1.414z%27/%3e%3c/svg%3e') center/1em auto no-repeat; opacity: 1; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));"></button>
+  </div>
+  
+  <div class="offcanvas-body p-0">
+    <!-- Loading State -->
+    <div id="predicciones-loading" class="text-center py-5 px-3">
+        <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem; border-width: 0.3em;">
+            <span class="visually-hidden">Cargando...</span>
+        </div>
+        <h6 class="text-primary mb-2">Analizando tus publicaciones...</h6>
+        <p class="text-muted small mb-0">✨ Generando predicción personalizada</p>
+    </div>
+    
+    <!-- Prediccion Container -->
+    <div id="predicciones-container" style="display: none;" class="p-3">
+        <!-- Indicador de progreso -->
+        <div id="progress-indicator" class="mb-3">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <small class="text-muted fw-semibold">
+                    <i class="bi bi-clipboard-check me-1"></i>
+                    Predicción <span id="current-number">1</span> de <span id="total-number">5</span>
+                </small>
+                <small class="text-primary fw-bold"><span id="progress-percentage">20</span>%</small>
+            </div>
+            <div class="progress" style="height: 8px; border-radius: 10px; overflow: hidden; background: rgba(13, 110, 253, 0.1);">
+                <div id="progress-bar" class="progress-bar bg-primary" role="progressbar" style="width: 20%; transition: width 0.5s ease;" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+        </div>
+        
+        <!-- Card Principal con Predicción -->
+        <div class="card border-0 shadow-lg mb-3 position-relative overflow-hidden" style="background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);">
+            <!-- Decoración de fondo -->
+            <div style="position: absolute; top: -20px; right: -20px; width: 80px; height: 80px; background: rgba(102, 126, 234, 0.1); border-radius: 50%; filter: blur(20px);"></div>
+            
+            <div class="card-body text-center p-4 position-relative">
+                <!-- Emoji grande -->
+                <div class="mb-3 position-relative">
+                    <div class="d-inline-block position-relative">
+                        <span id="prediccion-emoji" style="font-size: 4rem; line-height: 1; display: block; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1));"></span>
+                        <div style="position: absolute; bottom: -5px; left: 50%; transform: translateX(-50%); width: 60%; height: 8px; background: rgba(102, 126, 234, 0.2); border-radius: 50%; filter: blur(8px);"></div>
+                    </div>
+                </div>
+                
+                <!-- Texto de predicción -->
+                <p id="prediccion-texto" class="lead fw-bold mb-3 text-dark" style="font-size: 1.15rem; line-height: 1.6;"></p>
+                
+                <!-- Badges de información -->
+                <div class="d-flex justify-content-center gap-3 mb-4 flex-wrap">
+                    <div class="badge-container">
+                        <small class="text-muted d-block mb-1" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px;">Categoría</small>
+                        <span id="prediccion-categoria" class="badge bg-primary" style="font-size: 0.85rem; padding: 6px 12px;"></span>
+                    </div>
+                    <div class="badge-container">
+                        <small class="text-muted d-block mb-1" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px;">Confianza</small>
+                        <span id="prediccion-confianza" class="badge bg-info" style="font-size: 0.85rem; padding: 6px 12px;"></span>
+                    </div>
+                </div>
+                
+                <!-- Botones de valoración mejorados -->
+                <div class="d-flex gap-2 justify-content-center">
+                    <button id="btn-me-gusta" class="btn btn-success btn-sm px-4 py-2 shadow-sm" onclick="valorarPrediccion(1)" style="border-radius: 20px; font-weight: 500;">
+                        <i class="bi bi-hand-thumbs-up-fill me-1"></i> Me gusta
+                    </button>
+                    <button id="btn-no-me-gusta" class="btn btn-outline-secondary btn-sm px-4 py-2" onclick="valorarPrediccion(0)" style="border-radius: 20px; font-weight: 500;">
+                        <i class="bi bi-hand-thumbs-down me-1"></i> No me gusta
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Alert informativo -->
+        <div class="alert alert-light border-0 shadow-sm d-flex align-items-start" style="background: rgba(13, 110, 253, 0.05);">
+            <i class="bi bi-info-circle-fill text-primary me-2 mt-1" style="font-size: 1.2rem;"></i> 
+            <small class="text-muted mb-0" style="line-height: 1.5;">
+                Las predicciones analizan tus publicaciones y comentarios para adivinar tus gustos. <strong>¡Es solo por diversión!</strong>
+            </small>
+        </div>
+    </div>
+    
+    <!-- Completion State -->
+    <div id="predicciones-completo" style="display: none;" class="text-center py-5 px-4">
+        <div class="mb-4">
+            <i class="bi bi-check-circle-fill text-success" style="font-size: 5rem; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1));"></i>
+        </div>
+        <h5 class="fw-bold mb-2 text-dark">¡Perfil completo! 🎉</h5>
+        <p class="text-muted mb-4">Ahora conocemos mejor tus gustos e intereses.<br>Gracias por completar todas las predicciones.</p>
+        <button class="btn btn-primary px-4 py-2 shadow-sm" data-bs-dismiss="offcanvas" style="border-radius: 20px; font-weight: 500;">
+            <i class="bi bi-check-lg me-1"></i> Cerrar
+        </button>
+    </div>
+    
+    <!-- Error State -->
+    <div id="predicciones-error" style="display: none;" class="text-center py-5 px-3">
+        <div class="mb-3">
+            <i class="bi bi-exclamation-circle text-danger" style="font-size: 4rem; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));"></i>
+        </div>
+        <h6 class="text-dark mb-2">No se pudo cargar</h6>
+        <p class="text-muted small mb-3">Hubo un problema al generar tu predicción.<br>Por favor, intenta de nuevo más tarde.</p>
+        <button class="btn btn-sm btn-primary" data-bs-dismiss="offcanvas">
+            <i class="bi bi-x-circle me-1"></i> Cerrar
+        </button>
+    </div>
+  </div>
+</div>
+
+<style>
+/* Estilos adicionales para predicciones */
+#offcanvasPredicciones .btn-close:hover {
+    transform: scale(1.1);
+    transition: transform 0.2s;
+}
+
+#offcanvasPredicciones .badge-container {
+    text-align: center;
+}
+
+#offcanvasPredicciones button:not(.btn-close):hover {
+    transform: translateY(-2px);
+    transition: all 0.2s;
+}
+
+#offcanvasPredicciones button:not(.btn-close):active {
+    transform: translateY(0);
+}
+</style>
+
 <!-- Offcanvas: Buscar usuarios -->
 <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasSearch" aria-labelledby="offcanvasSearchLabel">
   <div class="offcanvas-header">

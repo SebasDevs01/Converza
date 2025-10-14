@@ -180,7 +180,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['publicacion']) || (i
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <link rel="stylesheet" href="/Converza/public/css/component.css" />
     <link rel="stylesheet" href="/Converza/public/css/navbar-animations.css" />
-    <link rel="stylesheet" href="/Converza/public/css/karma-recompensas.css" />
+    <link rel="stylesheet" href="/Converza/public/css/karma-recompensas.css?v=2.6" />
     
     <?php 
     // 🎨 SISTEMA DE TEMAS GLOBAL - Aplicar tema equipado a todo el sistema
@@ -285,6 +285,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['publicacion']) || (i
                     <?php include __DIR__.'/components/conexiones-badge.php'; ?>
                 </li>
                 
+                <!-- ✨ Predicciones Divertidas -->
+                <li class="nav-item">
+                    <a class="nav-link" href="#" data-bs-toggle="offcanvas" data-bs-target="#offcanvasPredicciones" title="Predicciones - ¿Qué dice el oráculo sobre ti?">
+                        <i class="bi bi-stars"></i> <span class="d-none d-lg-inline">Predicciones</span>
+                    </a>
+                </li>
+                
                 <li class="nav-item">
                     <a class="nav-link" href="#" data-bs-toggle="offcanvas" data-bs-target="#offcanvasDailyShuffle" title="Daily Shuffle - Descubre nuevas personas">
                         <i class="bi bi-shuffle"></i> Shuffle
@@ -336,9 +343,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['publicacion']) || (i
                         $avatarPath = realpath(__DIR__.'/../../public/avatars/'.$avatar);
                         $avatarWebPath = '/Converza/public/avatars/'.$avatar;
                         if ($avatar && $avatar !== 'default_avatar.svg' && $avatarPath && file_exists($avatarPath)) {
-                            echo '<img src="'.$avatarWebPath.'" class="rounded-circle me-3" width="60" height="60" alt="Avatar" loading="lazy" title="Tu avatar">';
+                            echo '<img src="'.$avatarWebPath.'" class="rounded-circle me-3" width="60" height="60" style="object-fit: cover; display: block; min-width: 60px; min-height: 60px;" alt="Avatar" loading="lazy" title="Tu avatar">';
                         } else {
-                            echo '<img src="/Converza/public/avatars/defect.jpg" class="rounded-circle me-3" width="60" height="60" alt="Avatar por defecto" loading="lazy" title="Avatar por defecto">';
+                            echo '<img src="/Converza/public/avatars/defect.jpg" class="rounded-circle me-3" width="60" height="60" style="object-fit: cover; display: block; min-width: 60px; min-height: 60px;" alt="Avatar por defecto" loading="lazy" title="Avatar por defecto">';
                         }
                     ?>
                     <textarea name="publicacion" class="form-control" rows="2" placeholder="¿Qué estás pensando?"></textarea>
@@ -383,6 +390,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['publicacion']) || (i
 <script src="/Converza/public/js/jquery.jscroll.js"></script>
 <script src="/Converza/public/js/buscador.js"></script>
 <script src="/Converza/public/js/drag-drop.js"></script>
+
 <script>
 // Funcionalidad del buscador ahora está en buscador.js
 
@@ -401,5 +409,183 @@ $(document).ready(function() {
     });
 });
 </script>
+
+<!-- ✨ Script de Predicciones -->
+<script>
+let prediccionActualId = null;
+
+// Cargar predicción cuando se abre el offcanvas
+document.getElementById('offcanvasPredicciones')?.addEventListener('show.bs.offcanvas', function () {
+    cargarPrediccion();
+});
+
+// Variables globales para manejo de predicciones múltiples
+let prediccionesQueue = [];
+let currentIndex = 0;
+let prediccionActualId = null;
+
+async function cargarPrediccion() {
+    const loading = document.getElementById('predicciones-loading');
+    const container = document.getElementById('predicciones-container');
+    const error = document.getElementById('predicciones-error');
+    const completo = document.getElementById('predicciones-completo');
+    
+    // Ocultar todos los estados
+    loading.style.display = 'none';
+    container.style.display = 'none';
+    error.style.display = 'none';
+    completo.style.display = 'none';
+    
+    // Si no hay predicciones en cola, cargarlas
+    if (prediccionesQueue.length === 0) {
+        loading.style.display = 'block';
+        
+        try {
+            console.log('🔮 Cargando predicciones...');
+            const response = await fetch('/Converza/app/presenters/get_prediccion.php', {
+                method: 'GET',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'same-origin'
+            });
+            
+            console.log('📡 Response status:', response.status);
+            
+            if (!response.ok) {
+                throw new Error(`Error HTTP: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            console.log('✅ Data recibida:', data);
+            
+            if (data.success && data.predicciones && data.predicciones.length > 0) {
+                prediccionesQueue = data.predicciones;
+                currentIndex = 0;
+                console.log(`🎯 ${prediccionesQueue.length} predicciones cargadas`);
+            } else {
+                throw new Error(data.error || 'No hay predicciones disponibles');
+            }
+        } catch (err) {
+            console.error('❌ Error cargando predicciones:', err.message);
+            loading.style.display = 'none';
+            error.style.display = 'block';
+            return;
+        }
+    }
+    
+    // Verificar si terminamos todas las predicciones
+    if (currentIndex >= prediccionesQueue.length) {
+        console.log('✅ Todas las predicciones completadas');
+        completo.style.display = 'block';
+        return;
+    }
+    
+    // Mostrar predicción actual
+    mostrarPrediccionActual();
+}
+
+function mostrarPrediccionActual() {
+    const container = document.getElementById('predicciones-container');
+    const loading = document.getElementById('predicciones-loading');
+    
+    const pred = prediccionesQueue[currentIndex];
+    prediccionActualId = pred.id;
+    
+    console.log(`🎯 Mostrando predicción ${currentIndex + 1}/${prediccionesQueue.length}: ${pred.texto} ${pred.emoji}`);
+    
+    // Actualizar UI
+    document.getElementById('prediccion-emoji').textContent = pred.emoji || '🔮';
+    document.getElementById('prediccion-texto').textContent = pred.texto;
+    document.getElementById('prediccion-categoria').textContent = pred.categoria.charAt(0).toUpperCase() + pred.categoria.slice(1);
+    
+    // Confianza con colores
+    const confianzaSpan = document.getElementById('prediccion-confianza');
+    confianzaSpan.textContent = pred.confianza.charAt(0).toUpperCase() + pred.confianza.slice(1);
+    confianzaSpan.className = 'badge ' + (
+        pred.confianza === 'alta' ? 'bg-success' :
+        pred.confianza === 'media' ? 'bg-warning' : 'bg-secondary'
+    );
+    
+    // Actualizar progreso
+    actualizarProgreso();
+    
+    // Resetear botones
+    const btnMeGusta = document.getElementById('btn-me-gusta');
+    const btnNoMeGusta = document.getElementById('btn-no-me-gusta');
+    btnMeGusta.disabled = false;
+    btnNoMeGusta.disabled = false;
+    btnMeGusta.className = 'btn btn-success btn-sm px-4 py-2 shadow-sm';
+    btnNoMeGusta.className = 'btn btn-outline-secondary btn-sm px-4 py-2';
+    btnMeGusta.innerHTML = '<i class="bi bi-hand-thumbs-up-fill me-1"></i> Me gusta';
+    btnNoMeGusta.innerHTML = '<i class="bi bi-hand-thumbs-down me-1"></i> No me gusta';
+    
+    // Mostrar contenedor
+    loading.style.display = 'none';
+    container.style.display = 'block';
+}
+
+function actualizarProgreso() {
+    const total = prediccionesQueue.length;
+    const actual = currentIndex + 1;
+    const porcentaje = Math.round((actual / total) * 100);
+    
+    document.getElementById('current-number').textContent = actual;
+    document.getElementById('total-number').textContent = total;
+    document.getElementById('progress-percentage').textContent = porcentaje;
+    document.getElementById('progress-bar').style.width = porcentaje + '%';
+    document.getElementById('progress-bar').setAttribute('aria-valuenow', porcentaje);
+}
+
+async function valorarPrediccion(meGusta) {
+    if (!prediccionActualId) return;
+    
+    const btnMeGusta = document.getElementById('btn-me-gusta');
+    const btnNoMeGusta = document.getElementById('btn-no-me-gusta');
+    
+    // Deshabilitar botones
+    btnMeGusta.disabled = true;
+    btnNoMeGusta.disabled = true;
+    
+    try {
+        console.log(`💾 Guardando valoración: ${meGusta ? 'Me gusta' : 'No me gusta'}`);
+        
+        const response = await fetch('/Converza/app/presenters/get_prediccion.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                prediccion_id: prediccionActualId,
+                me_gusta: meGusta
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            // Feedback visual inmediato
+            if (meGusta === 1) {
+                btnMeGusta.innerHTML = '<i class="bi bi-check-lg me-1"></i> ¡Gracias!';
+                btnMeGusta.classList.add('fw-bold');
+            } else {
+                btnNoMeGusta.innerHTML = '<i class="bi bi-check-lg me-1"></i> Entendido';
+                btnNoMeGusta.classList.remove('btn-outline-secondary');
+                btnNoMeGusta.classList.add('btn-secondary', 'fw-bold');
+            }
+            
+            console.log('✅ Valoración guardada');
+            
+            // Avanzar a siguiente predicción después de 1 segundo
+            setTimeout(() => {
+                currentIndex++;
+                cargarPrediccion();
+            }, 1000);
+        }
+    } catch (err) {
+        console.error('❌ Error valorando predicción:', err);
+        btnMeGusta.disabled = false;
+        btnNoMeGusta.disabled = false;
+    }
+}
+
+</script>
+
 </body>
 </html>

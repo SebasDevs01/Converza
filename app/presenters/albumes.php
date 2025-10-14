@@ -150,6 +150,12 @@ $navActive = [
         <li class="nav-item">
             <?php include __DIR__.'/../view/components/conexiones-badge.php'; ?>
         </li>
+        <!-- ✨ Predicciones -->
+        <li class="nav-item">
+            <a class="nav-link" href="#" data-bs-toggle="offcanvas" data-bs-target="#offcanvasPredicciones" title="Predicciones">
+                <i class="bi bi-stars"></i> <span class="d-none d-lg-inline">Predicciones</span>
+            </a>
+        </li>
         <li class="nav-item">
             <a class="nav-link" href="#" data-bs-toggle="offcanvas" data-bs-target="#offcanvasDailyShuffle" title="Daily Shuffle - Descubre nuevas personas">
                 <i class="bi bi-shuffle"></i> Shuffle
@@ -284,6 +290,156 @@ document.getElementById('modalGaleria').addEventListener('hidden.bs.modal', func
   document.getElementById('modalVideo').src = '';
 });
 </script>
+
+<!-- ✨ Script de Predicciones -->
+<script>
+let prediccionActualId = null;
+
+document.getElementById('offcanvasPredicciones')?.addEventListener('show.bs.offcanvas', function () {
+    cargarPrediccion();
+});
+
+// Variables globales para manejo de predicciones múltiples
+let prediccionesQueue = [];
+let currentIndex = 0;
+let prediccionActualId = null;
+
+async function cargarPrediccion() {
+    const loading = document.getElementById('predicciones-loading');
+    const container = document.getElementById('predicciones-container');
+    const error = document.getElementById('predicciones-error');
+    const completo = document.getElementById('predicciones-completo');
+    
+    loading.style.display = 'none';
+    container.style.display = 'none';
+    error.style.display = 'none';
+    completo.style.display = 'none';
+    
+    if (prediccionesQueue.length === 0) {
+        loading.style.display = 'block';
+        
+        try {
+            const response = await fetch('/Converza/app/presenters/get_prediccion.php', {
+                method: 'GET',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'same-origin'
+            });
+            
+            if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
+            
+            const data = await response.json();
+            
+            if (data.success && data.predicciones && data.predicciones.length > 0) {
+                prediccionesQueue = data.predicciones;
+                currentIndex = 0;
+            } else {
+                throw new Error(data.error || 'No hay predicciones disponibles');
+            }
+        } catch (err) {
+            console.error('Error cargando predicciones:', err.message);
+            loading.style.display = 'none';
+            error.style.display = 'block';
+            return;
+        }
+    }
+    
+    if (currentIndex >= prediccionesQueue.length) {
+        completo.style.display = 'block';
+        return;
+    }
+    
+    mostrarPrediccionActual();
+}
+
+function mostrarPrediccionActual() {
+    const container = document.getElementById('predicciones-container');
+    const loading = document.getElementById('predicciones-loading');
+    
+    const pred = prediccionesQueue[currentIndex];
+    prediccionActualId = pred.id;
+    
+    document.getElementById('prediccion-emoji').textContent = pred.emoji || '🔮';
+    document.getElementById('prediccion-texto').textContent = pred.texto;
+    document.getElementById('prediccion-categoria').textContent = pred.categoria.charAt(0).toUpperCase() + pred.categoria.slice(1);
+    
+    const confianzaSpan = document.getElementById('prediccion-confianza');
+    confianzaSpan.textContent = pred.confianza.charAt(0).toUpperCase() + pred.confianza.slice(1);
+    confianzaSpan.className = 'badge ' + (
+        pred.confianza === 'alta' ? 'bg-success' :
+        pred.confianza === 'media' ? 'bg-warning' : 'bg-secondary'
+    );
+    
+    actualizarProgreso();
+    
+    const btnMeGusta = document.getElementById('btn-me-gusta');
+    const btnNoMeGusta = document.getElementById('btn-no-me-gusta');
+    btnMeGusta.disabled = false;
+    btnNoMeGusta.disabled = false;
+    btnMeGusta.className = 'btn btn-success btn-sm px-4 py-2 shadow-sm';
+    btnNoMeGusta.className = 'btn btn-outline-secondary btn-sm px-4 py-2';
+    btnMeGusta.innerHTML = '<i class="bi bi-hand-thumbs-up-fill me-1"></i> Me gusta';
+    btnNoMeGusta.innerHTML = '<i class="bi bi-hand-thumbs-down me-1"></i> No me gusta';
+    
+    loading.style.display = 'none';
+    container.style.display = 'block';
+}
+
+function actualizarProgreso() {
+    const total = prediccionesQueue.length;
+    const actual = currentIndex + 1;
+    const porcentaje = Math.round((actual / total) * 100);
+    
+    document.getElementById('current-number').textContent = actual;
+    document.getElementById('total-number').textContent = total;
+    document.getElementById('progress-percentage').textContent = porcentaje;
+    document.getElementById('progress-bar').style.width = porcentaje + '%';
+    document.getElementById('progress-bar').setAttribute('aria-valuenow', porcentaje);
+}
+
+async function valorarPrediccion(meGusta) {
+    if (!prediccionActualId) return;
+    
+    const btnMeGusta = document.getElementById('btn-me-gusta');
+    const btnNoMeGusta = document.getElementById('btn-no-me-gusta');
+    
+    btnMeGusta.disabled = true;
+    btnNoMeGusta.disabled = true;
+    
+    try {
+        const response = await fetch('/Converza/app/presenters/get_prediccion.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                prediccion_id: prediccionActualId,
+                me_gusta: meGusta
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            if (meGusta === 1) {
+                btnMeGusta.innerHTML = '<i class="bi bi-check-lg me-1"></i> ¡Gracias!';
+                btnMeGusta.classList.add('fw-bold');
+            } else {
+                btnNoMeGusta.innerHTML = '<i class="bi bi-check-lg me-1"></i> Entendido';
+                btnNoMeGusta.classList.remove('btn-outline-secondary');
+                btnNoMeGusta.classList.add('btn-secondary', 'fw-bold');
+            }
+            
+            setTimeout(() => {
+                currentIndex++;
+                cargarPrediccion();
+            }, 1000);
+        }
+    } catch (err) {
+        console.error('Error valorando predicción:', err);
+        btnMeGusta.disabled = false;
+        btnNoMeGusta.disabled = false;
+    }
+}
+</script>
+
 </body>
 </html>
     <!DOCTYPE html>

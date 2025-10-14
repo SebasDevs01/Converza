@@ -205,9 +205,11 @@ if (isset($_SESSION['mensaje_exito'])) {
 }
 
 // Obtener todas las recompensas agrupadas por tipo
+// 🚫 EXCLUIR temas, stickers e íconos (no implementados aún)
 $stmtRecompensas = $conexion->prepare("
     SELECT * FROM karma_recompensas 
     WHERE activo = TRUE 
+    AND tipo NOT IN ('tema', 'sticker', 'icono')
     ORDER BY tipo, karma_requerido ASC
 ");
 $stmtRecompensas->execute();
@@ -227,7 +229,7 @@ foreach ($recompensas as $r) {
     <title>🏆 Tienda de Karma - Converza</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="/Converza/public/css/karma-recompensas.css">
+    <link rel="stylesheet" href="/Converza/public/css/karma-recompensas.css?v=2.6">
     
     <?php 
     // 🎨 SISTEMA DE TEMAS GLOBAL - Aplicar tema equipado a la tienda también
@@ -414,9 +416,6 @@ foreach ($recompensas as $r) {
                     <p class="text-muted lead mb-3">
                         Desbloquea recompensas exclusivas ganando Karma por tus acciones positivas
                     </p>
-                    <a href="/Converza/demo_personalizacion.html" target="_blank" class="btn btn-outline-primary btn-sm">
-                        <i class="bi bi-eye"></i> Ver Demo Completa
-                    </a>
                 </div>
                 <div class="col-md-4">
                     <div class="karma-display">
@@ -504,9 +503,14 @@ foreach ($recompensas as $r) {
                                     elseif (stripos($recompensa['nombre'], 'Fuego') !== false) $marco_class = 'marco-fuego';
                                     elseif (stripos($recompensa['nombre'], 'Arcoíris') !== false || stripos($recompensa['nombre'], 'Arcoiris') !== false) $marco_class = 'marco-arcoiris';
                                     elseif (stripos($recompensa['nombre'], 'Legendario') !== false) $marco_class = 'marco-legendario';
+                                    elseif (stripos($recompensa['nombre'], 'Halloween') !== false) $marco_class = 'marco-halloween';
                                     ?>
                                     <div class="avatar-karma-container <?php echo $marco_class; ?>" style="display: inline-block;">
-                                        <div class="avatar-preview-img avatar-karma-img"></div>
+                                        <img src="https://via.placeholder.com/120/CCCCCC/FFFFFF?text=👤" 
+                                             class="avatar-karma-img" 
+                                             width="120" 
+                                             height="120" 
+                                             alt="Preview">
                                     </div>
                                 </div>
                                 
