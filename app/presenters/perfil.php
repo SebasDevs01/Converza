@@ -1404,16 +1404,14 @@ $(document).ready(function() {
 
 <!-- ✨ Script de Predicciones -->
 <script>
+// Variables globales para manejo de predicciones múltiples
+let prediccionesQueue = [];
+let currentIndex = 0;
 let prediccionActualId = null;
 
 document.getElementById('offcanvasPredicciones')?.addEventListener('show.bs.offcanvas', function () {
     cargarPrediccion();
 });
-
-// Variables globales para manejo de predicciones múltiples
-let prediccionesQueue = [];
-let currentIndex = 0;
-let prediccionActualId = null;
 
 async function cargarPrediccion() {
     const loading = document.getElementById('predicciones-loading');

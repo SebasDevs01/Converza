@@ -412,6 +412,9 @@ $(document).ready(function() {
 
 <!-- ✨ Script de Predicciones -->
 <script>
+// Variables globales para manejo de predicciones múltiples
+let prediccionesQueue = [];
+let currentIndex = 0;
 let prediccionActualId = null;
 
 // Cargar predicción cuando se abre el offcanvas
@@ -419,16 +422,20 @@ document.getElementById('offcanvasPredicciones')?.addEventListener('show.bs.offc
     cargarPrediccion();
 });
 
-// Variables globales para manejo de predicciones múltiples
-let prediccionesQueue = [];
-let currentIndex = 0;
-let prediccionActualId = null;
-
 async function cargarPrediccion() {
+    console.log('🔵 cargarPrediccion() - INICIO');
+    
     const loading = document.getElementById('predicciones-loading');
     const container = document.getElementById('predicciones-container');
     const error = document.getElementById('predicciones-error');
     const completo = document.getElementById('predicciones-completo');
+    
+    console.log('📋 Elementos DOM:', {
+        loading: !!loading,
+        container: !!container,
+        error: !!error,
+        completo: !!completo
+    });
     
     // Ocultar todos los estados
     loading.style.display = 'none';
@@ -436,8 +443,11 @@ async function cargarPrediccion() {
     error.style.display = 'none';
     completo.style.display = 'none';
     
+    console.log('🔢 Estado actual - Queue length:', prediccionesQueue.length, 'Current index:', currentIndex);
+    
     // Si no hay predicciones en cola, cargarlas
     if (prediccionesQueue.length === 0) {
+        console.log('📥 No hay predicciones en cola, cargando...');
         loading.style.display = 'block';
         
         try {
@@ -472,6 +482,8 @@ async function cargarPrediccion() {
         }
     }
     
+    console.log('🔍 Verificando si terminamos: currentIndex=' + currentIndex + ', total=' + prediccionesQueue.length);
+    
     // Verificar si terminamos todas las predicciones
     if (currentIndex >= prediccionesQueue.length) {
         console.log('✅ Todas las predicciones completadas');
@@ -479,13 +491,20 @@ async function cargarPrediccion() {
         return;
     }
     
+    console.log('➡️ Llamando mostrarPrediccionActual()');
     // Mostrar predicción actual
     mostrarPrediccionActual();
+    console.log('🔵 cargarPrediccion() - FIN');
 }
 
 function mostrarPrediccionActual() {
+    console.log('🟢 mostrarPrediccionActual() - INICIO');
+    
     const container = document.getElementById('predicciones-container');
     const loading = document.getElementById('predicciones-loading');
+    
+    console.log('📋 Elementos:', { container: !!container, loading: !!loading });
+    console.log('📊 Predicción actual:', prediccionesQueue[currentIndex]);
     
     const pred = prediccionesQueue[currentIndex];
     prediccionActualId = pred.id;
@@ -493,34 +512,59 @@ function mostrarPrediccionActual() {
     console.log(`🎯 Mostrando predicción ${currentIndex + 1}/${prediccionesQueue.length}: ${pred.texto} ${pred.emoji}`);
     
     // Actualizar UI
-    document.getElementById('prediccion-emoji').textContent = pred.emoji || '🔮';
-    document.getElementById('prediccion-texto').textContent = pred.texto;
-    document.getElementById('prediccion-categoria').textContent = pred.categoria.charAt(0).toUpperCase() + pred.categoria.slice(1);
+    const emojiEl = document.getElementById('prediccion-emoji');
+    const textoEl = document.getElementById('prediccion-texto');
+    const categoriaEl = document.getElementById('prediccion-categoria');
+    const confianzaEl = document.getElementById('prediccion-confianza');
+    
+    console.log('📋 Elementos de predicción:', {
+        emoji: !!emojiEl,
+        texto: !!textoEl,
+        categoria: !!categoriaEl,
+        confianza: !!confianzaEl
+    });
+    
+    if (!emojiEl || !textoEl || !categoriaEl || !confianzaEl) {
+        console.error('❌ Faltan elementos del DOM para mostrar la predicción');
+        return;
+    }
+    
+    emojiEl.textContent = pred.emoji || '🔮';
+    textoEl.textContent = pred.texto;
+    categoriaEl.textContent = pred.categoria.charAt(0).toUpperCase() + pred.categoria.slice(1);
     
     // Confianza con colores
-    const confianzaSpan = document.getElementById('prediccion-confianza');
-    confianzaSpan.textContent = pred.confianza.charAt(0).toUpperCase() + pred.confianza.slice(1);
-    confianzaSpan.className = 'badge ' + (
+    confianzaEl.textContent = pred.confianza.charAt(0).toUpperCase() + pred.confianza.slice(1);
+    confianzaEl.className = 'badge ' + (
         pred.confianza === 'alta' ? 'bg-success' :
         pred.confianza === 'media' ? 'bg-warning' : 'bg-secondary'
     );
     
+    console.log('📊 Actualizando progreso...');
     // Actualizar progreso
     actualizarProgreso();
     
     // Resetear botones
     const btnMeGusta = document.getElementById('btn-me-gusta');
     const btnNoMeGusta = document.getElementById('btn-no-me-gusta');
-    btnMeGusta.disabled = false;
-    btnNoMeGusta.disabled = false;
-    btnMeGusta.className = 'btn btn-success btn-sm px-4 py-2 shadow-sm';
-    btnNoMeGusta.className = 'btn btn-outline-secondary btn-sm px-4 py-2';
-    btnMeGusta.innerHTML = '<i class="bi bi-hand-thumbs-up-fill me-1"></i> Me gusta';
-    btnNoMeGusta.innerHTML = '<i class="bi bi-hand-thumbs-down me-1"></i> No me gusta';
+    
+    console.log('🔘 Botones:', { meGusta: !!btnMeGusta, noMeGusta: !!btnNoMeGusta });
+    
+    if (btnMeGusta && btnNoMeGusta) {
+        btnMeGusta.disabled = false;
+        btnNoMeGusta.disabled = false;
+        btnMeGusta.className = 'btn btn-success btn-sm px-4 py-2 shadow-sm';
+        btnNoMeGusta.className = 'btn btn-outline-secondary btn-sm px-4 py-2';
+        btnMeGusta.innerHTML = '<i class="bi bi-hand-thumbs-up-fill me-1"></i> Me gusta';
+        btnNoMeGusta.innerHTML = '<i class="bi bi-hand-thumbs-down me-1"></i> No me gusta';
+    }
     
     // Mostrar contenedor
+    console.log('👁️ Mostrando contenedor...');
     loading.style.display = 'none';
     container.style.display = 'block';
+    
+    console.log('🟢 mostrarPrediccionActual() - FIN');
 }
 
 function actualizarProgreso() {

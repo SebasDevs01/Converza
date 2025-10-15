@@ -45,3 +45,9 @@ Stack trace:
 [14-Oct-2025 21:38:09 Europe/Berlin] 🤖 KARMA AI: Comentario 'A' → Sentimiento: negativo (20/100) - Sentimiento negativo detectado (20/100)
 [14-Oct-2025 22:52:47 Europe/Berlin] 🤖 KARMA AI: Comentario 'hola' → Sentimiento: neutral (40/100) - Sentimiento neutral (40/100) - No hay suficientes indicadores claros
 [14-Oct-2025 22:52:47 Europe/Berlin] ⚪ KARMA: Comentario neutral, no se otorga karma
+[15-Oct-2025 03:27:14 Europe/Berlin] 🤖 KARMA AI: Comentario 'me gusta tu post' → Sentimiento: neutral (56/100) - Sentimiento neutral (56/100)
+[15-Oct-2025 03:27:14 Europe/Berlin] ⚪ KARMA: Comentario neutral, no se otorga karma
+[15-Oct-2025 03:27:32 Europe/Berlin] 🤖 KARMA AI: Comentario '♥♥' → Sentimiento: neutral (50/100) - Sentimiento neutral (50/100)
+[15-Oct-2025 03:27:32 Europe/Berlin] ⚪ KARMA: Comentario neutral, no se otorga karma
+[15-Oct-2025 03:38:14 Europe/Berlin] 🤖 KARMA AI: Comentario 'que feo post' → Sentimiento: neutral (50/100) - Sentimiento neutral (50/100)
+[15-Oct-2025 03:38:15 Europe/Berlin] ⚪ KARMA: Comentario neutral, no se otorga karma

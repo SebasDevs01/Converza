@@ -54,6 +54,8 @@ class PrediccionesHelper {
      * Genera una nueva predicción para el usuario
      */
     public function generarPrediccion($usuario_id) {
+        error_log("⚙️ generarPrediccion() - Usuario: " . $usuario_id);
+        
         try {
             // 1. Analizar publicaciones y comentarios del usuario
             $stmt = $this->conexion->prepare("
@@ -66,7 +68,10 @@ class PrediccionesHelper {
             $stmt->execute([$usuario_id, $usuario_id]);
             $textos = $stmt->fetchAll(PDO::FETCH_COLUMN);
             
+            error_log("📊 Textos analizados: " . count($textos));
+            
             if (empty($textos)) {
+                error_log("👤 Usuario sin actividad → predicciones genéricas");
                 // Usuario nuevo sin actividad → predicción genérica para cada categoría
                 return $this->generarPrediccionesGenericas($usuario_id);
             }
@@ -109,15 +114,26 @@ class PrediccionesHelper {
                     ];
                 }
                 
+                error_log("💾 Guardando predicción [{$categoria}]: {$mejorPrediccion['texto']}");
+                
                 // Guardar predicción en BD
-                $this->guardarPrediccion($usuario_id, $mejorPrediccion);
+                $guardado = $this->guardarPrediccion($usuario_id, $mejorPrediccion);
+                
+                if ($guardado) {
+                    error_log("✅ Predicción [{$categoria}] guardada");
+                } else {
+                    error_log("❌ Error guardando predicción [{$categoria}]");
+                }
+                
                 $prediccionesGeneradas[] = $mejorPrediccion;
             }
             
+            error_log("✅ Total predicciones generadas: " . count($prediccionesGeneradas));
             return $prediccionesGeneradas;
             
         } catch (Exception $e) {
-            error_log("Error generando predicción: " . $e->getMessage());
+            error_log("❌ Error generando predicción: " . $e->getMessage());
+            error_log("Stack trace: " . $e->getTraceAsString());
             return $this->generarPrediccionesGenericas($usuario_id);
         }
     }
@@ -147,6 +163,18 @@ class PrediccionesHelper {
      * Obtener predicciones no vistas del usuario
      */
     public function obtenerPredicciones($usuario_id) {
+        error_log("🔍 obtenerPredicciones() - Usuario: " . $usuario_id);
+        
+        // Primero, verificar cuántas predicciones vistas tiene el usuario
+        $stmtCount = $this->conexion->prepare("
+            SELECT COUNT(*) as total FROM predicciones_usuarios 
+            WHERE usuario_id = ?
+        ");
+        $stmtCount->execute([$usuario_id]);
+        $totalPredicciones = $stmtCount->fetch(PDO::FETCH_ASSOC)['total'];
+        
+        error_log("📊 Total predicciones en BD: " . $totalPredicciones);
+        
         // Obtener todas las predicciones no vistas
         $stmt = $this->conexion->prepare("
             SELECT * FROM predicciones_usuarios 
@@ -156,9 +184,22 @@ class PrediccionesHelper {
         $stmt->execute([$usuario_id]);
         $predicciones = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
+        error_log("📊 Predicciones no vistas encontradas: " . count($predicciones));
+        
         if (empty($predicciones)) {
+            error_log("⚙️ Generando nuevas predicciones...");
+            
+            // Si ya tiene más de 5 predicciones vistas, limpiar las antiguas
+            if ($totalPredicciones > 0) {
+                error_log("🧹 Limpiando predicciones antiguas...");
+                $stmtDelete = $this->conexion->prepare("DELETE FROM predicciones_usuarios WHERE usuario_id = ?");
+                $stmtDelete->execute([$usuario_id]);
+            }
+            
             // No hay predicciones → generar nuevas (5 en total, una por categoría)
             $nuevasPredicciones = $this->generarPrediccion($usuario_id);
+            
+            error_log("✅ Predicciones generadas: " . count($nuevasPredicciones));
             
             // Convertir a formato de BD
             $stmt = $this->conexion->prepare("
@@ -168,6 +209,8 @@ class PrediccionesHelper {
             ");
             $stmt->execute([$usuario_id]);
             $predicciones = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            error_log("📊 Predicciones obtenidas después de generar: " . count($predicciones));
         }
         
         return $predicciones;

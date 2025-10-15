@@ -2,6 +2,7 @@
 session_start();
 require_once(__DIR__ . '/../models/config.php');
 require_once(__DIR__ . '/../models/conexiones-misticas-helper.php');
+require_once(__DIR__ . '/../models/intereses-helper.php');
 
 if (!isset($_SESSION['id'])) {
     header("Location: ../view/login.php");
@@ -9,7 +10,11 @@ if (!isset($_SESSION['id'])) {
 }
 
 $motor = new ConexionesMisticas($conexion);
+$interesesHelper = new InteresesHelper($conexion);
+
+// Obtener conexiones y mejorarlas con intereses
 $conexiones = $motor->obtenerConexionesUsuario($_SESSION['id'], 50);
+$conexiones = $interesesHelper->mejorarConexionesMisticas($_SESSION['id'], $conexiones);
 ?>
 
 <!DOCTYPE html>
@@ -208,6 +213,26 @@ $conexiones = $motor->obtenerConexionesUsuario($_SESSION['id'], 50);
                 <div class="conexion-descripcion">
                     <?php echo htmlspecialchars($conexion['descripcion']); ?>
                 </div>
+                
+                <?php if (!empty($conexion['intereses_comunes'])): ?>
+                    <div class="intereses-comunes mt-3">
+                        <small class="text-muted d-block mb-2">
+                            <i class="bi bi-star-fill text-warning"></i> Intereses en común:
+                        </small>
+                        <div class="d-flex gap-2 flex-wrap">
+                            <?php foreach ($conexion['intereses_comunes'] as $interes): ?>
+                                <span class="badge bg-primary" style="font-size: 0.85rem;">
+                                    <?php echo $interes['emoji']; ?> <?php echo $interes['nombre']; ?>
+                                </span>
+                            <?php endforeach; ?>
+                        </div>
+                        <?php if ($conexion['compatibilidad'] > 0): ?>
+                            <small class="text-muted d-block mt-2">
+                                <i class="bi bi-heart-fill text-danger"></i> Compatibilidad: <?php echo $conexion['compatibilidad']; ?>%
+                            </small>
+                        <?php endif; ?>
+                    </div>
+                <?php endif; ?>
             </div>
             
             <?php endforeach; ?>
