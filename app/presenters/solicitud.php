@@ -150,17 +150,23 @@ if ($action === 'eliminar') {
             $stmtSeguir->bindParam(':yo', $yo, PDO::PARAM_INT);
             $stmtSeguir->bindParam(':id', $id, PDO::PARAM_INT);
             $stmtSeguir->execute();
+            
+            $seguimientoEliminado = $stmtSeguir->rowCount() > 0;
         } catch (Exception $e) {
-            // Si hay error al eliminar seguimiento, continuar igual
+            $seguimientoEliminado = false;
         }
         
-        $_SESSION['notificaciones'][] = "Has eliminado la amistad con usuario #$id";
-        echo 'Amistad eliminada correctamente.';
+        echo json_encode([
+            'success' => true,
+            'message' => 'Amistad eliminada correctamente.',
+            'seguimiento_eliminado' => $seguimientoEliminado ?? false
+        ]);
     } else {
-        echo 'No se encontró la amistad para eliminar.';
+        echo json_encode([
+            'success' => false,
+            'error' => 'No se encontró la amistad para eliminar.'
+        ]);
     }
-    
-    header('Location: /Converza/app/presenters/perfil.php?id=' . $id);
     exit;
 }
 

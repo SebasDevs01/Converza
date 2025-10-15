@@ -5,7 +5,7 @@ if (session_status() === PHP_SESSION_NONE) {
 require_once(__DIR__.'/../models/config.php');
 require_once(__DIR__.'/../models/bloqueos-helper.php');
 $sessionUserId = isset($_SESSION['id']) ? (int)$_SESSION['id'] : 0;
-$CantidadMostrar = 5;
+$CantidadMostrar = 20; // ⭐ AUMENTADO: Era 5, ahora 20 para ver más publicaciones iniciales
 $compag = isset($_GET['pag']) ? max(1, intval($_GET['pag'])) : 1;
 $offset = ($compag - 1) * $CantidadMostrar;
 // Consulta mejorada para incluir publicaciones de usuarios seguidos Y amigos
@@ -13,10 +13,16 @@ if ($sessionUserId) {
     // Obtener el filtro de bloqueos
     $filtroBloqueos = generarFiltroBloqueos($conexion, $sessionUserId, 'p.usuario');
     
-    // Si el usuario está logueado, mostrar sus publicaciones + las de usuarios que sigue + amigos (excluyendo bloqueados)
+    // ⭐ NUEVA QUERY: Solo muestra la publicación MÁS RECIENTE de cada usuario
     $stmt = $conexion->prepare("
-        SELECT DISTINCT p.*, u.usuario, u.avatar, u.id_use AS usuario_id 
+        SELECT p.*, u.usuario, u.avatar, u.id_use AS usuario_id 
         FROM publicaciones p 
+        INNER JOIN (
+            -- Subquery: Obtener el ID de la publicación más reciente de cada usuario
+            SELECT usuario, MAX(id_pub) as max_id_pub
+            FROM publicaciones
+            GROUP BY usuario
+        ) latest ON p.usuario = latest.usuario AND p.id_pub = latest.max_id_pub
         JOIN usuarios u ON p.usuario = u.id_use 
         WHERE ($filtroBloqueos) AND (
             p.usuario = :user_id 
@@ -46,8 +52,19 @@ if ($sessionUserId) {
     $stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
     $stmt->bindParam(':limit', $CantidadMostrar, PDO::PARAM_INT);
 } else {
-    // Si no está logueado, mostrar todas las publicaciones públicas
-    $stmt = $conexion->prepare("SELECT p.*, u.usuario, u.avatar, u.id_use AS usuario_id FROM publicaciones p JOIN usuarios u ON p.usuario = u.id_use ORDER BY p.id_pub DESC LIMIT :offset, :limit");
+    // Si no está logueado, mostrar la publicación más reciente de cada usuario
+    $stmt = $conexion->prepare("
+        SELECT p.*, u.usuario, u.avatar, u.id_use AS usuario_id 
+        FROM publicaciones p 
+        INNER JOIN (
+            SELECT usuario, MAX(id_pub) as max_id_pub
+            FROM publicaciones
+            GROUP BY usuario
+        ) latest ON p.usuario = latest.usuario AND p.id_pub = latest.max_id_pub
+        JOIN usuarios u ON p.usuario = u.id_use 
+        ORDER BY p.id_pub DESC 
+        LIMIT :offset, :limit
+    ");
     $stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
     $stmt->bindParam(':limit', $CantidadMostrar, PDO::PARAM_INT);
 }
@@ -57,7 +74,33 @@ $publicaciones = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 <!-- Estilos GLOBALES para tooltips y menús - SIEMPRE se cargan -->
 <style>
-    /* CSS Version: 2.1 - TOOLTIP GLOBAL FIX - <?php echo time(); ?> */
+    /* CSS Version: 2.2 - FIX OVERFLOW PUBLICACIONES - <?php echo time(); ?> */
+    
+    /* ⭐ FIX: Evitar que las publicaciones se salgan del contenedor */
+    .card {
+        max-width: 100% !important;
+        overflow: hidden !important;
+        word-wrap: break-word !important;
+        word-break: break-word !important;
+    }
+    
+    .card-body {
+        max-width: 100% !important;
+        overflow-wrap: break-word !important;
+    }
+    
+    .card-body p, .card-body div {
+        max-width: 100% !important;
+        overflow-wrap: break-word !important;
+        word-break: break-word !important;
+    }
+    
+    /* Imágenes y videos responsivos */
+    .card img, .card video {
+        max-width: 100% !important;
+        height: auto !important;
+    }
+    
     .custom-menu-btn:focus {
         outline: none;
         box-shadow: 0 0 0 2px #0d6efd33;
@@ -340,8 +383,8 @@ $publicaciones = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             
                             <!-- Menú de reacciones -->
                             <?php if (!$isUserBlocked): ?>
-                            <div class="reactions-popup" style="display: none; position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); margin-bottom: 10px; background: white; border: 1px solid #ccc; border-radius: 25px; padding: 5px 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 1000;">
-                                <div class="d-flex gap-5px">
+                            <div class="reactions-popup" style="display: none; position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); margin-bottom: 10px; background: white; border: 1px solid #ccc; border-radius: 25px; padding: 8px 18px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 1000; white-space: nowrap; min-width: 310px;">
+                                <div class="d-flex gap-2 align-items-center" style="justify-content: center;">
                                     <span class="reaction-btn" data-reaction="me_gusta" data-post="<?php echo (int)$pub['id_pub']; ?>" title="Me gusta">👍</span>
                                     <span class="reaction-btn" data-reaction="me_encanta" data-post="<?php echo (int)$pub['id_pub']; ?>" title="Me encanta">❤️</span>
                                     <span class="reaction-btn" data-reaction="me_divierte" data-post="<?php echo (int)$pub['id_pub']; ?>" title="Me divierte">😂</span>
@@ -832,12 +875,10 @@ document.addEventListener('DOMContentLoaded', function() {
                         counterElement.setAttribute('data-tooltip', newTooltip);
                         console.log('✅ Tooltip actualizado inmediatamente:', newTooltip);
                         
-                        // DESPUÉS recargar desde la API para sincronizar (por si acaso)
+                        // DESPUÉS recargar desde la API para sincronizar (INSTANTÁNEO)
                         if (newCount > 0 && typeof loadReactionsData === 'function') {
-                            setTimeout(() => {
-                                console.log('🔄 Sincronizando con API después de actualización local...');
-                                loadReactionsData(pubId);
-                            }, 1000);
+                            console.log('⚡ Sincronizando con API instantáneamente...');
+                            loadReactionsData(pubId);
                         } else if (typeof loadReactionsData === 'undefined') {
                             console.warn('⚠️ loadReactionsData no está definida, saltando sincronización con API');
                         }
@@ -869,14 +910,20 @@ document.addEventListener('DOMContentLoaded', function() {
                         }
                     }
                     
-                    // 🔔 Verificar notificaciones de karma después (popup animado)
-                    if (typeof window.verificarKarmaPendiente === 'function') {
-                        setTimeout(() => {
-                            console.log('🔔 Verificando notificación de karma...');
-                            window.verificarKarmaPendiente();
-                        }, 100); // Solo 100ms para que sea casi instantáneo
+                    // ⚡ PROCESAR KARMA INSTANTÁNEO (sin fetch adicionales)
+                    if (typeof window.procesarKarmaInstantaneo === 'function' && data.karma_actualizado && data.karma_notificacion) {
+                        console.log('⚡ Procesando karma instantáneamente (sin API)...');
+                        console.log('📊 karma_actualizado:', data.karma_actualizado);
+                        console.log('📊 karma_notificacion:', data.karma_notificacion);
+                        const puntosGanados = data.karma_notificacion.puntos || 0;
+                        console.log('🎯 Puntos a mostrar en badge:', puntosGanados);
+                        window.procesarKarmaInstantaneo(data.karma_actualizado, puntosGanados);
+                    } else if (typeof window.verificarKarmaPendiente === 'function') {
+                        // Fallback: método tradicional (con fetch)
+                        console.log('⚡ Verificando notificación de karma (modo tradicional)...');
+                        window.verificarKarmaPendiente();
                     } else {
-                        console.warn('⚠️ verificarKarmaPendiente no está definida');
+                        console.warn('⚠️ No hay funciones de karma disponibles');
                     }
                     
                 } else {
@@ -1279,7 +1326,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (data.success) {
                     currentUserReaction = data.tipo_reaccion;
                     updateLikeButton(likeBtn, currentUserReaction);
-                    setTimeout(() => loadReactionsData(postId), 100);
+                    loadReactionsData(postId); // ⚡ INSTANTÁNEO (sin setTimeout)
                     
                     // 🚀 ACTUALIZACIÓN INSTANTÁNEA DE KARMA (sin petición adicional)
                     if (data.karma_actualizado) {
@@ -1305,12 +1352,18 @@ document.addEventListener('DOMContentLoaded', function() {
                         }
                     }
                     
-                    // 🔔 Verificar notificaciones de karma después (popup animado)
-                    if (typeof window.verificarKarmaPendiente === 'function') {
-                        setTimeout(() => {
-                            console.log('🔔 Verificando notificación de karma...');
-                            window.verificarKarmaPendiente();
-                        }, 150);
+                    // ⚡ PROCESAR KARMA INSTANTÁNEO (sin fetch adicionales)
+                    if (typeof window.procesarKarmaInstantaneo === 'function' && data.karma_actualizado && data.karma_notificacion) {
+                        console.log('⚡ Procesando karma de reacción instantáneamente (sin API)...');
+                        console.log('📊 karma_actualizado:', data.karma_actualizado);
+                        console.log('📊 karma_notificacion:', data.karma_notificacion);
+                        const puntosGanados = data.karma_notificacion.puntos || 0;
+                        console.log('🎯 Puntos a mostrar en badge:', puntosGanados);
+                        window.procesarKarmaInstantaneo(data.karma_actualizado, puntosGanados);
+                    } else if (typeof window.verificarKarmaPendiente === 'function') {
+                        // Fallback: método tradicional (con fetch)
+                        console.log('⚡ Verificando notificación de karma (modo tradicional)...');
+                        window.verificarKarmaPendiente();
                     }
                 } else {
                     console.error('Error del servidor:', data.message);
@@ -1464,16 +1517,17 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 .reaction-btn {
-    font-size: 24px;
+    font-size: 22px;
     cursor: pointer;
-    padding: 8px;
+    padding: 6px;
     border-radius: 50%;
     transition: all 0.2s ease;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 40px;
-    height: 40px;
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
 }
 
 .reaction-btn:hover {
@@ -1552,5 +1606,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 }
 </style>
+
+<!-- 🎯 Sistema de Karma en Tiempo Real -->
+<script src="/Converza/public/js/karma-system.js"></script>
 
 

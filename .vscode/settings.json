@@ -1,0 +1,16 @@
+{
+  // Configuración específica para el proyecto Converza
+  // Deshabilita errores de linter en archivos HTML con PHP embebido
+  
+  "html.validate.scripts": false,
+  
+  "files.associations": {
+    "**/assistant-widget.html": "php"
+  },
+  
+  "files.exclude": {
+    "**/.git": true,
+    "**/node_modules": true,
+    "**/vendor": true
+  }
+}

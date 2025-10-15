@@ -1,0 +1,52 @@
+{
+  "intents": [
+    {
+      "intent": "friends_add",
+      "keywords": ["amigos", "agregar", "añadir", "solicitud", "enviar"],
+      "questions": [
+        "¿Cómo agrego amigos?",
+        "¿Cómo envío solicitud de amistad?",
+        "¿Cómo añado a alguien?"
+      ],
+      "answer": "Para agregar amigos en Converza:\n\n1️⃣ **Ve al perfil** del usuario que quieres agregar\n2️⃣ **Haz clic** en el botón 'Agregar amigo' 👥\n3️⃣ **Espera** a que acepte tu solicitud\n\n💰 **Recompensa**: +5 puntos de karma por amistad\n\n💡 **Tip**: Puedes ver tus solicitudes pendientes en el menú de amigos.",
+      "links": []
+    },
+    {
+      "intent": "friends_benefits",
+      "keywords": ["beneficios", "ventajas", "amigos", "para", "qué", "sirve"],
+      "questions": [
+        "¿Para qué sirven los amigos?",
+        "¿Qué beneficios tiene tener amigos?"
+      ],
+      "answer": "Tener amigos en Converza te da varios beneficios:\n\n💰 **Karma**: +5 puntos por cada amistad\n👀 **Visibilidad**: Ves sus publicaciones primero en el feed\n🔔 **Notificaciones**: Te enteras cuando publican algo nuevo\n💬 **Mensajes**: Puedes enviarles mensajes privados\n✨ **Conexiones**: Mayor probabilidad de conexiones místicas\n\nActualmente tienes {karma} puntos de karma.",
+      "links": []
+    },
+    {
+      "intent": "mystic_connections",
+      "keywords": ["conexiones", "místicas", "coincidencias", "compatibilidad"],
+      "questions": [
+        "¿Qué son las conexiones místicas?",
+        "¿Cómo funcionan las conexiones místicas?",
+        "¿Qué es coincidence alerts?"
+      ],
+      "answer": "Las **Conexiones Místicas** detectan compatibilidad entre usuarios:\n\n🔮 **Cómo funciona**:\n• Analiza tus interacciones (reacciones, comentarios, gustos)\n• Compara con otros usuarios\n• Si hay +80% de coincidencia → ¡Conexión Mística!\n\n✨ **Tipos de conexiones**:\n• 🎭 **Alma Gemela**: Gustos idénticos (95%+)\n• 🌟 **Espíritu Afín**: Muy similar (85-94%)\n• ⚡ **Energía Compatible**: Compatible (80-84%)\n\n🎁 **Recompensas**: +10 a +20 puntos de karma\n\n💡 Las conexiones aparecen automáticamente en tu feed.",
+      "links": [
+        {
+          "text": "Ver mis conexiones",
+          "url": "/Converza/app/presenters/conexiones_misticas.php"
+        }
+      ]
+    },
+    {
+      "intent": "block_user",
+      "keywords": ["bloquear", "bloqueo", "reportar", "usuario", "molesto"],
+      "questions": [
+        "¿Cómo bloqueo a alguien?",
+        "¿Puedo bloquear usuarios?",
+        "¿Cómo reporto a un usuario?"
+      ],
+      "answer": "Para bloquear a un usuario molesto:\n\n1️⃣ Ve a su **perfil**\n2️⃣ Haz clic en el **menú** (⋮)\n3️⃣ Selecciona **'Bloquear usuario'**\n\n⚠️ **Efectos del bloqueo**:\n• No verás sus publicaciones\n• No podrá enviarte mensajes\n• No podrá ver tu perfil\n• Se revoca la amistad (si existía)\n\n🔓 **Desbloquear**: Mismo proceso, opción 'Desbloquear'\n\n💡 Si el usuario es ofensivo, también puedes reportarlo.",
+      "links": []
+    }
+  ]
+}

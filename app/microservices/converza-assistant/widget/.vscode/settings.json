@@ -1,0 +1,16 @@
+{
+  // Deshabilitar validación de JavaScript en archivos HTML
+  // porque contienen código PHP que genera JavaScript válido en runtime
+  "javascript.validate.enable": false,
+  
+  // Tratar assistant-widget.html como PHP para evitar errores de linter
+  "files.associations": {
+    "assistant-widget.html": "php"
+  },
+  
+  // Deshabilitar validación de scripts embebidos en HTML
+  "html.validate.scripts": false,
+  
+  // Suprimir errores específicos de TypeScript en este directorio
+  "typescript.validate.enable": false
+}

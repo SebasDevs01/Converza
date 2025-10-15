@@ -1,0 +1,91 @@
+<!-- 🤖 CONVERZA ASSISTANT WIDGET -->
+<div id="converza-assistant-widget" class="assistant-widget">
+    <!-- Datos del usuario (desde PHP) -->
+    <script>
+        /* eslint-disable */
+        // @ts-nocheck
+        // Nota: Este código PHP genera JavaScript válido en tiempo de ejecución.
+        // Los errores de linter son esperados y pueden ignorarse.
+        window.ASSISTANT_USER_DATA = {
+            // prettier-ignore
+            id: <?php echo $id_usuario_widget; ?>,
+            // prettier-ignore
+            nombre: "<?php echo htmlspecialchars($nombre_usuario_widget, ENT_QUOTES); ?>",
+            // prettier-ignore
+            foto: "<?php echo htmlspecialchars($foto_perfil_widget, ENT_QUOTES); ?>"
+        };
+        /* eslint-enable */
+    </script>
+    
+    <!-- Botón flotante con ícono de Conexiones Místicas ✨ -->
+    <button id="assistant-toggle-btn" class="assistant-toggle-btn" title="Asistente de Converza">
+        <i class="bi bi-stars"></i>
+        <span class="assistant-badge" id="assistant-badge">!</span>
+    </button>
+    
+    <!-- Panel de chat -->
+    <div id="assistant-chat-panel" class="assistant-chat-panel" style="display: none;">
+        <!-- Header -->
+        <div class="assistant-header">
+            <div class="assistant-header-left">
+                <div class="assistant-avatar">
+                    <i class="bi bi-stars"></i>
+                </div>
+                <div>
+                    <div class="assistant-name">Asistente Converza</div>
+                    <div class="assistant-status">
+                        <span class="status-dot"></span> En línea
+                    </div>
+                </div>
+            </div>
+            <button class="assistant-close-btn" id="assistant-close-btn">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+        
+        <!-- Mensajes -->
+        <div id="assistant-messages" class="assistant-messages">
+            <!-- Mensaje de bienvenida (se cargará por JavaScript) -->
+        </div>
+        
+        <!-- Sugerencias de preguntas -->
+        <div id="assistant-suggestions" class="assistant-suggestions">
+            <button class="suggestion-btn" data-question="¿Cómo gano karma?">
+                <i class="bi bi-lightbulb"></i> ¿Cómo gano karma?
+            </button>
+            <button class="suggestion-btn" data-question="¿Qué son las reacciones?">
+                <i class="bi bi-emoji-smile"></i> ¿Qué son las reacciones?
+            </button>
+            <button class="suggestion-btn" data-question="¿Qué nivel soy?">
+                <i class="bi bi-award"></i> ¿Qué nivel soy?
+            </button>
+        </div>
+        
+        <!-- Input -->
+        <div class="assistant-input-container">
+            <textarea 
+                id="assistant-input" 
+                class="assistant-input" 
+                placeholder="Escribe tu pregunta..."
+                rows="1"
+                maxlength="500"
+            ></textarea>
+            <button id="assistant-send-btn" class="assistant-send-btn" title="Enviar">
+                <i class="bi bi-send-fill"></i>
+            </button>
+        </div>
+        
+        <!-- Typing indicator -->
+        <div id="assistant-typing" class="assistant-typing" style="display: none;">
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Estilos del Widget -->
+<link rel="stylesheet" href="/Converza/app/microservices/converza-assistant/widget/assistant-widget.css">
+
+<!-- Script del Widget -->
+<script src="/Converza/app/microservices/converza-assistant/widget/assistant-widget.js"></script>

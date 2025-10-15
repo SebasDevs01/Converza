@@ -139,6 +139,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 
                 // 🚀 OPTIMIZACIÓN: Incluir karma actualizado en la respuesta
                 $karmaActualizado = null;
+                $karmaNotificacion = null;
+                
                 if (isset($_SESSION['id'])) {
                     try {
                         require_once(__DIR__.'/../models/karma-social-helper.php');
@@ -151,6 +153,285 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             'nivel_titulo' => $karmaData['nivel_data']['titulo'] ?? $karmaData['nivel'],
                             'nivel_emoji' => $karmaData['nivel_emoji']
                         ];
+                        
+                        // 🧠 SISTEMA INTELIGENTE DE ANÁLISIS SEMÁNTICO Y DE TONO
+                        $puntosGanados = 0;
+                        $tipoNotificacion = 'neutro';
+                        $mensajeNotificacion = 'Comentario publicado';
+                        $otorgarKarma = false;
+                        $categoria = 'neutro';
+                        
+                        // Analizar contenido del comentario
+                        $comentarioLower = mb_strtolower($comentario, 'UTF-8');
+                        $comentarioOriginal = $comentario; // Mantener original para análisis
+                        
+                        // ═══════════════════════════════════════════════════════════
+                        // 1️⃣ ANÁLISIS DE CONTENIDO OBSCENO/MORBOSO (Mayor prioridad)
+                        // ═══════════════════════════════════════════════════════════
+                        $palabrasObscenas = [
+                            // Contenido sexual explícito
+                            'sexo', 'porno', 'xxx', 'desnud', 'sexual', 'erótic', 'cachond',
+                            // Insultos fuertes
+                            'puta', 'puto', 'mierda', 'coño', 'verga', 'carajo', 'chingad',
+                            'pendejo', 'idiota', 'imbécil', 'estúpido', 'gilipollas',
+                            // Contenido morboso
+                            'morbo', 'morbos', 'pervert', 'enferm', 'asco', 'asqueros',
+                            // Drogas/violencia
+                            'drogas', 'matar', 'muerto', 'sangre', 'violencia', 'golpear'
+                        ];
+                        
+                        foreach ($palabrasObscenas as $palabra) {
+                            if (mb_strpos($comentarioLower, $palabra) !== false) {
+                                $puntosGanados = -10;
+                                $otorgarKarma = true;
+                                $tipoNotificacion = 'negativo';
+                                $categoria = 'obsceno/morboso';
+                                $mensajeNotificacion = '⚠️ Contenido inapropiado detectado';
+                                break;
+                            }
+                        }
+                        
+                        // ═══════════════════════════════════════════════════════════
+                        // 2️⃣ ANÁLISIS DE TONO OFENSIVO/AGRESIVO
+                        // ═══════════════════════════════════════════════════════════
+                        if ($puntosGanados === 0) { // Solo si no es obsceno
+                            $palabrasOfensivas = [
+                                // Insultos directos
+                                'odio', 'horrible', 'basura', 'pésimo', 'malo', 'fatal',
+                                // Agresión
+                                'cállate', 'callate', 'idiota', 'tonto', 'estúpid', 'imbécil',
+                                // Desprecio
+                                'patético', 'ridículo', 'vergüenza', 'vergonzos', 'lamentable',
+                                // Amenazas
+                                'vas a ver', 'te vas a arrepentir', 'cuidado'
+                            ];
+                            
+                            foreach ($palabrasOfensivas as $palabra) {
+                                if (mb_strpos($comentarioLower, $palabra) !== false) {
+                                    $puntosGanados = -7;
+                                    $otorgarKarma = true;
+                                    $tipoNotificacion = 'negativo';
+                                    $categoria = 'ofensivo';
+                                    $mensajeNotificacion = '⛔ Comentario ofensivo detectado';
+                                    break;
+                                }
+                            }
+                        }
+                        
+                        // ═══════════════════════════════════════════════════════════
+                        // 3️⃣ ANÁLISIS DE NEGATIVIDAD SUAVE
+                        // ═══════════════════════════════════════════════════════════
+                        if ($puntosGanados === 0) { // Solo si no es ofensivo ni obsceno
+                            $palabrasNegativas = [
+                                'no me gusta', 'aburrido', 'feo', 'desagradable', 'molesto',
+                                'fastidioso', 'irritante', 'tedioso', 'cansado', 'pesado',
+                                'decepcion', 'mal hecho', 'podrían mejorar', 'no funciona',
+                                'error', 'problema', 'falla'
+                            ];
+                            
+                            foreach ($palabrasNegativas as $palabra) {
+                                if (mb_strpos($comentarioLower, $palabra) !== false) {
+                                    $puntosGanados = -3;
+                                    $otorgarKarma = true;
+                                    $tipoNotificacion = 'negativo';
+                                    $categoria = 'crítica negativa';
+                                    $mensajeNotificacion = '😕 Comentario negativo';
+                                    break;
+                                }
+                            }
+                        }
+                        
+                        // ═══════════════════════════════════════════════════════════
+                        // 4️⃣ ANÁLISIS DE POSITIVIDAD EXTREMA (Máximo entusiasmo + VARIACIONES)
+                        // ═══════════════════════════════════════════════════════════
+                        if ($puntosGanados === 0) {
+                            $palabrasEntusiastas = [
+                                'me encanta', 'encanta', 'amo esto', 'amo', 'lo mejor', 'increíble', 'increible',
+                                'espectacular', 'maravilloso', 'extraordinario', 'fantástico', 'fantastico',
+                                'brutal', 'épico', 'epico', 'alucinante', 'impresionante',
+                                'wow', 'guau', 'genial al máximo', 'genial al maximo',
+                                'perfecto', 'excelente', 'magnífico', 'magnifico',
+                                'hermoso', 'hermosa', 'bellísimo', 'bellisimo', 'precioso', 'preciosa',
+                                'súper bueno', 'super bueno', 'superbueno', 'lo máximo', 'lo maximo',
+                                'la mejor', 'el mejor', 'la más', 'la mas', 'el más', 'el mas',
+                                'te amo', 'te adoro', 'eres increíble', 'eres increible'
+                            ];
+                            
+                            foreach ($palabrasEntusiastas as $palabra) {
+                                if (mb_strpos($comentarioLower, $palabra) !== false) {
+                                    $puntosGanados = 12;
+                                    $otorgarKarma = true;
+                                    $tipoNotificacion = 'positivo';
+                                    $categoria = 'muy positivo';
+                                    $mensajeNotificacion = '⭐ ¡Comentario muy positivo!';
+                                    break;
+                                }
+                            }
+                        }
+                        
+                        // ═══════════════════════════════════════════════════════════
+                        // 5️⃣ ANÁLISIS DE POSITIVIDAD MODERADA (CON VARIACIONES Y TYPOS)
+                        // ═══════════════════════════════════════════════════════════
+                        if ($puntosGanados === 0) {
+                            $palabrasPositivas = [
+                                'me gusta', 'me gust', 'gusta', 'gusto', // Incluye typos comunes
+                                'bueno', 'bien', 'genial', 'cool', 'nice',
+                                'interesante', 'útil', 'util', 'agradable', 'bonito', 'lindo',
+                                'gracias', 'aprecio', 'valoro', 'admiro', 'felicito',
+                                'buen trabajo', 'bien hecho', 'sigue así', 'sigue asi', 'continúa', 'continua',
+                                'apoyo', 'comparto', 'de acuerdo', 'concuerdo',
+                                'chido', 'chévere', 'chevere', 'bacano', 'piola' // Variaciones regionales
+                            ];
+                            
+                            foreach ($palabrasPositivas as $palabra) {
+                                if (mb_strpos($comentarioLower, $palabra) !== false) {
+                                    $puntosGanados = 8;
+                                    $otorgarKarma = true;
+                                    $tipoNotificacion = 'positivo';
+                                    $categoria = 'positivo';
+                                    $mensajeNotificacion = '😊 Comentario positivo';
+                                    break;
+                                }
+                            }
+                        }
+                        
+                        // ═══════════════════════════════════════════════════════════
+                        // 6️⃣ ANÁLISIS DE EMOJIS (ACUMULABLE - NO hace break)
+                        // ═══════════════════════════════════════════════════════════
+                        // Emojis muy positivos (acumulables con categoría base)
+                        $emojisPositivos = ['😍', '🥰', '❤️', '💖', '💕', '💗', '🔥', '✨', '⭐', '🌟', '👏', '🎉', '🙌'];
+                        $puntosEmojisPositivos = 0;
+                        foreach ($emojisPositivos as $emoji) {
+                            // Contar cuántas veces aparece cada emoji
+                            $count = mb_substr_count($comentarioOriginal, $emoji);
+                            if ($count > 0) {
+                                $puntosEmojisPositivos += ($count * 6); // 6 puntos por cada emoji positivo
+                                $otorgarKarma = true;
+                                $tipoNotificacion = 'positivo';
+                                // Solo cambiar categoría si aún es neutro
+                                if ($puntosGanados === 0 && $categoria === 'neutro') {
+                                    $categoria = 'emoji positivo';
+                                    $mensajeNotificacion = '💖 Emoji positivo detectado';
+                                }
+                                $puntosEmoji = $count * 6;
+                                error_log("✨ Emoji positivo detectado: {$emoji} (x{$count}) = +{$puntosEmoji} pts");
+                            }
+                        }
+                        $puntosGanados += $puntosEmojisPositivos;
+                        if ($puntosEmojisPositivos > 0) {
+                            error_log("✨ Total puntos emojis positivos: +{$puntosEmojisPositivos} | Puntos acumulados: {$puntosGanados}");
+                        }
+                        
+                        // Emojis negativos (acumulables)
+                        if ($puntosGanados === 0) { // Solo si no hay puntos positivos previos
+                            $emojisNegativos = ['😠', '😡', '🤬', '💩', '👎', '😤', '😒', '🙄'];
+                            $puntosEmojisNegativos = 0;
+                            foreach ($emojisNegativos as $emoji) {
+                                $count = mb_substr_count($comentarioOriginal, $emoji);
+                                if ($count > 0) {
+                                    $puntosEmojisNegativos += ($count * 4); // 4 puntos negativos por cada emoji
+                                    $otorgarKarma = true;
+                                    $tipoNotificacion = 'negativo';
+                                    if ($categoria === 'neutro') {
+                                        $categoria = 'emoji negativo';
+                                        $mensajeNotificacion = '😤 Emoji negativo detectado';
+                                    }
+                                }
+                            }
+                            $puntosGanados -= $puntosEmojisNegativos;
+                        }
+                        
+                        // ═══════════════════════════════════════════════════════════
+                        // 7️⃣ BONIFICACIONES ADICIONALES
+                        // ═══════════════════════════════════════════════════════════
+                        
+                        // Bonus por comentario largo y detallado (solo si es positivo)
+                        if ($puntosGanados > 0 && strlen($comentario) > 150) {
+                            $puntosGanados += 3;
+                            $mensajeNotificacion .= ' y detallado (+3)';
+                        }
+                        
+                        // Bonus por uso de signos de exclamación múltiples (entusiasmo)
+                        if ($puntosGanados > 0 && (substr_count($comentario, '!') >= 2 || substr_count($comentario, '!!!') >= 1)) {
+                            $puntosGanados += 2;
+                            $mensajeNotificacion .= ' ¡Con entusiasmo! (+2)';
+                        }
+                        
+                        // Penalización adicional por MAYÚSCULAS EXCESIVAS (gritar)
+                        $palabrasMayusculas = preg_match_all('/[A-ZÁÉÍÓÚÑ]{4,}/', $comentario);
+                        if ($palabrasMayusculas > 0 && strlen($comentario) > 20) {
+                            $puntosGanados -= 2;
+                            $mensajeNotificacion .= ' (MAYÚSCULAS -2)';
+                        }
+                        
+                        // ═══════════════════════════════════════════════════════════
+                        // 8️⃣ ANÁLISIS DE PREGUNTAS (Engagement constructivo)
+                        // ═══════════════════════════════════════════════════════════
+                        if ($puntosGanados === 0) {
+                            $patronesPreguntas = ['¿', '?', 'cómo', 'por qué', 'cuál', 'cuánd', 'dónde', 'quién'];
+                            $esPregunta = false;
+                            foreach ($patronesPreguntas as $patron) {
+                                if (mb_strpos($comentarioLower, $patron) !== false) {
+                                    $esPregunta = true;
+                                    break;
+                                }
+                            }
+                            
+                            if ($esPregunta && strlen($comentario) > 10) {
+                                $puntosGanados = 4;
+                                $otorgarKarma = true;
+                                $tipoNotificacion = 'positivo';
+                                $categoria = 'pregunta constructiva';
+                                $mensajeNotificacion = '❓ Pregunta constructiva';
+                            }
+                        }
+                        
+                        // ═══════════════════════════════════════════════════════════
+                        // 9️⃣ CONSTRUCCIÓN DEL MENSAJE FINAL
+                        // ═══════════════════════════════════════════════════════════
+                        
+                        error_log("🎯 PUNTOS FINALES: {$puntosGanados} | Categoría: {$categoria} | Comentario: " . mb_substr($comentario, 0, 50));
+                        
+                        $karmaNotificacion = [
+                            'mostrar' => $otorgarKarma,
+                            'puntos' => $puntosGanados,
+                            'tipo' => $tipoNotificacion,
+                            'mensaje' => $mensajeNotificacion,
+                            'categoria' => $categoria,
+                            'analisis' => [
+                                'longitud' => strlen($comentario),
+                                'palabras' => str_word_count($comentarioLower),
+                                'tono' => $categoria
+                            ]
+                        ];
+                        
+                        // ═══════════════════════════════════════════════════════════
+                        // 🔥 ACTUALIZACIÓN CRÍTICA: PERSISTIR KARMA EN BASE DE DATOS
+                        // ═══════════════════════════════════════════════════════════
+                        if ($otorgarKarma && $puntosGanados != 0) {
+                            try {
+                                $stmtUpdateKarma = $conexion->prepare('UPDATE usuarios SET karma = karma + ? WHERE id_use = ?');
+                                $stmtUpdateKarma->execute([$puntosGanados, $_SESSION['id']]);
+                                
+                                // 🔔 GUARDAR PUNTOS PENDIENTES EN SESIÓN para notificación
+                                $_SESSION['karma_pendiente'] = $puntosGanados;
+                                
+                                // ♻️ OBTENER KARMA ACTUALIZADO después de la modificación
+                                $karmaData = $karmaHelper->obtenerKarmaUsuario($_SESSION['id']);
+                                $karmaActualizado = [
+                                    'karma' => $karmaData['karma_total'],
+                                    'nivel' => $karmaData['nivel_data']['nivel'] ?? 1,
+                                    'nivel_titulo' => $karmaData['nivel_data']['titulo'] ?? $karmaData['nivel'],
+                                    'nivel_emoji' => $karmaData['nivel_emoji']
+                                ];
+                                
+                                error_log("✅ Karma actualizado: Usuario {$_SESSION['id']} | Puntos: {$puntosGanados} | Categoría: {$categoria} | Karma total: {$karmaData['karma_total']}");
+                                
+                            } catch (PDOException $e) {
+                                error_log("❌ Error actualizando karma: " . $e->getMessage());
+                            }
+                        }
+                        
                     } catch (Exception $e) {
                         error_log("Error obteniendo karma actualizado: " . $e->getMessage());
                     }
@@ -166,7 +447,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         'comentario' => htmlspecialchars($comentario),
                         'fecha' => date('Y-m-d H:i:s')
                     ],
-                    'karma_actualizado' => $karmaActualizado // 🚀 Karma incluido en la respuesta
+                    'karma_actualizado' => $karmaActualizado, // 🚀 Karma incluido en la respuesta
+                    'karma_notificacion' => $karmaNotificacion // 🎯 Notificación de karma
                 ];
 
             } catch (PDOException $e) {

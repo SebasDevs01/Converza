@@ -8,6 +8,7 @@
 # PHP Cache Control y Configuración de Sesiones
 <IfModule mod_php.c>
     php_value session.cache_limiter nocache
-    # Configurar ruta de sesiones personalizada
-    php_value session.save_path "C:/xampp/htdocs/Converza/sessions"
+    # ⭐ FIX: Usar carpeta temporal por defecto de PHP (tiene permisos correctos)
+    # php_value session.save_path "C:/xampp/htdocs/Converza/sessions"
+    php_value session.save_path "C:/xampp/tmp"
 </IfModule>

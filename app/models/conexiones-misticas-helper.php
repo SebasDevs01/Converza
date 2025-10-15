@@ -28,6 +28,84 @@ class ConexionesMisticas {
     }
     
     /**
+     * 🚀 GENERACIÓN AUTOMÁTICA DE CONEXIONES PARA UN USUARIO ESPECÍFICO
+     * Se ejecuta automáticamente cuando el usuario carga la página
+     * Solo genera si no tiene conexiones o si han pasado más de 6 horas
+     */
+    public function generarConexionesAutomaticas($usuario_id) {
+        try {
+            // Verificar si necesita actualización
+            $necesitaActualizar = $this->necesitaActualizacion($usuario_id);
+            
+            if (!$necesitaActualizar) {
+                return false; // Ya tiene conexiones recientes
+            }
+            
+            // Generar conexiones solo para este usuario (rápido y eficiente)
+            $this->detectarGustosCompartidosUsuario($usuario_id);
+            $this->detectarInteresesComunesUsuario($usuario_id);
+            $this->detectarAmigosDeAmigosUsuario($usuario_id);
+            $this->detectarHorariosCoincidentesUsuario($usuario_id);
+            
+            // Actualizar timestamp de última generación
+            $this->marcarActualizacion($usuario_id);
+            
+            return true;
+        } catch (Exception $e) {
+            error_log("Error generando conexiones para usuario {$usuario_id}: " . $e->getMessage());
+            return false;
+        }
+    }
+    
+    /**
+     * Verifica si el usuario necesita actualización de conexiones
+     */
+    private function necesitaActualizacion($usuario_id) {
+        // Verificar última actualización
+        $stmt = $this->conexion->prepare("
+            SELECT MAX(fecha_deteccion) as ultima
+            FROM conexiones_misticas
+            WHERE usuario1_id = ? OR usuario2_id = ?
+        ");
+        $stmt->execute([$usuario_id, $usuario_id]);
+        $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        // Si no tiene conexiones, necesita actualización
+        if (!$resultado['ultima']) {
+            return true;
+        }
+        
+        // Si han pasado más de 6 horas, necesita actualización
+        $ultima = strtotime($resultado['ultima']);
+        $ahora = time();
+        $diferencia = ($ahora - $ultima) / 3600; // Horas
+        
+        return $diferencia >= 6;
+    }
+    
+    /**
+     * Marca la actualización en el sistema
+     */
+    private function marcarActualizacion($usuario_id) {
+        $stmt = $this->conexion->prepare("
+            INSERT INTO conexiones_misticas_contador 
+            (usuario_id, ultima_actualizacion, total_conexiones, nuevas_conexiones)
+            SELECT 
+                ?,
+                NOW(),
+                COUNT(*),
+                COUNT(*)
+            FROM conexiones_misticas
+            WHERE usuario1_id = ? OR usuario2_id = ?
+            ON DUPLICATE KEY UPDATE
+                ultima_actualizacion = NOW(),
+                total_conexiones = VALUES(total_conexiones),
+                nuevas_conexiones = VALUES(nuevas_conexiones)
+        ");
+        $stmt->execute([$usuario_id, $usuario_id, $usuario_id]);
+    }
+    
+    /**
      * Actualizar conexiones automáticamente (para cron job)
      */
     public function actualizarConexionesAutomatico() {
@@ -374,5 +452,159 @@ class ConexionesMisticas {
         $stmt->execute([$usuarioId, $usuarioId, $usuarioId, $usuarioId, $usuarioId, $limit]);
         
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+    
+    // ========================================
+    // 🚀 MÉTODOS OPTIMIZADOS PARA UN SOLO USUARIO
+    // ========================================
+    
+    /**
+     * Detecta gustos compartidos para un usuario específico
+     */
+    private function detectarGustosCompartidosUsuario($usuario_id) {
+        $sql = "
+            SELECT 
+                r2.id_usuario as otro_usuario,
+                COUNT(DISTINCT r1.id_publicacion) as publicaciones_comunes
+            FROM reacciones r1
+            JOIN reacciones r2 ON r1.id_publicacion = r2.id_publicacion
+            WHERE r1.id_usuario = ? 
+            AND r2.id_usuario != ?
+            AND r2.id_usuario NOT IN (
+                SELECT usuario2_id FROM conexiones_misticas 
+                WHERE usuario1_id = ? AND tipo_conexion = 'gustos_compartidos'
+            )
+            GROUP BY r2.id_usuario
+            HAVING publicaciones_comunes >= 2
+        ";
+        
+        $stmt = $this->conexion->prepare($sql);
+        $stmt->execute([$usuario_id, $usuario_id, $usuario_id]);
+        $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        foreach ($resultados as $row) {
+            $this->guardarConexion(
+                $usuario_id,
+                $row['otro_usuario'],
+                'gustos_compartidos',
+                "¡Ambos reaccionaron a {$row['publicaciones_comunes']} publicaciones similares! 💫",
+                min(100, $row['publicaciones_comunes'] * 20)
+            );
+        }
+    }
+    
+    /**
+     * Detecta intereses comunes para un usuario específico
+     */
+    private function detectarInteresesComunesUsuario($usuario_id) {
+        $sql = "
+            SELECT 
+                c2.id_usuario as otro_usuario,
+                COUNT(DISTINCT c1.id_publicacion) as publicaciones_comunes
+            FROM comentarios c1
+            JOIN comentarios c2 ON c1.id_publicacion = c2.id_publicacion
+            WHERE c1.id_usuario = ?
+            AND c2.id_usuario != ?
+            AND c2.id_usuario NOT IN (
+                SELECT usuario2_id FROM conexiones_misticas 
+                WHERE usuario1_id = ? AND tipo_conexion = 'intereses_comunes'
+            )
+            GROUP BY c2.id_usuario
+            HAVING publicaciones_comunes >= 2
+        ";
+        
+        $stmt = $this->conexion->prepare($sql);
+        $stmt->execute([$usuario_id, $usuario_id, $usuario_id]);
+        $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        foreach ($resultados as $row) {
+            $this->guardarConexion(
+                $usuario_id,
+                $row['otro_usuario'],
+                'intereses_comunes',
+                "¡Ambos comentaron en {$row['publicaciones_comunes']} temas similares! 💬",
+                min(100, $row['publicaciones_comunes'] * 25)
+            );
+        }
+    }
+    
+    /**
+     * Detecta amigos de amigos para un usuario específico
+     */
+    private function detectarAmigosDeAmigosUsuario($usuario_id) {
+        $sql = "
+            SELECT 
+                a2.id_amigo as otro_usuario,
+                COUNT(*) as amigos_comunes
+            FROM amigos a1
+            JOIN amigos a2 ON a1.id_amigo = a2.id_usuario
+            WHERE a1.id_usuario = ?
+            AND a2.id_amigo != ?
+            AND a2.id_amigo NOT IN (
+                SELECT id_amigo FROM amigos WHERE id_usuario = ?
+            )
+            AND a2.id_amigo NOT IN (
+                SELECT usuario2_id FROM conexiones_misticas 
+                WHERE usuario1_id = ? AND tipo_conexion = 'amigos_de_amigos'
+            )
+            AND a1.estado = 'aceptada'
+            AND a2.estado = 'aceptada'
+            GROUP BY a2.id_amigo
+            HAVING amigos_comunes >= 1
+        ";
+        
+        $stmt = $this->conexion->prepare($sql);
+        $stmt->execute([$usuario_id, $usuario_id, $usuario_id, $usuario_id]);
+        $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        foreach ($resultados as $row) {
+            $this->guardarConexion(
+                $usuario_id,
+                $row['otro_usuario'],
+                'amigos_de_amigos',
+                "¡Tienen {$row['amigos_comunes']} amigos en común! 👥",
+                min(100, $row['amigos_comunes'] * 20)
+            );
+        }
+    }
+    
+    /**
+     * Detecta horarios coincidentes para un usuario específico
+     */
+    private function detectarHorariosCoincidentesUsuario($usuario_id) {
+        $sql = "
+            SELECT 
+                p2.id_usuario as otro_usuario,
+                COUNT(*) as coincidencias,
+                HOUR(p1.fecha) as hora_comun
+            FROM publicaciones p1
+            JOIN publicaciones p2 ON HOUR(p1.fecha) = HOUR(p2.fecha)
+            WHERE p1.id_usuario = ?
+            AND p2.id_usuario != ?
+            AND p2.id_usuario NOT IN (
+                SELECT usuario2_id FROM conexiones_misticas 
+                WHERE usuario1_id = ? AND tipo_conexion = 'horarios_coincidentes'
+            )
+            AND p1.fecha >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+            GROUP BY p2.id_usuario, HOUR(p1.fecha)
+            HAVING coincidencias >= 3
+        ";
+        
+        $stmt = $this->conexion->prepare($sql);
+        $stmt->execute([$usuario_id, $usuario_id, $usuario_id]);
+        $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        foreach ($resultados as $row) {
+            $hora = $row['hora_comun'];
+            $periodo = ($hora < 12) ? "mañana" : (($hora < 18) ? "tarde" : "noche");
+            
+            $this->guardarConexion(
+                $usuario_id,
+                $row['otro_usuario'],
+                'horarios_coincidentes',
+                "¡Ambos suelen estar activos en la {$periodo}! 🌙",
+                40
+            );
+        }
     }
 }

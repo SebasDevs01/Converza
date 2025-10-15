@@ -1,0 +1,59 @@
+{
+  "intents": [
+    {
+      "intent": "reactions_info",
+      "keywords": ["reacciones", "reacción", "emojis", "emoji", "que", "son", "tipos"],
+      "questions": [
+        "¿Qué son las reacciones?",
+        "¿Qué reacciones hay?",
+        "¿Cuántos tipos de reacciones existen?"
+      ],
+      "answer": "En Converza hay **6 tipos de reacciones**:\n\n✅ **POSITIVAS** (dan karma al autor):\n• 👍 **Me gusta** → +5 puntos\n• ❤️ **Me encanta** → +10 puntos\n• 😂 **Me divierte** → +7 puntos\n• 😮 **Me asombra** → +8 puntos\n\n⚠️ **NEGATIVAS** (quitan karma al autor):\n• 😢 **Me entristece** → -3 puntos\n• 😡 **Me enoja** → -5 puntos\n\n💡 **Tip**: Cuando reaccionas, el autor recibe los puntos instantáneamente con un badge animado.",
+      "links": []
+    },
+    {
+      "intent": "reactions_points",
+      "keywords": ["puntos", "cuanto", "cuantos", "da", "dan", "vale", "reacción", "like", "love"],
+      "questions": [
+        "¿Cuántos puntos da cada reacción?",
+        "¿Cuánto vale un like?",
+        "¿Qué reacción da más puntos?"
+      ],
+      "answer": "📊 **Puntos por reacción**:\n\n🥇 **Me encanta ❤️** → +10 puntos (la más valiosa)\n🥈 **Me asombra 😮** → +8 puntos\n🥉 **Me divierte 😂** → +7 puntos\n4️⃣ **Me gusta 👍** → +5 puntos\n\n⚠️ **Reacciones negativas**:\n😢 **Me entristece** → -3 puntos\n😡 **Me enoja** → -5 puntos (la más severa)\n\n💡 **Tip**: Usa 'Me encanta' para apoyar publicaciones que realmente te gusten.",
+      "links": []
+    },
+    {
+      "intent": "reactions_negative",
+      "keywords": ["negativas", "quitan", "enoja", "entristece", "malo", "por", "que"],
+      "questions": [
+        "¿Por qué hay reacciones negativas?",
+        "¿Para qué sirven las reacciones negativas?",
+        "¿Qué pasa si reacciono con enojo?"
+      ],
+      "answer": "Las reacciones negativas existen para **fomentar contenido de calidad**:\n\n⚠️ **Reacciones negativas**:\n• 😢 Me entristece → -3 puntos\n• 😡 Me enoja → -5 puntos\n\n🎯 **Úsalas cuando**:\n• El contenido es ofensivo\n• Hay información falsa\n• El post es spam o irrelevante\n\n⚡ **Consecuencias**:\n• El autor pierde karma\n• Aparece badge rojo con ↓-3 o ↓-5\n• Si acumula muchas negativas, su contenido baja en el feed\n\n💡 **Tip**: Usa con responsabilidad. No reacciones negativamente por simple desacuerdo.",
+      "links": []
+    },
+    {
+      "intent": "reactions_change",
+      "keywords": ["cambiar", "quitar", "eliminar", "reacción", "borrar", "puedo"],
+      "questions": [
+        "¿Puedo cambiar mi reacción?",
+        "¿Cómo quito una reacción?",
+        "¿Puedo eliminar una reacción?"
+      ],
+      "answer": "✅ **Sí, puedes cambiar o quitar reacciones**:\n\n🔄 **Cambiar reacción**:\n1. Haz clic en otra reacción\n2. Se revierte la anterior y aplica la nueva\n3. Los puntos se actualizan automáticamente\n\n❌ **Quitar reacción**:\n1. Haz clic de nuevo en la misma reacción\n2. Se elimina (toggle)\n3. Los puntos otorgados se revierten\n\n💡 **Ejemplo**:\n• Reaccionaste con ❤️ (+10 pts al autor)\n• Cambias a 👍 (se revierten +10, se dan +5)\n• Resultado: autor queda con +5 neto",
+      "links": []
+    },
+    {
+      "intent": "reactions_badge",
+      "keywords": ["badge", "animación", "notificación", "aparece", "verde", "rojo"],
+      "questions": [
+        "¿Qué es el badge de karma?",
+        "¿Por qué aparece una animación?",
+        "¿Qué significa el badge verde/rojo?"
+      ],
+      "answer": "El **badge de karma** muestra los puntos ganados/perdidos:\n\n✅ **Badge VERDE** (reacciones positivas):\n• ↑+5, ↑+7, ↑+8, ↑+10\n• Aparece cuando recibes 👍❤️😂😮\n\n❌ **Badge ROJO** (reacciones negativas):\n• ↓-3, ↓-5\n• Aparece cuando recibes 😢😡\n\n⏱️ **Duración**: 6 segundos\n🎯 **Ubicación**: Arriba del botón de karma en navbar\n✨ **Animación**: Scale + fade in/out\n\n💡 **Tip**: El badge muestra los puntos EXACTOS que ganaste/perdiste.",
+      "links": []
+    }
+  ]
+}

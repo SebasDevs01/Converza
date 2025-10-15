@@ -176,27 +176,47 @@ class InteresesHelper {
     
     /**
      * Mejorar Conexiones Místicas con intereses
-     * Añade peso extra por compatibilidad de intereses
+     * Combina el score original (amigos comunes, reacciones) con compatibilidad de intereses
+     * Formula: Score Final = (Score Original × 0.5) + (Compatibilidad × 0.5)
+     * Ambos sistemas tienen el mismo peso (50/50)
      */
     public function mejorarConexionesMisticas($usuario_id, $conexiones) {
         $conexionesMejoradas = [];
         
         foreach ($conexiones as $conexion) {
-            $compatibilidad = $this->calcularCompatibilidad($usuario_id, $conexion['usuario_id']);
+            // El campo correcto es 'otro_id', no 'usuario_id'
+            $otro_usuario_id = $conexion['otro_id'];
             
-            // Bonus de compatibilidad (0-20 puntos extra)
-            $bonus = round($compatibilidad / 5);
-            $conexion['score_original'] = $conexion['score'];
-            $conexion['score'] += $bonus;
-            $conexion['compatibilidad'] = $compatibilidad;
-            $conexion['intereses_comunes'] = $this->obtenerInteresesComunes($usuario_id, $conexion['usuario_id']);
+            // Calcular compatibilidad basada en predicciones (0-100)
+            $compatibilidad = $this->calcularCompatibilidad($usuario_id, $otro_usuario_id);
+            
+            // Guardar puntuación original del sistema místico
+            $puntuacion_original = $conexion['puntuacion']; // Ya está en escala 0-100
+            
+            // NUEVA FÓRMULA: 50% Sistema Original + 50% Predicciones
+            // Ambos tienen el mismo nivel de importancia
+            $puntuacion_final = round(($puntuacion_original * 0.5) + ($compatibilidad * 0.5));
+            
+            // Agregar datos al array
+            $conexion['puntuacion_original'] = $puntuacion_original;  // Score de sistema original
+            $conexion['compatibilidad_intereses'] = $compatibilidad;  // Score de predicciones
+            $conexion['puntuacion'] = $puntuacion_final;              // Score combinado (50/50)
+            $conexion['intereses_comunes'] = $this->obtenerInteresesComunes($usuario_id, $otro_usuario_id);
+            
+            // Información adicional para debugging/transparencia
+            $conexion['formula'] = [
+                'original' => $puntuacion_original,
+                'predicciones' => $compatibilidad,
+                'final' => $puntuacion_final,
+                'explicacion' => "({$puntuacion_original} × 0.5) + ({$compatibilidad} × 0.5) = {$puntuacion_final}"
+            ];
             
             $conexionesMejoradas[] = $conexion;
         }
         
-        // Re-ordenar por nuevo score
+        // Re-ordenar por puntuación final combinada
         usort($conexionesMejoradas, function($a, $b) {
-            return $b['score'] - $a['score'];
+            return $b['puntuacion'] - $a['puntuacion'];
         });
         
         return $conexionesMejoradas;

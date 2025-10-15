@@ -1,10 +1,11 @@
 <?php
-session_start();
+// ⭐ Usar helper de sesiones para manejo seguro
+require_once __DIR__.'/../models/session-helper.php';
 
-unset($_SESSION['usuario']);
-unset($_SESSION['id']);
+// Destruir sesión de forma segura
+destruirSesionSegura();
 
-session_destroy();
-
-header("Location: login.php");
+// ⭐ Redirigir al login con parámetro para forzar limpieza de campos
+header("Location: login.php?logout=1");
+exit();
 ?>

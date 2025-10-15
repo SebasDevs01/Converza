@@ -332,11 +332,43 @@ function manejarSolicitud(accion, userId) {
     overflow: hidden;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     animation: slideIn 0.5s ease;
+    position: relative;
 }
 
 .shuffle-card:hover {
     transform: translateY(-5px);
     box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+}
+
+/* Badge de compatibilidad flotante */
+.compatibilidad-badge-shuffle {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    z-index: 10;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+/* Estilos para intereses comunes en shuffle */
+.intereses-comunes-shuffle {
+    padding: 15px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 12px;
+    margin-top: 15px;
+}
+
+.intereses-comunes-shuffle .badge {
+    padding: 6px 12px;
+    font-weight: 600;
 }
 
 @keyframes slideIn {
@@ -532,7 +564,40 @@ function renderShuffleCards() {
         
         const card = document.createElement('div');
         card.className = `shuffle-card ${isContacted ? 'shuffle-card-contacted' : ''}`;
+        
+        // Generar badges de intereses comunes
+        let interesesHTML = '';
+        if (usuario.intereses_comunes && usuario.intereses_comunes.length > 0) {
+            interesesHTML = `
+                <div class="intereses-comunes-shuffle mt-3">
+                    <small class="text-muted d-block mb-2">
+                        <i class="bi bi-star-fill text-warning"></i> Intereses en común:
+                    </small>
+                    <div class="d-flex gap-2 flex-wrap">
+                        ${usuario.intereses_comunes.map(interes => `
+                            <span class="badge bg-primary" style="font-size: 0.85rem;">
+                                ${interes.emoji} ${interes.nombre}
+                            </span>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Badge de compatibilidad
+        let compatibilidadHTML = '';
+        if (usuario.compatibilidad > 0) {
+            compatibilidadHTML = `
+                <div class="compatibilidad-badge-shuffle">
+                    <span class="badge" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); font-size: 1rem; padding: 8px 12px;">
+                        <i class="bi bi-heart-fill"></i> ${usuario.compatibilidad}% Compatible
+                    </span>
+                </div>
+            `;
+        }
+        
         card.innerHTML = `
+            ${compatibilidadHTML}
             <img src="${avatarUrl}" 
                  alt="${escapeHtml(usuario.nombre || usuario.usuario)}" 
                  class="shuffle-card-image"
@@ -544,6 +609,7 @@ function renderShuffleCards() {
                 <p class="shuffle-card-bio">
                     ${escapeHtml(usuario.descripcion || 'Usuario de Converza 👋')}
                 </p>
+                ${interesesHTML}
                 <div class="shuffle-actions">
                     <button class="shuffle-btn shuffle-btn-profile" 
                             onclick="window.location.href='/Converza/app/presenters/perfil.php?id=${usuario.usuario_mostrado_id}'">

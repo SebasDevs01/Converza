@@ -12,6 +12,10 @@ if (!isset($_SESSION['id'])) {
 $motor = new ConexionesMisticas($conexion);
 $interesesHelper = new InteresesHelper($conexion);
 
+// 🚀 GENERACIÓN AUTOMÁTICA DE CONEXIONES
+// Si el usuario no tiene conexiones o han pasado más de 6 horas, se generan automáticamente
+$motor->generarConexionesAutomaticas($_SESSION['id']);
+
 // Obtener conexiones y mejorarlas con intereses
 $conexiones = $motor->obtenerConexionesUsuario($_SESSION['id'], 50);
 $conexiones = $interesesHelper->mejorarConexionesMisticas($_SESSION['id'], $conexiones);
@@ -206,12 +210,43 @@ $conexiones = $interesesHelper->mejorarConexionesMisticas($_SESSION['id'], $cone
                         <div class="conexion-username"><?php echo htmlspecialchars($conexion['otro_usuario']); ?></div>
                         <div class="conexion-tipo"><?php echo $tipoInfo[0]; ?> <?php echo $tipoInfo[1]; ?></div>
                     </div>
-                    <div class="conexion-badge">
+                    <div class="conexion-badge" title="Score combinado: Sistema Místico (50%) + Predicciones (50%)">
                         <?php echo $conexion['puntuacion']; ?>%
                     </div>
                 </div>
                 <div class="conexion-descripcion">
                     <?php echo htmlspecialchars($conexion['descripcion']); ?>
+                </div>
+                
+                <!-- Desglose de scores -->
+                <div class="scores-desglose mt-3 p-3" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 10px;">
+                    <small class="text-muted d-block mb-2">
+                        <i class="bi bi-calculator"></i> Desglose de compatibilidad:
+                    </small>
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <div class="score-item">
+                                <small class="text-muted d-block">
+                                    <i class="bi bi-diagram-3"></i> Sistema Místico
+                                </small>
+                                <strong class="text-primary"><?php echo $conexion['puntuacion_original'] ?? 0; ?>%</strong>
+                                <small class="text-muted d-block" style="font-size: 0.75rem;">
+                                    Amigos, reacciones, actividad
+                                </small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="score-item">
+                                <small class="text-muted d-block">
+                                    <i class="bi bi-heart"></i> Predicciones
+                                </small>
+                                <strong class="text-success"><?php echo $conexion['compatibilidad_intereses'] ?? 0; ?>%</strong>
+                                <small class="text-muted d-block" style="font-size: 0.75rem;">
+                                    Gustos e intereses
+                                </small>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 
                 <?php if (!empty($conexion['intereses_comunes'])): ?>
@@ -226,11 +261,6 @@ $conexiones = $interesesHelper->mejorarConexionesMisticas($_SESSION['id'], $cone
                                 </span>
                             <?php endforeach; ?>
                         </div>
-                        <?php if ($conexion['compatibilidad'] > 0): ?>
-                            <small class="text-muted d-block mt-2">
-                                <i class="bi bi-heart-fill text-danger"></i> Compatibilidad: <?php echo $conexion['compatibilidad']; ?>%
-                            </small>
-                        <?php endif; ?>
                     </div>
                 <?php endif; ?>
             </div>

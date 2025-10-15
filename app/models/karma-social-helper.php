@@ -327,17 +327,98 @@ class KarmaSocialHelper {
         
         error_log("🎯 KARMA: Usuario {$usuario_id} reaccionó '{$tipo_reaccion}' → {$puntos} puntos");
         
-        // Determinar tipo de acción según si es positiva o negativa
-        $tipo_accion = ($puntos > 0) ? 'apoyo_publicacion' : 'reaccion_negativa';
-        
-        // Registrar el karma
-        return $this->registrarAccion(
+        // ⭐ REGISTRAR DIRECTAMENTE CON PUNTOS REALES (sin pasar por registrarAccion que usa valores fijos)
+        return $this->registrarKarmaDirecto(
             $usuario_id,
-            $tipo_accion,
+            $puntos,
             $publicacion_id,
             'publicacion',
-            $config['descripcion']
+            $config['descripcion'],
+            $config['tipo']
         );
+    }
+    
+    /**
+     * 🎯 REGISTRAR KARMA DIRECTO CON PUNTOS EXACTOS
+     * Método nuevo que NO usa valores fijos de PUNTOS[]
+     */
+    private function registrarKarmaDirecto($usuario_id, $puntos_exactos, $referencia_id, $referencia_tipo, $descripcion, $tipo_sentimiento = 'positivo') {
+        try {
+            // Evitar duplicados
+            if ($this->esAccionDuplicada($usuario_id, 'reaccion_directa', $referencia_id, $referencia_tipo)) {
+                error_log("⚠️ Reacción duplicada - No se registra");
+                return false;
+            }
+            
+            // 🛡️ PROTECCIÓN: Si son puntos negativos, verificar karma
+            if ($puntos_exactos < 0) {
+                $karma_actual = $this->obtenerKarmaTotal($usuario_id);
+                $karma_total = $karma_actual['karma_total'];
+                
+                if ($karma_total <= 0) {
+                    error_log("⚠️ No se quitaron {$puntos_exactos} puntos porque karma actual es {$karma_total}");
+                    return false;
+                }
+                
+                if (($karma_total + $puntos_exactos) < 0) {
+                    $puntos_exactos = -$karma_total;
+                    error_log("⚖️ Ajustando a {$puntos_exactos} para no quedar negativo");
+                }
+            }
+            
+            // Insertar en base de datos con puntos EXACTOS
+            $stmt = $this->conexion->prepare("
+                INSERT INTO karma_social 
+                (usuario_id, tipo_accion, puntos, referencia_id, referencia_tipo, descripcion)
+                VALUES (?, 'reaccion_directa', ?, ?, ?, ?)
+            ");
+            
+            $resultado = $stmt->execute([
+                $usuario_id,
+                $puntos_exactos,
+                $referencia_id,
+                $referencia_tipo,
+                $descripcion
+            ]);
+            
+            // Crear notificación en sesión
+            if ($resultado && $puntos_exactos != 0) {
+                $_SESSION['karma_notification'] = [
+                    'puntos' => $puntos_exactos,
+                    'tipo' => $tipo_sentimiento,
+                    'mensaje' => $descripcion
+                ];
+                
+                // Crear notificación en campana
+                $tipo_notif = ($puntos_exactos > 0) ? 'karma_ganado' : 'karma_perdido';
+                $icono = ($puntos_exactos > 0) ? '⭐' : '⚠️';
+                $mensaje_completo = "{$icono} " . (($puntos_exactos > 0) ? "Has ganado {$puntos_exactos}" : "Has perdido " . abs($puntos_exactos)) . " puntos de karma por: {$descripcion}";
+                
+                try {
+                    $stmtNotif = $this->conexion->prepare("
+                        INSERT INTO notificaciones 
+                        (usuario_id, tipo, mensaje, referencia_id, referencia_tipo)
+                        VALUES (?, ?, ?, ?, ?)
+                    ");
+                    $stmtNotif->execute([
+                        $usuario_id,
+                        $tipo_notif,
+                        $mensaje_completo,
+                        $referencia_id,
+                        $referencia_tipo
+                    ]);
+                } catch (PDOException $e) {
+                    error_log("Error creando notificación: " . $e->getMessage());
+                }
+            }
+            
+            error_log("✅ KARMA REGISTRADO: {$puntos_exactos} puntos para usuario {$usuario_id}");
+            return $resultado;
+            
+        } catch (PDOException $e) {
+            error_log("❌ Error registrando karma directo: " . $e->getMessage());
+            return false;
+        }
     }
     
     /**
@@ -553,7 +634,7 @@ class KarmaSocialHelper {
      * Verificar si una acción es duplicada
      */
     private function esAccionDuplicada($usuario_id, $tipo_accion, $referencia_id, $referencia_tipo) {
-        $acciones_unicas = ['apoyo_publicacion', 'comentario_positivo', 'primera_interaccion'];
+        $acciones_unicas = ['apoyo_publicacion', 'comentario_positivo', 'primera_interaccion', 'reaccion_directa'];
         
         if (!in_array($tipo_accion, $acciones_unicas) || !$referencia_id) {
             return false;

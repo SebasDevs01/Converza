@@ -17,6 +17,11 @@ $emoji = $nivelData['emoji'];
 
 // Verificar si hay puntos pendientes en sesión (para mostrar badge)
 $puntos_pendientes = $_SESSION['karma_pendiente'] ?? 0;
+
+// ⚠️ LIMPIAR INMEDIATAMENTE para evitar que se muestre en próxima recarga
+if ($puntos_pendientes != 0) {
+    unset($_SESSION['karma_pendiente']); // ✅ Limpiar sesión después de leer
+}
 ?>
 
 <style>
@@ -242,22 +247,50 @@ function actualizarKarmaBadge(karma, nivel, puntosDelta) {
     }
 }
 
-// 🔍 Verificar karma pendiente al cargar y después de acciones
+// ⚡ NUEVA FUNCIÓN: Procesar karma instantáneo (sin fetch adicionales)
+function procesarKarmaInstantaneo(karmaData, puntosGanados = 0) {
+    console.log('⚡ procesarKarmaInstantaneo:', { karmaData, puntosGanados });
+    
+    if (!karmaData) return;
+    
+    // Actualizar badge con los datos recibidos
+    const karma = parseInt(karmaData.karma) || 0;
+    const nivel = parseInt(karmaData.nivel) || 1;
+    
+    actualizarKarmaBadge(karma, nivel, puntosGanados);
+    
+    // Marcar como actualizado para evitar fetch redundante
+    const karmaDisplay = document.querySelector('#karma-points-display, .karma-navbar-points');
+    if (karmaDisplay) {
+        karmaDisplay.dataset.updated = 'true';
+        setTimeout(() => {
+            karmaDisplay.dataset.updated = 'false';
+        }, 2000); // Reset después de 2 segundos
+    }
+}
+
+// 🔍 Verificar karma pendiente SOLO cuando se solicita explícitamente (NO en DOMContentLoaded)
 function verificarKarmaPendiente() {
+    // ⚡ OPTIMIZADO: Usar fetch interceptor que ya tiene los datos
+    // Solo hacer la petición si es la primera carga o si no hay interceptor
+    
     fetch('/converza/app/presenters/check_karma_notification.php')
         .then(response => response.json())
         .then(data => {
             if (data.success && data.data) {
                 const { puntos } = data.data;
                 
-                // Recargar karma actual
-                fetch('/converza/app/presenters/get_karma.php')
-                    .then(res => res.json())
-                    .then(karmaData => {
-                        if (karmaData.success) {
-                            actualizarKarmaBadge(karmaData.karma, karmaData.nivel, puntos);
-                        }
-                    });
+                // Solo recargar karma si no se actualizó automáticamente
+                const karmaDisplay = document.querySelector('#karma-points-display, .karma-navbar-points');
+                if (!karmaDisplay || karmaDisplay.dataset.updated !== 'true') {
+                    fetch('/converza/app/presenters/get_karma.php')
+                        .then(res => res.json())
+                        .then(karmaData => {
+                            if (karmaData.success) {
+                                actualizarKarmaBadge(karmaData.karma, karmaData.nivel, puntos);
+                            }
+                        });
+                }
                 
                 // Actualizar notificaciones de campana
                 if (typeof cargarNotificaciones === 'function') {
@@ -268,10 +301,12 @@ function verificarKarmaPendiente() {
         .catch(error => console.error('Error al verificar karma:', error));
 }
 
-// Verificar al cargar
-document.addEventListener('DOMContentLoaded', verificarKarmaPendiente);
+// ⚠️ NO verificar automáticamente al cargar (evita animaciones no solicitadas)
+// Solo verificar cuando el usuario interactúa (comentarios, reacciones, etc.)
+// document.addEventListener('DOMContentLoaded', verificarKarmaPendiente); // ❌ DESHABILITADO
 
 // Exponer funciones globalmente
 window.verificarKarmaPendiente = verificarKarmaPendiente;
+window.procesarKarmaInstantaneo = procesarKarmaInstantaneo; // ⚡ Nueva función instantánea
 window.actualizarKarmaBadge = actualizarKarmaBadge;
 </script>

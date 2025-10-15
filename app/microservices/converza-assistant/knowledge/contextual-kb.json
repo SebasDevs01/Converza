@@ -1,0 +1,156 @@
+{
+  "intents": [
+    {
+      "name": "time_query",
+      "keywords": ["hora", "qué hora", "que hora", "dime la hora", "cuál es la hora"],
+      "questions": [
+        "¿Qué hora es?",
+        "¿Me dices la hora?",
+        "¿Cuál es la hora?",
+        "Dime la hora",
+        "Hora actual"
+      ],
+      "answers": [
+        "🕐 Actualmente son las **{current_time}** del día **{current_date}**.\n\n¿En qué más puedo ayudarte con Converza, {username}?"
+      ],
+      "dynamic": true,
+      "requires_system_data": true
+    },
+    {
+      "name": "date_query",
+      "keywords": ["fecha", "día", "qué día", "que dia", "día es", "fecha es", "calendario"],
+      "questions": [
+        "¿Qué fecha es hoy?",
+        "¿Qué día es?",
+        "¿En qué fecha estamos?",
+        "Dime la fecha",
+        "¿Qué día es hoy?"
+      ],
+      "answers": [
+        "📅 Hoy es **{day_name} {day_number} de {month_name} de {year}**.\n\nPerfecto día para ganar karma en Converza, ¿no crees {username}? 😊"
+      ],
+      "dynamic": true,
+      "requires_system_data": true
+    },
+    {
+      "name": "weather_query",
+      "keywords": ["clima", "tiempo", "llueve", "sol", "frío", "calor", "temperatura"],
+      "questions": [
+        "¿Cómo está el clima?",
+        "¿Está lloviendo?",
+        "¿Qué temperatura hace?",
+        "¿Hace frío?",
+        "¿Hace calor?"
+      ],
+      "answers": [
+        "🌤️ Lo siento {username}, no tengo acceso a datos meteorológicos en tiempo real.\n\nPero lo que sí sé es que siempre es buen clima para **socializar en Converza** y ganar karma. 😊\n\n¿Quieres saber cómo ganar más karma?"
+      ],
+      "suggestions": [
+        "¿Cómo gano karma?",
+        "¿Qué son las reacciones?",
+        "¿Cómo hago amigos?"
+      ]
+    },
+    {
+      "name": "user_activity_query",
+      "keywords": ["usuarios activos", "quién está", "cuántos usuarios", "gente online", "conectados"],
+      "questions": [
+        "¿Cuántos usuarios hay?",
+        "¿Quién está activo?",
+        "¿Cuántos usuarios están online?",
+        "¿Hay gente conectada?",
+        "¿Cuántos están en Converza?"
+      ],
+      "answers": [
+        "👥 Actualmente hay **{active_users} usuarios activos** en Converza.\n\n¡Es un gran momento para socializar! ¿Quieres saber cómo hacer amigos?"
+      ],
+      "dynamic": true,
+      "requires_system_data": true,
+      "suggestions": [
+        "¿Cómo hago amigos?",
+        "¿Cómo envío mensajes?",
+        "¿Qué son las conexiones?"
+      ]
+    },
+    {
+      "name": "trending_topics",
+      "keywords": ["tendencia", "populares", "qué se habla", "qué está de moda", "temas populares"],
+      "questions": [
+        "¿Qué está de moda?",
+        "¿Qué se habla?",
+        "¿Qué temas son populares?",
+        "¿Qué está en tendencia?",
+        "¿De qué habla la gente?"
+      ],
+      "answers": [
+        "🔥 Los temas más comentados hoy en Converza son:\n\n{trending_topics}\n\n¿Quieres unirte a la conversación?"
+      ],
+      "dynamic": true,
+      "requires_system_data": true,
+      "suggestions": [
+        "¿Cómo comento?",
+        "¿Cómo reacciono?",
+        "¿Cómo público?"
+      ]
+    },
+    {
+      "name": "mood_detection_happy",
+      "keywords": ["jaja", "jeje", "lol", "xd", "😂", "😄", "😊", "😁", "🤣"],
+      "questions": [
+        "jaja",
+        "jeje",
+        "lol xd",
+        "que risa",
+        "jajaja"
+      ],
+      "answers": [
+        "¡Jaja! 😄 Me alegra verte de buen humor, {username}.\n\n¿En qué puedo ayudarte con Converza?",
+        "😊 ¡Me encanta tu energía! ¿Quieres saber cómo ganar más karma siendo sociable?",
+        "🤣 ¡Esa alegría se contagia! ¿Necesitas ayuda con algo en Converza?"
+      ],
+      "suggestions": [
+        "¿Cómo gano karma?",
+        "Cuéntame un chiste",
+        "¿Qué puedo hacer?"
+      ]
+    },
+    {
+      "name": "mood_detection_sad",
+      "keywords": ["triste", "mal", "terrible", "horrible", "😭", "😢", "🥺", "deprimido"],
+      "questions": [
+        "estoy triste",
+        "me siento mal",
+        "todo está mal",
+        "que horrible",
+        "me siento terrible"
+      ],
+      "answers": [
+        "😔 Lamento que no te sientas bien, {username}.\n\nRecuerda que en Converza tienes una comunidad increíble. ¿Quieres conversar con alguien? Puedo ayudarte a conectar con tus amigos.",
+        "🥺 {username}, siento que estés pasando por un mal momento.\n\n¿Sabes? Converza puede alegrarte el día. ¿Quieres ver las publicaciones de tus amigos o tal vez crear una publicación?"
+      ],
+      "suggestions": [
+        "¿Cómo hago amigos?",
+        "¿Cómo envío mensajes?",
+        "¿Qué puedo hacer?"
+      ]
+    },
+    {
+      "name": "language_detection",
+      "keywords": ["english", "hello", "hi", "how are you", "what", "when", "where"],
+      "questions": [
+        "Hello",
+        "How are you?",
+        "What is this?",
+        "Do you speak English?"
+      ],
+      "answers": [
+        "🌎 Hello {username}! I can understand some English, but I work better in Spanish.\n\n¿Prefieres que hablemos en español? I can help you better that way! 😊"
+      ],
+      "suggestions": [
+        "¿Qué es Converza?",
+        "¿Cómo funciona el karma?",
+        "¿Qué puedo hacer?"
+      ]
+    }
+  ]
+}

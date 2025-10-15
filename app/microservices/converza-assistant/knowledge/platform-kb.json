@@ -1,0 +1,75 @@
+{
+  "intents": [
+    {
+      "intent": "converza_overview",
+      "keywords": ["qué", "es", "converza", "plataforma", "red", "social", "hacer", "puedo", "funciona"],
+      "questions": [
+        "¿qué es converza?",
+        "¿qué puedo hacer en converza?",
+        "¿qué puedo hacer con converza?",
+        "¿cómo funciona converza?",
+        "¿para qué sirve converza?",
+        "cuéntame sobre converza"
+      ],
+      "answer": "**Converza** es una red social innovadora donde puedes:\n\n📱 **Socializar**\n• Publicar fotos y contenido\n• Comentar y reaccionar a publicaciones\n• Hacer amigos y seguir personas\n• Descubrir conexiones místicas basadas en compatibilidad\n\n🎯 **Ganar Karma**\n• Sistema de puntos por interacciones\n• Subir de nivel (10 niveles disponibles)\n• Desbloquear beneficios exclusivos\n\n🛍️ **Personalizar tu Perfil**\n• Comprar marcos decorativos con karma\n• Equipar badges y recompensas\n• Crear álbumes de fotos\n\n🔔 **Mantenerte Conectado**\n• Notificaciones en tiempo real\n• Sistema de mensajería\n• Feed personalizado\n\n¿Sobre qué aspecto quieres saber más?",
+      "links": [
+        {"text": "Ver mi perfil", "url": "/Converza/perfil"},
+        {"text": "Ir a la tienda", "url": "/Converza/app/presenters/karma_tienda.php"}
+      ]
+    },
+    {
+      "intent": "converza_features",
+      "keywords": ["funciones", "características", "opciones", "servicios", "ofrece"],
+      "questions": [
+        "¿qué funciones tiene converza?",
+        "¿qué características tiene?",
+        "¿qué ofrece converza?",
+        "¿qué servicios tiene?"
+      ],
+      "answer": "Converza ofrece múltiples funciones:\n\n✨ **Principales**\n• 📸 Publicaciones con fotos\n• 💬 Comentarios interactivos\n• 😊 6 tipos de reacciones\n• 👥 Sistema de amigos\n• 🔮 Conexiones místicas\n• 🎯 Sistema de karma gamificado\n• 📊 10 niveles de progresión\n• 🛍️ Tienda de personalización\n\n🎨 **Personalización**\n• Marcos decorativos para fotos de perfil\n• Álbumes de fotos personalizados\n• Badges y recompensas\n\n🔔 **Comunicación**\n• Notificaciones en tiempo real\n• Sistema de mensajes privados\n• Feed personalizado de amigos\n\nActualmente tienes **{karma} puntos** de karma. ¿Te gustaría explorar alguna función en particular?",
+      "links": []
+    },
+    {
+      "intent": "converza_getting_started",
+      "keywords": ["empezar", "comenzar", "inicio", "primeros", "pasos", "nuevo"],
+      "questions": [
+        "¿cómo empiezo?",
+        "¿cómo comienzo?",
+        "primeros pasos",
+        "soy nuevo",
+        "¿qué hago primero?"
+      ],
+      "answer": "¡Bienvenido a Converza {username}! 🎉 Para empezar:\n\n1️⃣ **Crea tu primera publicación**\n   • Sube una foto o comparte algo\n   • Ganarás +3 puntos de karma\n\n2️⃣ **Interactúa con otros**\n   • Dale reacciones a publicaciones\n   • Comenta (+2 karma por comentario)\n   • Haz amigos (+5 karma por amigo)\n\n3️⃣ **Gana karma y sube de nivel**\n   • Recibes karma por interacciones\n   • Desbloquea beneficios al subir de nivel\n\n4️⃣ **Personaliza tu perfil**\n   • Visita la tienda de karma\n   • Compra marcos decorativos\n   • Equipa tus recompensas\n\nActualmente eres nivel **{nivel} {nivel_emoji}** con **{karma} puntos**. ¡Empieza a interactuar para subir de nivel!",
+      "links": [
+        {"text": "Ver mi perfil", "url": "/Converza/perfil"},
+        {"text": "Ir a la tienda", "url": "/Converza/app/presenters/karma_tienda.php"}
+      ]
+    },
+    {
+      "intent": "converza_best_practices",
+      "keywords": ["consejos", "tips", "recomendaciones", "mejor", "manera", "rápido"],
+      "questions": [
+        "¿algún consejo?",
+        "¿tips para converza?",
+        "¿cómo uso mejor converza?",
+        "¿cómo gano karma rápido?"
+      ],
+      "answer": "💡 **Tips para sacar el máximo provecho de Converza:**\n\n🚀 **Para ganar karma rápido:**\n• Publica contenido de calidad (+3 pts)\n• Comenta en publicaciones activas (+2 pts)\n• Da reacciones positivas (el autor gana karma)\n• Recibe reacciones en tus posts (hasta +10 pts)\n• Haz amigos (+5 pts cada uno)\n\n⭐ **Para subir de nivel:**\n• Mantén actividad constante\n• Interactúa genuinamente con la comunidad\n• Crea contenido que genere reacciones\n\n🛍️ **En la tienda:**\n• Espera a tener suficiente karma\n• Los marcos básicos cuestan 50-100 pts\n• Los premium 200-500 pts\n• Los exclusivos 1000+ pts\n\n🎯 **Estrategia óptima:**\nCombina publicaciones + comentarios + reacciones para maximizar tu crecimiento.\n\nTienes **{karma} puntos** actualmente. ¿Necesitas {puntos_faltantes} más para nivel {nivel}+1!",
+      "links": [
+        {"text": "Ver mi karma", "url": "/Converza/app/presenters/karma_tienda.php"}
+      ]
+    },
+    {
+      "intent": "converza_purpose",
+      "keywords": ["propósito", "objetivo", "fin", "meta", "razón", "por qué"],
+      "questions": [
+        "¿cuál es el propósito de converza?",
+        "¿por qué usar converza?",
+        "¿qué objetivo tiene?",
+        "¿para qué existe converza?"
+      ],
+      "answer": "El propósito de **Converza** es:\n\n🌟 **Conectar personas** de manera significativa a través de:\n• Interacciones genuinas\n• Contenido visual compartido\n• Sistema de conexiones místicas basado en compatibilidad\n\n🎮 **Gamificar la experiencia social** mediante:\n• Sistema de karma que recompensa la participación\n• Niveles que muestran tu compromiso\n• Tienda de personalización exclusiva\n\n💎 **Crear una comunidad positiva** donde:\n• Las interacciones son recompensadas\n• El contenido de calidad es valorado\n• Cada usuario puede destacar y crecer\n\nEs más que una red social: es un **ecosistema gamificado** donde tu participación tiene valor real representado en karma y recompensas.\n\n¿Te gustaría saber cómo maximizar tu experiencia en Converza?",
+      "links": []
+    }
+  ]
+}

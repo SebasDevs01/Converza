@@ -376,7 +376,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['publicacion']) || (i
                 </div>
                 <?php endif; ?>
             </form>
-            <div class="scroll" data-url="../presenters/publicaciones.php">
+            <!-- ⭐ Contenedor del feed con overflow controlado -->
+            <div class="scroll" data-url="../presenters/publicaciones.php" style="max-width: 100%; overflow-x: hidden; overflow-y: auto;">
                 <?php include __DIR__.'/../presenters/publicaciones.php'; ?>
             </div>
         </div>
@@ -629,6 +630,51 @@ async function valorarPrediccion(meGusta) {
     }
 }
 
+</script>
+
+<!-- ✨ ASISTENTE CONVERZA - Widget Flotante -->
+<?php 
+$widget_path = __DIR__ . '/../microservices/converza-assistant/widget/assistant-widget.php';
+if (file_exists($widget_path)) {
+    require_once($widget_path);
+} else {
+    error_log('⚠️ Widget no encontrado: ' . $widget_path);
+}
+?>
+
+<!-- 🎯 Configuración del Asistente -->
+<script>
+    // Pasar datos del usuario al asistente
+    window.USER_ID = <?php echo isset($_SESSION['id']) ? intval($_SESSION['id']) : 0; ?>;
+    window.USER_NAME = "<?php echo isset($_SESSION['usuario']) ? htmlspecialchars($_SESSION['usuario'], ENT_QUOTES) : 'Usuario'; ?>";
+    window.USER_PHOTO = "<?php 
+        if (isset($_SESSION['avatar']) && !empty($_SESSION['avatar']) && $_SESSION['avatar'] !== 'defect.jpg') {
+            $avatar = $_SESSION['avatar'];
+            
+            // Verificar dónde existe el archivo físicamente
+            if (file_exists(__DIR__ . '/../../public/avatars/' . $avatar)) {
+                // Está en avatars
+                echo htmlspecialchars('/Converza/public/avatars/' . $avatar, ENT_QUOTES);
+            } elseif (file_exists(__DIR__ . '/../../public/uploads/' . $avatar)) {
+                // Está en uploads
+                echo htmlspecialchars('/Converza/public/uploads/' . $avatar, ENT_QUOTES);
+            } elseif (strpos($avatar, 'public/') === 0) {
+                // Ya tiene la ruta relativa
+                echo htmlspecialchars('/Converza/' . $avatar, ENT_QUOTES);
+            } else {
+                // Por defecto
+                echo '/Converza/public/avatars/defect.jpg';
+            }
+        } else {
+            echo '/Converza/public/avatars/defect.jpg';
+        }
+    ?>";
+    
+    // Debug
+    console.log('✨ Asistente Converza iniciado');
+    console.log('   Usuario ID:', window.USER_ID);
+    console.log('   Nombre:', window.USER_NAME);
+    console.log('   Foto:', window.USER_PHOTO);
 </script>
 
 </body>

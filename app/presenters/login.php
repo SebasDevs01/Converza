@@ -1,5 +1,7 @@
 <?php
-session_start();
+// ⭐ Usar helper de sesiones para manejo seguro
+require_once __DIR__.'/../models/session-helper.php';
+
 include __DIR__.'/../models/config.php'; // Debe crear $conexion (mysqli)
 
 // Redirección si ya está logueado
@@ -31,12 +33,12 @@ if (isset($_SESSION['id']) && isset($_SESSION['usuario'])) {
             <form action="" method="post" autocomplete="off">
               <div class="mb-3">
                 <label for="usuario" class="form-label">Usuario</label>
-                <input type="text" class="form-control" id="usuario" name="usuario" placeholder="Usuario" required autofocus>
+                <input type="text" class="form-control" id="usuario" name="usuario" placeholder="Usuario" required autofocus autocomplete="off">
               </div>
               <div class="mb-3">
                 <label for="password-field" class="form-label">Contraseña</label>
                 <div class="input-group">
-                  <input type="password" class="form-control" placeholder="Contraseña" name="contrasena" id="password-field" required autocomplete="current-password">
+                  <input type="password" class="form-control" placeholder="Contraseña" name="contrasena" id="password-field" required autocomplete="new-password">
                   <button class="btn btn-outline-secondary" type="button" id="togglePassword" tabindex="-1">
                     <span id="eyeIcon" class="bi bi-eye"></span>
                   </button>
@@ -102,12 +104,44 @@ if (isset($_SESSION['id']) && isset($_SESSION['usuario'])) {
   <script>
     // Redirección segura a registro.php
     document.addEventListener("DOMContentLoaded", function() {
+      
+      // ⭐ LIMPIAR CAMPOS AL CARGAR (evita autocompletado del navegador)
+      const usuarioField = document.getElementById('usuario');
+      const passwordField = document.getElementById('password-field');
+      
+      // Verificar si viene de un logout
+      const urlParams = new URLSearchParams(window.location.search);
+      const isLogout = urlParams.get('logout');
+      
+      // Limpiar campos inmediatamente
+      usuarioField.value = '';
+      passwordField.value = '';
+      
+      // Limpiar después de un delay (para vencer el autocompletado del navegador)
+      setTimeout(function() {
+        usuarioField.value = '';
+        passwordField.value = '';
+      }, 100);
+      
+      // Si viene de logout, limpiar también el historial del navegador
+      if (isLogout === '1') {
+        // Remover el parámetro de la URL sin recargar
+        window.history.replaceState({}, document.title, window.location.pathname);
+        
+        // Limpiar agresivamente (algunos navegadores cachean valores)
+        usuarioField.setAttribute('value', '');
+        passwordField.setAttribute('value', '');
+        
+        // Forzar focus para asegurar que el navegador no rellene
+        usuarioField.focus();
+      }
+      
       document.getElementById("registro").addEventListener("click", function(e){
         e.preventDefault();
         window.location.href = 'registro.php';
       });
+      
       // Mostrar/ocultar contraseña (solo mostrar/ocultar real)
-      const passwordField = document.getElementById('password-field');
       const togglePassword = document.getElementById('togglePassword');
       const eyeIcon = document.getElementById('eyeIcon');
       togglePassword.addEventListener('click', function() {

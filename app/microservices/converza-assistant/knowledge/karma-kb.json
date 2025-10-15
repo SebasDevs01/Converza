@@ -1,0 +1,74 @@
+{
+  "intents": [
+    {
+      "intent": "karma_gain",
+      "keywords": ["ganar", "gano", "conseguir", "consigo", "obtener", "obtengo", "sumar", "karma", "puntos", "subir", "como", "cómo"],
+      "questions": [
+        "¿Cómo gano karma?",
+        "¿Cómo consigo puntos?",
+        "¿De qué forma obtengo karma?",
+        "¿Qué debo hacer para ganar karma?",
+        "¿Cómo subo karma?",
+        "¿Cómo obtengo más puntos?"
+      ],
+      "answer": "¡Hola {username}! Puedes ganar karma de varias formas:\n\n✅ **Publicando contenido** → +3 puntos\n✅ **Comentando** en publicaciones → +2 puntos\n✅ **Recibiendo reacciones** en tus publicaciones:\n   • Me gusta 👍 → +5 pts\n   • Me encanta ❤️ → +10 pts\n   • Me divierte 😂 → +7 pts\n   • Me asombra 😮 → +8 pts\n✅ **Haciendo amigos** → +5 puntos por amigo\n✅ **Conexiones místicas** → Hasta +20 puntos\n\nActualmente tienes **{karma} puntos** y eres nivel **{nivel} {nivel_emoji}** ({nivel_titulo}).",
+      "links": [
+        {
+          "text": "Ver mi karma",
+          "url": "/Converza/app/presenters/karma_tienda.php"
+        }
+      ]
+    },
+    {
+      "intent": "karma_loss",
+      "keywords": ["perder", "perdí", "quitar", "quitan", "restar", "bajo", "karma", "puntos", "negativo"],
+      "questions": [
+        "¿Por qué perdí karma?",
+        "¿Cómo pierdo puntos?",
+        "¿Qué me quita karma?"
+      ],
+      "answer": "Puedes perder karma por **reacciones negativas**:\n\n⚠️ **Me entristece** 😢 → -3 puntos\n⚠️ **Me enoja** 😡 → -5 puntos\n\nCuando alguien reacciona negativamente a tu publicación, verás un badge rojo con ↓-3 o ↓-5.\n\n💡 **Tip**: Publica contenido positivo y constructivo para evitar reacciones negativas.\n\nActualmente tienes **{karma} puntos**.",
+      "links": [
+        {
+          "text": "Ver sistema de reacciones",
+          "url": "#"
+        }
+      ]
+    },
+    {
+      "intent": "karma_levels",
+      "keywords": ["nivel", "niveles", "rango", "soy", "tengo", "subir", "siguiente", "funciona", "sistema", "como", "cómo"],
+      "questions": [
+        "¿Qué nivel soy?",
+        "¿Cuántos niveles hay?",
+        "¿Cómo subo de nivel?",
+        "¿Qué nivel tengo?",
+        "¿Cómo funciona el sistema de niveles?",
+        "¿Cómo funcionan los niveles?"
+      ],
+      "answer": "Eres **nivel {nivel} {nivel_emoji}** ({nivel_titulo}) con **{karma} puntos**.\n\n🎯 Para llegar al siguiente nivel:\n• Necesitas **{puntos_proximo_nivel} puntos**\n• Te faltan **{puntos_faltantes} puntos**\n\n📊 **Niveles disponibles**:\n1. Novato 🌱 (0 pts)\n2. Aprendiz 🌿 (50 pts)\n3. Entusiasta 🌟 (150 pts)\n4. Experto ⭐ (300 pts)\n5. Maestro 💫 (500 pts)\n6. Leyenda 🏆 (800 pts)\n7. Élite 👑 (1200 pts)\n8. Titán 🔥 (1700 pts)\n9. Dios 🌌 (2500 pts)\n10. Inmortal ♾️ (3500 pts)",
+      "links": [
+        {
+          "text": "Ver mi progreso",
+          "url": "/Converza/app/presenters/karma_tienda.php"
+        }
+      ]
+    },
+    {
+      "intent": "karma_benefits",
+      "keywords": ["beneficios", "ventajas", "perks", "nivel", "recompensas"],
+      "questions": [
+        "¿Qué beneficios tiene el karma?",
+        "¿Para qué sirve el karma?",
+        "¿Qué gano con el karma?"
+      ],
+      "answer": "El karma te da **múltiples beneficios**:\n\n🛍️ **Tienda de Karma**\n• Compra marcos personalizados para tu perfil\n• Desbloquea badges exclusivos\n• Accede a equipamiento único\n\n⭐ **Prestigio Social**\n• Tu nivel aparece en tu perfil\n• Emoji especial junto a tu nombre\n• Mayor visibilidad en el feed\n\n🎁 **Recompensas por Nivel**\n• Nivel 4+: Descuentos en la tienda\n• Nivel 7+: Marcos premium exclusivos\n• Nivel 10: Badge Inmortal ♾️\n\nActualmente tienes **{karma} puntos** (Nivel {nivel}).",
+      "links": [
+        {
+          "text": "Ir a la tienda",
+          "url": "/Converza/app/presenters/karma_tienda.php"
+        }
+      ]
+    }
+  ]
+}

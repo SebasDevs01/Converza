@@ -1,0 +1,37 @@
+{
+  "intents": [
+    {
+      "intent": "notifications_how",
+      "keywords": ["notificaciones", "cómo", "funcionan", "recibo", "llegan"],
+      "questions": [
+        "¿Cómo funcionan las notificaciones?",
+        "¿Cuándo recibo notificaciones?",
+        "¿Qué me notifican?"
+      ],
+      "answer": "Las **notificaciones** te alertan sobre actividad relevante:\n\n🔔 **Recibes notificaciones cuando**:\n• Alguien reacciona a tu publicación\n• Alguien comenta en tu post\n• Recibes una solicitud de amistad\n• Alguien acepta tu solicitud\n• Tienes una nueva conexión mística\n• Alguien menciona tu nombre\n\n🎯 **Ubicación**: Icono de campana 🔔 en la barra superior\n\n💡 Las notificaciones tienen un badge rojo con el número pendiente.",
+      "links": []
+    },
+    {
+      "intent": "notifications_not_receiving",
+      "keywords": ["no", "llegan", "recibo", "notificaciones", "problema"],
+      "questions": [
+        "¿Por qué no me llegan notificaciones?",
+        "No recibo notificaciones",
+        "Mis notificaciones no funcionan"
+      ],
+      "answer": "Si no recibes notificaciones, verifica:\n\n✅ **Configuración del navegador**:\n• Permite notificaciones de Converza\n• Revisa en Configuración → Privacidad\n\n✅ **Conexión a internet**:\n• Las notificaciones requieren conexión activa\n• Recarga la página (F5)\n\n✅ **Sesión activa**:\n• Asegúrate de estar logueado\n• No uses modo incógnito\n\n💡 **Tip**: Las notificaciones se actualizan cada 30 segundos automáticamente.",
+      "links": []
+    },
+    {
+      "intent": "notifications_disable",
+      "keywords": ["desactivar", "quitar", "silenciar", "notificaciones"],
+      "questions": [
+        "¿Cómo desactivo las notificaciones?",
+        "¿Puedo silenciar las notificaciones?",
+        "¿Cómo quito las notificaciones?"
+      ],
+      "answer": "Para controlar tus notificaciones:\n\n🔕 **Opción 1: Navegador**\n• Configuración → Privacidad\n• Busca 'Converza' en sitios permitidos\n• Cambia a 'Bloquear'\n\n🔕 **Opción 2: Marcar como leídas**\n• Haz clic en la campana 🔔\n• Clic en 'Marcar todas como leídas'\n• El badge desaparecerá\n\n💡 **Nota**: Próximamente habrá configuración de notificaciones por tipo (reacciones, comentarios, etc.).",
+      "links": []
+    }
+  ]
+}

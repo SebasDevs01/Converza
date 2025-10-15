@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once __DIR__.'/../models/config.php';
+require_once __DIR__.'/../models/intereses-helper.php';
 
 header('Content-Type: application/json');
 
@@ -66,6 +67,10 @@ try {
         
         $usuariosDisponibles = $stmtUsuarios->fetchAll(PDO::FETCH_ASSOC);
         
+        // ⭐ NUEVO: Mejorar shuffle con intereses comunes
+        $interesesHelper = new InteresesHelper($conexion);
+        $usuariosDisponibles = $interesesHelper->mejorarDailyShuffle($usuario_id, $usuariosDisponibles);
+        
         // Insertar en daily_shuffle
         $stmtInsert = $conexion->prepare("
             INSERT INTO daily_shuffle (usuario_id, usuario_mostrado_id, fecha_shuffle)
@@ -95,6 +100,17 @@ try {
     
     $stmtShuffle->execute([$usuario_id, $fecha_hoy]);
     $shuffle = $stmtShuffle->fetchAll(PDO::FETCH_ASSOC);
+    
+    // ⭐ NUEVO: Agregar información de compatibilidad a cada usuario
+    $interesesHelper = new InteresesHelper($conexion);
+    foreach ($shuffle as &$usuario) {
+        $compatibilidad = $interesesHelper->calcularCompatibilidad($usuario_id, $usuario['usuario_mostrado_id']);
+        $interesesComunes = $interesesHelper->obtenerInteresesComunes($usuario_id, $usuario['usuario_mostrado_id']);
+        
+        $usuario['compatibilidad'] = $compatibilidad;
+        $usuario['intereses_comunes'] = $interesesComunes;
+    }
+    unset($usuario); // Romper la referencia
     
     echo json_encode([
         'success' => true,

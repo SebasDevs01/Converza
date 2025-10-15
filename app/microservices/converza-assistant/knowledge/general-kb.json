@@ -1,0 +1,81 @@
+{
+  "intents": [
+    {
+      "intent": "general_greeting",
+      "keywords": ["hola", "hey", "hola", "buenos", "dias", "tardes", "noches", "saludos", "que", "tal"],
+      "questions": [
+        "Hola",
+        "Hey",
+        "Buenos días",
+        "Buenas tardes",
+        "Buenas noches",
+        "¿Qué tal?",
+        "¿Cómo estás?"
+      ],
+      "answer": "¡Hola {username}! 👋 ¿Cómo estás?\n\nEstoy aquí para ayudarte con **Converza**. Puedo responder preguntas sobre:\n\n🎯 Sistema de Karma y niveles\n😊 Reacciones y puntos\n🔔 Notificaciones\n👥 Amigos y conexiones\n🛍️ Tienda de marcos\n\n¿En qué puedo ayudarte hoy?",
+      "links": []
+    },
+    {
+      "intent": "general_how_are_you",
+      "keywords": ["como", "estas", "como estas", "bien", "mal", "que", "tal"],
+      "questions": [
+        "¿Cómo estás?",
+        "¿Qué tal estás?",
+        "¿Todo bien?"
+      ],
+      "answer": "¡Estoy muy bien, gracias por preguntar! 😊\n\nEstoy listo para ayudarte con cualquier duda sobre **Converza**.\n\n¿Hay algo específico en lo que pueda asistirte? Puedo explicarte sobre karma, reacciones, notificaciones y más.",
+      "links": []
+    },
+    {
+      "intent": "general_welcome",
+      "keywords": ["bienvenida", "ayuda", "qué", "puedes", "hacer", "que puedes"],
+      "questions": [
+        "¿Qué puedes hacer?",
+        "¿En qué me ayudas?",
+        "Ayuda"
+      ],
+      "answer": "¡Hola {username}! 👋 Soy el **Asistente de Converza**.\n\nPuedo ayudarte con:\n\n🎯 **Sistema de Karma**: Cómo ganar puntos, niveles, beneficios\n😊 **Reacciones**: Tipos, puntos que dan, reacciones negativas\n🔔 **Notificaciones**: Cómo funcionan, qué te notifican\n👥 **Sistema Social**: Amigos, conexiones místicas, bloqueos\n🛍️ **Tienda**: Qué puedes comprar, cómo equipar marcos\n📝 **Publicaciones**: Cómo publicar, comentar, compartir\n\n💬 Pregúntame lo que quieras sobre Converza.",
+      "links": []
+    },
+    {
+      "intent": "general_thanks",
+      "keywords": ["gracias", "graciass", "thank", "thanks", "genial", "perfecto", "excelente"],
+      "questions": [
+        "Gracias",
+        "Muchas gracias",
+        "Genial",
+        "Perfecto",
+        "Excelente"
+      ],
+      "answer": "¡De nada {username}! 😊\n\nEstoy aquí para ayudarte siempre que lo necesites.\n\n¿Hay algo más en lo que pueda asistirte?",
+      "links": []
+    },
+    {
+      "intent": "publish_how",
+      "keywords": ["publicar", "post", "cómo", "crear", "compartir"],
+      "questions": [
+        "¿Cómo publico?",
+        "¿Cómo hago un post?",
+        "¿Cómo comparto algo?"
+      ],
+      "answer": "Para publicar en Converza:\n\n1️⃣ **Haz clic** en la caja de texto 'Escribe algo...'\n2️⃣ **Escribe** tu mensaje (máximo 500 caracteres)\n3️⃣ **Opcional**: Adjunta una imagen 📷\n4️⃣ **Haz clic** en 'Publicar'\n\n💰 **Recompensa**: +3 puntos de karma por publicación\n\n💡 **Tips**:\n• Publica contenido interesante para recibir más reacciones\n• Las publicaciones con imágenes reciben más interacción\n• Evita spam o contenido ofensivo",
+      "links": []
+    },
+    {
+      "intent": "shop_how",
+      "keywords": ["tienda", "comprar", "marcos", "equipar", "shop"],
+      "questions": [
+        "¿Cómo compro en la tienda?",
+        "¿Qué puedo comprar?",
+        "¿Cómo uso la tienda?"
+      ],
+      "answer": "En la **Tienda de Karma** puedes:\n\n🛍️ **Comprar**:\n1. Ve a la tienda (botón de karma en navbar)\n2. Explora los marcos disponibles\n3. Haz clic en 'Comprar' (requiere karma)\n4. El marco se agrega a tu inventario\n\n🎨 **Equipar marcos**:\n1. Ve a tu perfil\n2. Clic en 'Personalizar'\n3. Selecciona el marco comprado\n4. Clic en 'Equipar'\n\n💰 **Precios**:\n• Marcos básicos: 50-100 pts\n• Marcos premium: 200-500 pts\n• Marcos exclusivos: 1000+ pts\n\nActualmente tienes **{karma} puntos** disponibles.",
+      "links": [
+        {
+          "text": "Ir a la tienda",
+          "url": "/Converza/app/presenters/karma_tienda.php"
+        }
+      ]
+    }
+  ]
+}

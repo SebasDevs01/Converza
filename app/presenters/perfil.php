@@ -478,35 +478,27 @@ $insigniasHTML = $recompensasHelper->renderInsignias($id);
               }
 
               function eliminarAmigo() {
-                  if (confirm('¿Estás seguro de que quieres eliminar esta amistad?')) {
-                      const xhr = new XMLHttpRequest();
-                      xhr.open('POST', 'solicitud.php', true);
-                      xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-                      
-                      xhr.onreadystatechange = function() {
-                          if (xhr.readyState === 4 && xhr.status === 200) {
-                              // Actualizar los datos de amistad
-                              amistadData.tiene_relacion = false;
-                              amistadData.estado = null;
-                              amistadData.direccion = null;
+                  if (confirm('¿Estás seguro de que quieres eliminar esta amistad? También dejarás de seguir a este usuario.')) {
+                      fetch('solicitud.php?action=eliminar&id=<?php echo $usuario['id_use']; ?>', {
+                          method: 'POST',
+                          headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+                      })
+                      .then(response => response.json())
+                      .then(data => {
+                          if (data.success) {
+                              // Mostrar mensaje de éxito
+                              alert('✓ Amistad eliminada correctamente. Ya no sigues a este usuario.');
                               
-                              // Mostrar el botón de seguir nuevamente y forzar estado "Seguir"
-                              const btnSeguir = document.getElementById('btn-seguir');
-                              if (btnSeguir) {
-                                  btnSeguir.style.display = 'block';
-                                  // Forzar a estado "Seguir" (no "Siguiendo")
-                                  actualizarBotonSeguir(false);
-                              }
-                              
-                              // Actualizar la interfaz
-                              actualizarBotonAmistad();
-                              
-                              // Mostrar notificación
-                              mostrarNotificacion('Amistad eliminada correctamente. Ya no sigues a este usuario.', 'success');
+                              // Recargar la página para actualizar todos los botones
+                              window.location.reload();
+                          } else {
+                              alert('❌ Error: ' + (data.error || 'No se pudo eliminar la amistad'));
                           }
-                      };
-                      
-                      xhr.send('action=eliminar&id=<?php echo $usuario['id_use']; ?>');
+                      })
+                      .catch(error => {
+                          console.error('Error:', error);
+                          alert('❌ Error al eliminar la amistad. Inténtalo de nuevo.');
+                      });
                   }
               }
 
@@ -1548,6 +1540,68 @@ async function valorarPrediccion(meGusta) {
     }
 }
 </script>
+
+<!-- 🎯 Configuración del Asistente - DEBE IR ANTES DEL WIDGET -->
+<script>
+    // Pasar datos del usuario al asistente
+    window.USER_ID = <?php echo isset($_SESSION['id']) ? intval($_SESSION['id']) : 0; ?>;
+    window.USER_NAME = "<?php echo isset($_SESSION['usuario']) ? htmlspecialchars($_SESSION['usuario'], ENT_QUOTES) : 'Usuario'; ?>";
+    window.USER_PHOTO = "<?php 
+        // Debug: ver qué hay en la sesión
+        error_log('📸 DEBUG avatar SESSION: ' . (isset($_SESSION['avatar']) ? $_SESSION['avatar'] : 'NO DEFINIDA'));
+        
+        if (isset($_SESSION['avatar']) && !empty($_SESSION['avatar']) && $_SESSION['avatar'] !== 'defect.jpg') {
+            $avatar = $_SESSION['avatar'];
+            
+            // Verificar dónde existe el archivo físicamente
+            $avatarPath = __DIR__ . '/../public/avatars/' . $avatar;
+            $uploadsPath = __DIR__ . '/../public/uploads/' . $avatar;
+            
+            error_log('📂 Buscando avatar en: ' . $avatarPath);
+            error_log('📂 Existe en avatars: ' . (file_exists($avatarPath) ? 'SI' : 'NO'));
+            error_log('📂 Buscando en: ' . $uploadsPath);
+            error_log('📂 Existe en uploads: ' . (file_exists($uploadsPath) ? 'SI' : 'NO'));
+            
+            if (file_exists($avatarPath)) {
+                // Está en avatars
+                echo htmlspecialchars('/Converza/public/avatars/' . $avatar, ENT_QUOTES);
+                error_log('✅ Usando: /Converza/public/avatars/' . $avatar);
+            } elseif (file_exists($uploadsPath)) {
+                // Está en uploads
+                echo htmlspecialchars('/Converza/public/uploads/' . $avatar, ENT_QUOTES);
+                error_log('✅ Usando: /Converza/public/uploads/' . $avatar);
+            } elseif (strpos($avatar, 'public/') === 0) {
+                // Ya tiene la ruta relativa
+                echo htmlspecialchars('/Converza/' . $avatar, ENT_QUOTES);
+                error_log('✅ Usando ruta completa: /Converza/' . $avatar);
+            } else {
+                // Por defecto
+                echo '/Converza/public/avatars/defect.jpg';
+                error_log('⚠️ Archivo no encontrado, usando defect.jpg');
+            }
+        } else {
+            // Foto por defecto
+            echo '/Converza/public/avatars/defect.jpg';
+            error_log('ℹ️ Sin avatar personalizado, usando defect.jpg');
+        }
+    ?>";
+    
+    // Debug
+    console.log('✨ Asistente Converza iniciado');
+    console.log('   Usuario ID:', window.USER_ID);
+    console.log('   Nombre:', window.USER_NAME);
+    console.log('   Foto:', window.USER_PHOTO);
+</script>
+
+<!-- ✨ ASISTENTE CONVERZA - Widget Flotante -->
+<?php 
+$widget_path = __DIR__ . '/../microservices/converza-assistant/widget/assistant-widget.php';
+if (file_exists($widget_path)) {
+    require_once($widget_path);
+} else {
+    error_log('⚠️ Widget no encontrado: ' . $widget_path);
+}
+?>
 
 </body>
 </html>

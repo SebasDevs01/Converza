@@ -1,0 +1,138 @@
+{
+  "intents": [
+    {
+      "intent": "greeting",
+      "keywords": ["hola", "buenos", "días", "tardes", "noches", "saludos", "hey", "qué tal"],
+      "questions": [
+        "hola",
+        "buenos días",
+        "buenas tardes",
+        "buenas noches",
+        "qué tal",
+        "hey"
+      ],
+      "answer": "¡Hola {username}! 👋 ¿En qué puedo ayudarte hoy? Puedo responder preguntas sobre karma, reacciones, niveles y la tienda de Converza.",
+      "links": []
+    },
+    {
+      "intent": "assistant_status",
+      "keywords": ["cómo", "estás", "vas", "sientes", "bien", "mal", "estado"],
+      "questions": [
+        "¿cómo estás?",
+        "¿cómo vas?",
+        "¿cómo te sientes?",
+        "¿estás bien?",
+        "¿qué tal estás?"
+      ],
+      "answer": "¡Estoy genial, gracias por preguntar! 😊 Aquí estoy para ayudarte con Converza. Tienes **{karma} puntos** de karma y eres nivel **{nivel} {nivel_emoji}**. ¿En qué te puedo ayudar?",
+      "links": []
+    },
+    {
+      "intent": "thanks",
+      "keywords": ["gracias", "agradezco", "agradecer", "graciass", "grax", "thanks"],
+      "questions": [
+        "gracias",
+        "muchas gracias",
+        "te agradezco",
+        "gracias por la ayuda"
+      ],
+      "answer": "¡De nada {username}! 😊 Es un placer ayudarte. Si tienes más preguntas, aquí estoy.",
+      "links": []
+    },
+    {
+      "intent": "goodbye",
+      "keywords": ["adiós", "chao", "hasta", "luego", "nos", "vemos", "bye"],
+      "questions": [
+        "adiós",
+        "chao",
+        "hasta luego",
+        "nos vemos",
+        "bye"
+      ],
+      "answer": "¡Hasta luego {username}! 👋 Que tengas un excelente día. Vuelve cuando necesites ayuda.",
+      "links": []
+    },
+    {
+      "intent": "assistant_identity",
+      "keywords": ["quién", "eres", "nombre", "asistente", "bot", "robot"],
+      "questions": [
+        "¿quién eres?",
+        "¿cómo te llamas?",
+        "¿qué eres?",
+        "¿eres un robot?"
+      ],
+      "answer": "Soy el **Asistente de Converza** 🤖, tu ayudante virtual. Estoy aquí para responder todas tus dudas sobre karma, reacciones, niveles, la tienda y más. ¿En qué puedo ayudarte?",
+      "links": []
+    },
+    {
+      "intent": "assistant_capabilities",
+      "keywords": ["qué", "puedes", "hacer", "ayudar", "funciones", "sirves"],
+      "questions": [
+        "¿qué puedes hacer?",
+        "¿en qué puedes ayudarme?",
+        "¿para qué sirves?",
+        "¿qué funciones tienes?"
+      ],
+      "answer": "Puedo ayudarte con:\n\n🎯 **Sistema de Karma** - Cómo ganar y usar puntos\n😊 **Reacciones** - Tipos y valores de cada reacción\n📊 **Niveles** - Requisitos y beneficios\n🛍️ **Tienda** - Comprar y equipar marcos\n👥 **Social** - Amigos, conexiones y bloqueos\n🔔 **Notificaciones** - Cómo funcionan\n\n¿Sobre qué quieres saber más?",
+      "links": []
+    },
+    {
+      "intent": "compliment",
+      "keywords": ["eres", "genial", "increíble", "excelente", "buen", "mejor", "útil"],
+      "questions": [
+        "eres genial",
+        "eres increíble",
+        "eres el mejor",
+        "qué buen asistente"
+      ],
+      "answer": "¡Muchas gracias {username}! 😊 Me alegra poder ayudarte. Es un placer asistirte en Converza. ¿Hay algo más en lo que pueda ayudarte?",
+      "links": []
+    },
+    {
+      "intent": "joke_request",
+      "keywords": ["chiste", "broma", "risa", "gracioso", "divertido", "cuenta"],
+      "questions": [
+        "cuéntame un chiste",
+        "dime un chiste",
+        "tienes un chiste",
+        "algo gracioso"
+      ],
+      "answer": "¡Claro! 😄\n\n¿Por qué los programadores prefieren el modo oscuro?\n\nPorque la luz atrae bugs. 🐛💡\n\n¿Te gustaría saber algo sobre Converza?",
+      "links": []
+    },
+    {
+      "intent": "time_query",
+      "keywords": ["qué", "hora", "día", "fecha", "hora es", "día es"],
+      "questions": [
+        "¿qué hora es?",
+        "¿qué día es?",
+        "¿cuál es la fecha?"
+      ],
+      "answer": "Lo siento, no tengo acceso a la hora actual. Pero puedo ayudarte con información sobre Converza. ¿Quieres saber algo sobre tu karma ({karma} puntos) o sobre las funciones de la plataforma?",
+      "links": []
+    },
+    {
+      "intent": "weather_query",
+      "keywords": ["clima", "tiempo", "llueve", "sol", "temperatura"],
+      "questions": [
+        "¿qué tiempo hace?",
+        "¿cómo está el clima?",
+        "¿va a llover?"
+      ],
+      "answer": "No tengo información sobre el clima, pero sí puedo ayudarte con todo lo relacionado a Converza 😊. ¿Quieres saber cómo ganar más karma o sobre otras funciones?",
+      "links": []
+    },
+    {
+      "intent": "help",
+      "keywords": ["ayuda", "ayudar", "necesito", "auxilio", "help"],
+      "questions": [
+        "ayuda",
+        "necesito ayuda",
+        "help",
+        "auxilio"
+      ],
+      "answer": "¡Claro que sí! Estoy aquí para ayudarte con Converza. Puedo responder sobre:\n\n• 🎯 **Karma** - Ganar y usar puntos\n• 😊 **Reacciones** - Tipos y valores\n• 📊 **Niveles** - Progresar y beneficios\n• 🛍️ **Tienda** - Comprar marcos\n• 👥 **Social** - Amigos y conexiones\n\n¿Sobre qué necesitas ayuda?",
+      "links": []
+    }
+  ]
+}

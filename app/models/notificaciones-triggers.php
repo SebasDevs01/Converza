@@ -251,17 +251,28 @@ class NotificacionesTriggers {
      * REACCIONES
      */
     public function nuevaReaccion($de_usuario_id, $para_usuario_id, $nombre_usuario, $publicacion_id, $tipo_reaccion) {
-        $emojis = [
-            'like' => '👍',
-            'love' => '❤️',
-            'haha' => '😂',
-            'wow' => '😮',
-            'sad' => '😢',
-            'angry' => '😠'
+        // ⭐ MAPEO CORRECTO EN ESPAÑOL (igual que karma-social-helper.php)
+        $mapeo_reacciones = [
+            'me_gusta'      => ['emoji' => '👍', 'puntos' => 5,  'tipo' => 'positivo'],
+            'me_encanta'    => ['emoji' => '❤️', 'puntos' => 10, 'tipo' => 'positivo'],
+            'me_divierte'   => ['emoji' => '😂', 'puntos' => 7,  'tipo' => 'positivo'],
+            'me_asombra'    => ['emoji' => '😮', 'puntos' => 8,  'tipo' => 'positivo'],
+            'me_entristece' => ['emoji' => '😢', 'puntos' => -3, 'tipo' => 'negativo'],
+            'me_enoja'      => ['emoji' => '😡', 'puntos' => -5, 'tipo' => 'negativo']
         ];
         
-        $emoji = $emojis[$tipo_reaccion] ?? '👍';
-        $mensaje = "<strong>{$nombre_usuario}</strong> reaccionó {$emoji} a tu publicación";
+        $config = $mapeo_reacciones[$tipo_reaccion] ?? ['emoji' => '👍', 'puntos' => 5, 'tipo' => 'positivo'];
+        $emoji = $config['emoji'];
+        $puntos = $config['puntos'];
+        $tipo = $config['tipo'];
+        
+        // Mensaje con puntos de karma
+        if ($tipo === 'positivo') {
+            $mensaje = "<strong>{$nombre_usuario}</strong> reaccionó {$emoji} a tu publicación <span style='color: #10b981; font-weight: bold;'>+{$puntos} karma</span>";
+        } else {
+            $mensaje = "<strong>{$nombre_usuario}</strong> reaccionó {$emoji} a tu publicación <span style='color: #ef4444; font-weight: bold;'>{$puntos} karma</span>";
+        }
+        
         $url = "/Converza/app/view/index.php#publicacion-{$publicacion_id}";
         
         return $this->notificacionesHelper->crear(

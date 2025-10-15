@@ -198,11 +198,12 @@ try {
             $stmt->execute([$id_usuario, $id_publicacion]);
             $action = 'removed';
             
-            // Revertir karma si está disponible
-            if ($karmaTriggers) {
+            // Revertir karma si está disponible (AL AUTOR DE LA PUBLICACIÓN, NO AL QUE REACCIONA)
+            if ($karmaTriggers && $publicacion && $publicacion['usuario'] != $id_usuario) {
+                $autorPublicacion = $publicacion['usuario'];
                 try {
                     if (method_exists($karmaTriggers, 'revertirReaccion')) {
-                        $karmaTriggers->revertirReaccion($id_usuario, $id_publicacion, $existingReaction['tipo_reaccion']);
+                        $karmaTriggers->revertirReaccion($autorPublicacion, $id_publicacion, $existingReaction['tipo_reaccion']);
                     }
                 } catch (Throwable $e) {
                     @error_log("Error revirtiendo karma: " . $e->getMessage());
@@ -213,11 +214,12 @@ try {
             // CASO 2: CAMBIAR REACCIÓN
             // ═══════════════════════════════════════════════════
             
-            // Revertir karma anterior
-            if ($karmaTriggers) {
+            // Revertir karma anterior (AL AUTOR DE LA PUBLICACIÓN, NO AL QUE REACCIONA)
+            if ($karmaTriggers && $publicacion && $publicacion['usuario'] != $id_usuario) {
+                $autorPublicacion = $publicacion['usuario'];
                 try {
                     if (method_exists($karmaTriggers, 'revertirReaccion')) {
-                        $karmaTriggers->revertirReaccion($id_usuario, $id_publicacion, $existingReaction['tipo_reaccion']);
+                        $karmaTriggers->revertirReaccion($autorPublicacion, $id_publicacion, $existingReaction['tipo_reaccion']);
                     }
                 } catch (Throwable $e) {
                     @error_log("Error revirtiendo karma anterior: " . $e->getMessage());
@@ -229,11 +231,12 @@ try {
             $stmt->execute([$tipo_reaccion, $id_usuario, $id_publicacion]);
             $action = 'updated';
             
-            // Aplicar nuevo karma
-            if ($karmaTriggers) {
+            // Aplicar nuevo karma (AL AUTOR DE LA PUBLICACIÓN, NO AL QUE REACCIONA)
+            if ($karmaTriggers && $publicacion && $publicacion['usuario'] != $id_usuario) {
+                $autorPublicacion = $publicacion['usuario'];
                 try {
-                    if (method_exists($karmaTriggers, 'nuevaReaccion')) {
-                        $karmaTriggers->nuevaReaccion($id_usuario, $id_publicacion, $tipo_reaccion);
+                    if (method_exists($karmaTriggers, 'registrarReaccionPositiva')) {
+                        $karmaTriggers->registrarReaccionPositiva($autorPublicacion, $id_publicacion, $tipo_reaccion);
                     }
                 } catch (Throwable $e) {
                     @error_log("Error aplicando nuevo karma: " . $e->getMessage());
@@ -276,11 +279,11 @@ try {
                 }
             }
             
-            // Aplicar karma
+            // Aplicar karma (AL AUTOR DE LA PUBLICACIÓN, NO AL QUE REACCIONA)
             if ($karmaTriggers) {
                 try {
-                    if (method_exists($karmaTriggers, 'nuevaReaccion')) {
-                        $karmaTriggers->nuevaReaccion($id_usuario, $id_publicacion, $tipo_reaccion);
+                    if (method_exists($karmaTriggers, 'registrarReaccionPositiva')) {
+                        $karmaTriggers->registrarReaccionPositiva($autorPublicacion, $id_publicacion, $tipo_reaccion);
                     }
                 } catch (Throwable $e) {
                     @error_log("Error aplicando karma: " . $e->getMessage());
@@ -290,9 +293,11 @@ try {
     }
 
     // ═══════════════════════════════════════════════════
-    // 7. OBTENER KARMA ACTUALIZADO
+    // 7. OBTENER KARMA ACTUALIZADO Y CALCULAR PUNTOS
     // ═══════════════════════════════════════════════════
     $karmaActualizado = null;
+    $karmaNotificacion = null;
+    
     if (isset($_SESSION['id']) && $karmaHelper) {
         try {
             if (method_exists($karmaHelper, 'obtenerKarmaUsuario')) {
@@ -304,6 +309,61 @@ try {
                     'nivel_titulo' => $karmaData['nivel_data']['titulo'] ?? 'Novato',
                     'nivel_emoji' => $karmaData['nivel_emoji'] ?? '🌱'
                 ];
+                
+                // 🎯 CALCULAR PUNTOS DE LA REACCIÓN (CON SOPORTE PARA NEGATIVAS)
+                if ($action === 'added' || $action === 'updated') {
+                    $puntosGanados = 0;
+                    $mensajeNotificacion = '';
+                    $tipoReaccion = 'positivo'; // Por defecto
+                    
+                    // ⭐ MAPEO CORRECTO SEGÚN KARMA-SOCIAL-HELPER.PHP
+                    switch ($tipo_reaccion) {
+                        case 'me_gusta':
+                            $puntosGanados = 5;
+                            $mensajeNotificacion = '👍 ¡Me gusta!';
+                            $tipoReaccion = 'positivo';
+                            break;
+                        case 'me_encanta':
+                            $puntosGanados = 10;
+                            $mensajeNotificacion = '❤️ ¡Me encanta!';
+                            $tipoReaccion = 'positivo';
+                            break;
+                        case 'me_divierte':
+                            $puntosGanados = 7;
+                            $mensajeNotificacion = '😂 ¡Me divierte!';
+                            $tipoReaccion = 'positivo';
+                            break;
+                        case 'me_asombra':
+                            $puntosGanados = 8;
+                            $mensajeNotificacion = '😮 ¡Me asombra!';
+                            $tipoReaccion = 'positivo';
+                            break;
+                        
+                        // ⚠️ REACCIONES NEGATIVAS (QUITAN PUNTOS)
+                        case 'me_entristece':
+                            $puntosGanados = -3; // ⭐ NEGATIVO
+                            $mensajeNotificacion = '😢 Me entristece';
+                            $tipoReaccion = 'negativo'; // ⭐ TIPO NEGATIVO
+                            break;
+                        case 'me_enoja':
+                            $puntosGanados = -5; // ⭐ NEGATIVO
+                            $mensajeNotificacion = '😡 Me enoja';
+                            $tipoReaccion = 'negativo'; // ⭐ TIPO NEGATIVO
+                            break;
+                        
+                        default:
+                            $puntosGanados = 5;
+                            $mensajeNotificacion = 'Reacción registrada';
+                            $tipoReaccion = 'positivo';
+                    }
+                    
+                    $karmaNotificacion = [
+                        'mostrar' => true,
+                        'puntos' => $puntosGanados, // ⭐ Puede ser negativo
+                        'tipo' => $tipoReaccion, // ⭐ 'positivo' o 'negativo'
+                        'mensaje' => $mensajeNotificacion
+                    ];
+                }
             }
         } catch (Throwable $e) {
             @error_log("Error obteniendo karma actualizado: " . $e->getMessage());
@@ -320,6 +380,7 @@ try {
         'action' => $action,
         'tipo_reaccion' => $action === 'removed' ? null : $tipo_reaccion,
         'karma_actualizado' => $karmaActualizado,
+        'karma_notificacion' => $karmaNotificacion, // 🎯 Notificación de karma
         'karma_system_active' => ($karmaTriggers !== null)
     ]);
     exit;
