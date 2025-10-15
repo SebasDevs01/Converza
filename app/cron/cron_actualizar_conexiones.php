@@ -1,8 +1,8 @@
 <?php
 /**
  * CRON JOB: Actualización automática de Conexiones Místicas
- * Ejecutar cada 6 horas: 0 */6 * * * php /path/to/cron_actualizar_conexiones.php
- */
+ * Ejecutar cada 6 horas: 0 6 * * * php /path/to/cron_actualizar_conexiones.php*/
+ 
 
 require_once(__DIR__ . '/../models/config.php');
 require_once(__DIR__ . '/../models/conexiones-misticas-helper.php');
