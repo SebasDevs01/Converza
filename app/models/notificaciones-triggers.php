@@ -348,5 +348,21 @@ class NotificacionesTriggers {
         
         return $resultado1 && $resultado2;
     }
+    
+    /**
+     * 🎯 MÉTODO GENÉRICO PARA CREAR NOTIFICACIONES
+     * Útil para karma y otros tipos de notificaciones
+     */
+    public function crearNotificacion($usuario_id, $tipo, $mensaje, $de_usuario_id = null, $referencia_id = null, $referencia_tipo = null, $url = null) {
+        return $this->notificacionesHelper->crear(
+            $usuario_id,
+            $tipo,
+            $mensaje,
+            $de_usuario_id,
+            $referencia_id,
+            $referencia_tipo,
+            $url
+        );
+    }
 }
 ?>

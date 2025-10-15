@@ -136,3 +136,24 @@ Stack trace:
 [15-Oct-2025 21:47:58 Europe/Berlin] ⚪ KARMA: Comentario neutral, no se otorga karma
 [15-Oct-2025 21:47:58 Europe/Berlin] 🎯 PUNTOS FINALES: -3 | Categoría: crítica negativa | Comentario: que feo post
 [15-Oct-2025 21:47:58 Europe/Berlin] ❌ Error actualizando karma: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'karma' in 'field list'
+[15-Oct-2025 22:51:59 Europe/Berlin] 🤖 KARMA AI: Comentario 'me gusta tu post' → Sentimiento: neutral (56/100) - Sentimiento neutral (56/100)
+[15-Oct-2025 22:51:59 Europe/Berlin] ⚪ KARMA: Comentario neutral, no se otorga karma
+[15-Oct-2025 22:51:59 Europe/Berlin] 🎯 PUNTOS FINALES: 8 | Categoría: positivo | Comentario: me gusta tu post
+[15-Oct-2025 22:51:59 Europe/Berlin] ❌ Error actualizando karma: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'karma' in 'field list'
+[15-Oct-2025 22:57:12 Europe/Berlin] 🤖 KARMA AI: Comentario 'me gusta tu psot' → Sentimiento: neutral (56/100) - Sentimiento neutral (56/100)
+[15-Oct-2025 22:57:12 Europe/Berlin] ⚪ KARMA: Comentario neutral, no se otorga karma
+[15-Oct-2025 22:57:12 Europe/Berlin] 🎯 PUNTOS FINALES: 8 | Categoría: positivo | Comentario: me gusta tu psot
+[15-Oct-2025 22:57:12 Europe/Berlin] ❌ Error actualizando karma: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'karma' in 'field list'
+[15-Oct-2025 23:03:48 Europe/Berlin] 🤖 KARMA AI: Comentario '¡Me encanta tu publicación! 😍❤️' → Sentimiento: positivo (93/100) - Sentimiento positivo detectado (93/100)
+[15-Oct-2025 23:03:48 Europe/Berlin] ✨ Emoji positivo detectado: 😍 (x1) = +6 pts
+[15-Oct-2025 23:03:48 Europe/Berlin] ✨ Emoji positivo detectado: ❤️ (x1) = +6 pts
+[15-Oct-2025 23:03:48 Europe/Berlin] ✨ Total puntos emojis positivos: +12 | Puntos acumulados: 24
+[15-Oct-2025 23:03:48 Europe/Berlin] 🎯 PUNTOS FINALES: 24 | Categoría: muy positivo | Comentario: ¡Me encanta tu publicación! 😍❤️
+[15-Oct-2025 23:03:48 Europe/Berlin] ✅ Karma comentario registrado: Usuario 23 | Puntos: 24 | Karma total: 40
+[15-Oct-2025 23:07:54 Europe/Berlin] 🤖 KARMA AI: Comentario '¡Me encanta tu publicación! 😍❤️' → Sentimiento: positivo (93/100) - Sentimiento positivo detectado (93/100)
+[15-Oct-2025 23:07:54 Europe/Berlin] ✨ Emoji positivo detectado: 😍 (x1) = +6 pts
+[15-Oct-2025 23:07:54 Europe/Berlin] ✨ Emoji positivo detectado: ❤️ (x1) = +6 pts
+[15-Oct-2025 23:07:54 Europe/Berlin] ✨ Total puntos emojis positivos: +12 | Puntos acumulados: 24
+[15-Oct-2025 23:07:54 Europe/Berlin] 🎯 PUNTOS FINALES: 24 | Categoría: muy positivo | Comentario: ¡Me encanta tu publicación! 😍❤️
+[15-Oct-2025 23:07:54 Europe/Berlin] ✅ Karma comentario registrado: Usuario 23 | Puntos: 24 | Karma total: 72
+[15-Oct-2025 23:07:54 Europe/Berlin] 🔔 Notificación de karma por comentario creada

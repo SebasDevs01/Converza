@@ -3,11 +3,25 @@
 // 🎯 GUARDAR REACCIÓN - ULTRA SEGURO CON KARMA
 // ═══════════════════════════════════════════════════════════════
 
+// 🔍 DEBUG MODE - Activar para ver errores
+define('DEBUG_KARMA', true);
+
 // Desactivar TODOS los errores para producción
-@ini_set('display_errors', '0');
-@ini_set('display_startup_errors', '0');
-@error_reporting(0);
+@ini_set('display_errors', DEBUG_KARMA ? '1' : '0');
+@ini_set('display_startup_errors', DEBUG_KARMA ? '1' : '0');
+@error_reporting(DEBUG_KARMA ? E_ALL : 0);
 @ini_set('log_errors', '1');
+
+// Función de log debug
+function debugLog($message, $data = null) {
+    if (DEBUG_KARMA) {
+        $logMsg = "🔥 KARMA DEBUG: " . $message;
+        if ($data !== null) {
+            $logMsg .= " | " . json_encode($data);
+        }
+        error_log($logMsg);
+    }
+}
 
 // Buffer para capturar cualquier salida
 ob_start();
@@ -131,6 +145,12 @@ try {
 $id_usuario = isset($_POST['id_usuario']) ? (int)$_POST['id_usuario'] : null;
 $id_publicacion = isset($_POST['id_publicacion']) ? (int)$_POST['id_publicacion'] : null;
 $tipo_reaccion = isset($_POST['tipo_reaccion']) ? trim($_POST['tipo_reaccion']) : null;
+
+debugLog("📥 Datos recibidos", [
+    'id_usuario' => $id_usuario,
+    'id_publicacion' => $id_publicacion,
+    'tipo_reaccion' => $tipo_reaccion
+]);
 
 if (!$id_usuario || !$id_publicacion || !$tipo_reaccion) {
     ob_end_clean();
@@ -292,76 +312,195 @@ try {
         }
     }
 
-    // ═══════════════════════════════════════════════════
+    // ═══════════════════════════════════════════════════════════════
     // 7. OBTENER KARMA ACTUALIZADO Y CALCULAR PUNTOS
-    // ═══════════════════════════════════════════════════
+    // ═══════════════════════════════════════════════════════════════
     $karmaActualizado = null;
     $karmaNotificacion = null;
-    
-    if (isset($_SESSION['id']) && $karmaHelper) {
+
+    // 🎯 IMPORTANTE: Obtener karma del USUARIO QUE REACCIONA, no del autor
+    if ($id_usuario && $karmaHelper) {
         try {
             if (method_exists($karmaHelper, 'obtenerKarmaUsuario')) {
-                $karmaData = $karmaHelper->obtenerKarmaUsuario($_SESSION['id']);
+                // Obtener karma del usuario que está reaccionando
+                $karmaData = $karmaHelper->obtenerKarmaUsuario($id_usuario);
                 
                 $karmaActualizado = [
-                    'karma' => $karmaData['karma_total'] ?? 0,
+                    'karma' => (string)($karmaData['karma_total'] ?? 0), // ⭐ STRING
                     'nivel' => $karmaData['nivel_data']['nivel'] ?? 1,
                     'nivel_titulo' => $karmaData['nivel_data']['titulo'] ?? 'Novato',
                     'nivel_emoji' => $karmaData['nivel_emoji'] ?? '🌱'
                 ];
                 
-                // 🎯 CALCULAR PUNTOS DE LA REACCIÓN (CON SOPORTE PARA NEGATIVAS)
+                // 🎯 CALCULAR PUNTOS DE LA REACCIÓN
                 if ($action === 'added' || $action === 'updated') {
                     $puntosGanados = 0;
                     $mensajeNotificacion = '';
-                    $tipoReaccion = 'positivo'; // Por defecto
+                    $tipoNotificacion = 'positivo';
                     
-                    // ⭐ MAPEO CORRECTO SEGÚN KARMA-SOCIAL-HELPER.PHP
+                    // ⭐ MAPEO DE PUNTOS POR REACCIÓN
                     switch ($tipo_reaccion) {
                         case 'me_gusta':
                             $puntosGanados = 5;
                             $mensajeNotificacion = '👍 ¡Me gusta!';
-                            $tipoReaccion = 'positivo';
+                            $tipoNotificacion = 'positivo';
                             break;
                         case 'me_encanta':
                             $puntosGanados = 10;
                             $mensajeNotificacion = '❤️ ¡Me encanta!';
-                            $tipoReaccion = 'positivo';
+                            $tipoNotificacion = 'positivo';
                             break;
                         case 'me_divierte':
                             $puntosGanados = 7;
                             $mensajeNotificacion = '😂 ¡Me divierte!';
-                            $tipoReaccion = 'positivo';
+                            $tipoNotificacion = 'positivo';
                             break;
                         case 'me_asombra':
                             $puntosGanados = 8;
                             $mensajeNotificacion = '😮 ¡Me asombra!';
-                            $tipoReaccion = 'positivo';
+                            $tipoNotificacion = 'positivo';
                             break;
-                        
-                        // ⚠️ REACCIONES NEGATIVAS (QUITAN PUNTOS)
                         case 'me_entristece':
-                            $puntosGanados = -3; // ⭐ NEGATIVO
+                            $puntosGanados = -3;
                             $mensajeNotificacion = '😢 Me entristece';
-                            $tipoReaccion = 'negativo'; // ⭐ TIPO NEGATIVO
+                            $tipoNotificacion = 'negativo';
                             break;
                         case 'me_enoja':
-                            $puntosGanados = -5; // ⭐ NEGATIVO
-                            $mensajeNotificacion = '😡 Me enoja';
-                            $tipoReaccion = 'negativo'; // ⭐ TIPO NEGATIVO
+                            $puntosGanados = -5;
+                            $mensajeNotificacion = '� Me enoja';
+                            $tipoNotificacion = 'negativo';
                             break;
-                        
                         default:
                             $puntosGanados = 5;
                             $mensajeNotificacion = 'Reacción registrada';
-                            $tipoReaccion = 'positivo';
+                            $tipoNotificacion = 'positivo';
+                    }
+                    
+                    debugLog("🎯 Puntos calculados", [
+                        'tipo_reaccion' => $tipo_reaccion,
+                        'puntos' => $puntosGanados,
+                        'mensaje' => $mensajeNotificacion,
+                        'tipo' => $tipoNotificacion
+                    ]);
+                    
+                    // 🎯 ACTUALIZAR KARMA EN LA BASE DE DATOS DEL USUARIO QUE REACCIONA
+                    // Usando sistema de tablas karma_social + karma_total_usuarios
+                    try {
+                        // Obtener karma ANTES de actualizar (desde karma_total_usuarios)
+                        $stmtKarmaAntes = $conexion->prepare("
+                            SELECT karma_total 
+                            FROM karma_total_usuarios 
+                            WHERE usuario_id = ?
+                        ");
+                        $stmtKarmaAntes->execute([$id_usuario]);
+                        $karmaAntesData = $stmtKarmaAntes->fetch(PDO::FETCH_ASSOC);
+                        $karmaAntes = intval($karmaAntesData['karma_total'] ?? 0);
+                        
+                        debugLog("📊 Karma ANTES de actualizar", [
+                            'usuario_id' => $id_usuario,
+                            'karma_antes' => $karmaAntes,
+                            'tabla' => 'karma_total_usuarios'
+                        ]);
+                        
+                        // REGISTRAR ACCIÓN EN karma_social (el trigger actualizará karma_total_usuarios)
+                        $stmtInsertKarma = $conexion->prepare("
+                            INSERT INTO karma_social 
+                            (usuario_id, tipo_accion, puntos, referencia_id, referencia_tipo, descripcion, fecha_accion)
+                            VALUES 
+                            (:usuario_id, :tipo_accion, :puntos, :referencia_id, :referencia_tipo, :descripcion, NOW())
+                        ");
+                        
+                        $resultado = $stmtInsertKarma->execute([
+                            ':usuario_id' => $id_usuario,
+                            ':tipo_accion' => 'reaccion_' . $tipo_reaccion,
+                            ':puntos' => $puntosGanados,
+                            ':referencia_id' => $id_publicacion,
+                            ':referencia_tipo' => 'publicacion',
+                            ':descripcion' => $mensajeNotificacion
+                        ]);
+                        
+                        debugLog("💾 INSERT en karma_social ejecutado", [
+                            'resultado' => $resultado,
+                            'rows_affected' => $stmtInsertKarma->rowCount(),
+                            'tipo_accion' => 'reaccion_' . $tipo_reaccion,
+                            'puntos' => $puntosGanados
+                        ]);
+                        
+                        // Obtener karma actualizado DESPUÉS de la inserción (el trigger ya lo actualizó)
+                        $stmtKarmaFinal = $conexion->prepare("
+                            SELECT karma_total, acciones_totales 
+                            FROM karma_total_usuarios 
+                            WHERE usuario_id = ?
+                        ");
+                        $stmtKarmaFinal->execute([$id_usuario]);
+                        $karmaFinalData = $stmtKarmaFinal->fetch(PDO::FETCH_ASSOC);
+                        $karmaFinal = intval($karmaFinalData['karma_total'] ?? 0);
+                        $accionesTotales = intval($karmaFinalData['acciones_totales'] ?? 0);
+                        
+                        debugLog("📊 Karma DESPUÉS de actualizar", [
+                            'karma_despues' => $karmaFinal,
+                            'acciones_totales' => $accionesTotales,
+                            'diferencia' => ($karmaFinal - $karmaAntes),
+                            'esperado' => $puntosGanados,
+                            'trigger_funciono' => ($karmaFinal - $karmaAntes) === $puntosGanados
+                        ]);
+                        
+                        // Recalcular nivel con el karma actualizado
+                        $nivelActualizado = $karmaHelper->obtenerNivelKarma($karmaFinal);
+                        
+                        debugLog("🏆 Nivel recalculado", $nivelActualizado);
+                        
+                        // Actualizar respuesta con valores reales
+                        $karmaActualizado = [
+                            'karma' => (string)$karmaFinal, // ⭐ STRING
+                            'nivel' => $nivelActualizado['nivel'] ?? 1,
+                            'nivel_titulo' => $nivelActualizado['titulo'] ?? 'Novato',
+                            'nivel_emoji' => $nivelActualizado['emoji'] ?? '🌱',
+                            'acciones_totales' => $accionesTotales
+                        ];
+                        
+                        debugLog("✅ karma_actualizado final", $karmaActualizado);
+                        
+                        // 🔔 CREAR NOTIFICACIÓN EN EL SISTEMA (campanita)
+                        if ($puntosGanados != 0) {
+                            try {
+                                $notificacionesTriggers = new NotificacionesTriggers($conexion);
+                                
+                                $signo = $puntosGanados > 0 ? '+' : '';
+                                $notifMensaje = "{$signo}{$puntosGanados} Karma: {$mensajeNotificacion}";
+                                
+                                $notificacionesTriggers->crearNotificacion(
+                                    $id_usuario,           // Para quién es la notificación
+                                    'karma',               // Tipo
+                                    $notifMensaje,         // Mensaje
+                                    null,                  // De usuario (sistema)
+                                    $id_publicacion,       // Referencia
+                                    'reaccion',            // Tipo de referencia
+                                    null                   // URL
+                                );
+                                
+                                debugLog("🔔 Notificación de karma creada en sistema");
+                                
+                            } catch (Exception $e) {
+                                debugLog("⚠️ Error al crear notificación karma", ['error' => $e->getMessage()]);
+                            }
+                        }
+                        
+                    } catch (PDOException $e) {
+                        debugLog("❌ ERROR en sistema karma", [
+                            'error' => $e->getMessage(),
+                            'code' => $e->getCode(),
+                            'nota' => 'Verifica que el trigger after_karma_social_insert exista'
+                        ]);
+                        @error_log("Error actualizando karma en BD: " . $e->getMessage());
                     }
                     
                     $karmaNotificacion = [
                         'mostrar' => true,
-                        'puntos' => $puntosGanados, // ⭐ Puede ser negativo
-                        'tipo' => $tipoReaccion, // ⭐ 'positivo' o 'negativo'
-                        'mensaje' => $mensajeNotificacion
+                        'puntos' => $puntosGanados,
+                        'tipo' => $tipoNotificacion,
+                        'mensaje' => $mensajeNotificacion,
+                        'categoria' => $tipo_reaccion
                     ];
                 }
             }
@@ -373,16 +512,21 @@ try {
     // ═══════════════════════════════════════════════════
     // 8. RESPUESTA EXITOSA
     // ═══════════════════════════════════════════════════
-    ob_end_clean();
-    echo json_encode([
+    
+    $respuestaFinal = [
         'success' => true, 
         'message' => 'Reacción procesada correctamente',
         'action' => $action,
         'tipo_reaccion' => $action === 'removed' ? null : $tipo_reaccion,
-        'karma_actualizado' => $karmaActualizado,
-        'karma_notificacion' => $karmaNotificacion, // 🎯 Notificación de karma
+        'karma_actualizado' => $karmaActualizado, // ⭐ Karma del usuario que reacciona
+        'karma_notificacion' => $karmaNotificacion,
         'karma_system_active' => ($karmaTriggers !== null)
-    ]);
+    ];
+    
+    debugLog("🚀 RESPUESTA FINAL", $respuestaFinal);
+    
+    ob_end_clean();
+    echo json_encode($respuestaFinal, JSON_UNESCAPED_UNICODE);
     exit;
     
 } catch (PDOException $e) {

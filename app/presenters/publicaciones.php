@@ -787,6 +787,40 @@ document.addEventListener('DOMContentLoaded', function() {
                     form.parentElement.insertBefore(newComment, form);
                     console.log('✅ Comentario insertado en DOM');
                     
+                    // 🎯 ACTUALIZAR KARMA SI VIENE EN LA RESPUESTA
+                    if (data.karma_actualizado) {
+                        console.log('🎯 Actualizando karma desde comentario:', data.karma_actualizado);
+                        
+                        // Actualizar contador en el header
+                        const karmaElement = document.getElementById('karma-counter');
+                        if (karmaElement) {
+                            karmaElement.textContent = data.karma_actualizado.karma;
+                            console.log('✅ Contador de karma actualizado:', data.karma_actualizado.karma);
+                        }
+                        
+                        // Actualizar tooltips si existen
+                        const karmaTooltips = document.querySelectorAll('[data-karma-tooltip]');
+                        if (karmaTooltips.length > 0) {
+                            karmaTooltips.forEach(tooltip => {
+                                tooltip.setAttribute('title', 
+                                    `${data.karma_actualizado.nivel_emoji} ${data.karma_actualizado.nivel_titulo} (${data.karma_actualizado.karma} pts)`
+                                );
+                            });
+                        }
+                    }
+                    
+                    // 🔔 LOG DE KARMA (sin notificación flotante - va a campanita)
+                    if (data.karma_notificacion && data.karma_notificacion.mostrar) {
+                        const { puntos, tipo, mensaje, categoria } = data.karma_notificacion;
+                        
+                        console.log('%c🎉 KARMA POR COMENTARIO', 'font-size: 16px; font-weight: bold; color: #667eea; background: #f0f0ff; padding: 8px; border-radius: 4px;');
+                        console.log('Puntos:', puntos > 0 ? `+${puntos}` : puntos);
+                        console.log('Tipo:', tipo);
+                        console.log('Categoría:', categoria);
+                        console.log('Mensaje:', mensaje);
+                        console.log('🔔 Notificación enviada al sistema (campanita)');
+                    }
+                    
                     // Activar el menú de 3 puntos si existe
                     if (data.comentario.id > 0) {
                         const menuBtn = newComment.querySelector('.comment-menu-btn');

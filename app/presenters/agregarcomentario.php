@@ -145,14 +145,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     try {
                         require_once(__DIR__.'/../models/karma-social-helper.php');
                         $karmaHelper = new KarmaSocialHelper($conexion);
-                        $karmaData = $karmaHelper->obtenerKarmaUsuario($_SESSION['id']);
                         
-                        $karmaActualizado = [
-                            'karma' => $karmaData['karma_total'],
-                            'nivel' => $karmaData['nivel_data']['nivel'] ?? 1,
-                            'nivel_titulo' => $karmaData['nivel_data']['titulo'] ?? $karmaData['nivel'],
-                            'nivel_emoji' => $karmaData['nivel_emoji']
-                        ];
+                        // Obtener karma ANTES del comentario
+                        $stmtKarmaAntes = $conexion->prepare("
+                            SELECT karma_total 
+                            FROM karma_total_usuarios 
+                            WHERE usuario_id = ?
+                        ");
+                        $stmtKarmaAntes->execute([$_SESSION['id']]);
+                        $karmaAntesData = $stmtKarmaAntes->fetch(PDO::FETCH_ASSOC);
+                        $karmaAntes = intval($karmaAntesData['karma_total'] ?? 0);
                         
                         // 🧠 SISTEMA INTELIGENTE DE ANÁLISIS SEMÁNTICO Y DE TONO
                         $puntosGanados = 0;
@@ -407,28 +409,107 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         
                         // ═══════════════════════════════════════════════════════════
                         // 🔥 ACTUALIZACIÓN CRÍTICA: PERSISTIR KARMA EN BASE DE DATOS
+                        // Sistema de karma robusto con karma_social
                         // ═══════════════════════════════════════════════════════════
                         if ($otorgarKarma && $puntosGanados != 0) {
                             try {
-                                $stmtUpdateKarma = $conexion->prepare('UPDATE usuarios SET karma = karma + ? WHERE id_use = ?');
-                                $stmtUpdateKarma->execute([$puntosGanados, $_SESSION['id']]);
+                                // REGISTRAR ACCIÓN EN karma_social (el trigger actualizará karma_total_usuarios)
+                                $stmtInsertKarma = $conexion->prepare("
+                                    INSERT INTO karma_social 
+                                    (usuario_id, tipo_accion, puntos, referencia_id, referencia_tipo, descripcion, fecha_accion)
+                                    VALUES 
+                                    (:usuario_id, :tipo_accion, :puntos, :referencia_id, :referencia_tipo, :descripcion, NOW())
+                                ");
                                 
-                                // 🔔 GUARDAR PUNTOS PENDIENTES EN SESIÓN para notificación
-                                $_SESSION['karma_pendiente'] = $puntosGanados;
+                                $resultado = $stmtInsertKarma->execute([
+                                    ':usuario_id' => $_SESSION['id'],
+                                    ':tipo_accion' => 'comentario_' . $categoria,
+                                    ':puntos' => $puntosGanados,
+                                    ':referencia_id' => $comentarioId,
+                                    ':referencia_tipo' => 'comentario',
+                                    ':descripcion' => $mensajeNotificacion
+                                ]);
                                 
-                                // ♻️ OBTENER KARMA ACTUALIZADO después de la modificación
-                                $karmaData = $karmaHelper->obtenerKarmaUsuario($_SESSION['id']);
-                                $karmaActualizado = [
-                                    'karma' => $karmaData['karma_total'],
-                                    'nivel' => $karmaData['nivel_data']['nivel'] ?? 1,
-                                    'nivel_titulo' => $karmaData['nivel_data']['titulo'] ?? $karmaData['nivel'],
-                                    'nivel_emoji' => $karmaData['nivel_emoji']
-                                ];
-                                
-                                error_log("✅ Karma actualizado: Usuario {$_SESSION['id']} | Puntos: {$puntosGanados} | Categoría: {$categoria} | Karma total: {$karmaData['karma_total']}");
+                                if ($resultado) {
+                                    // Obtener karma actualizado DESPUÉS de la inserción (el trigger ya lo actualizó)
+                                    $stmtKarmaFinal = $conexion->prepare("
+                                        SELECT karma_total, acciones_totales 
+                                        FROM karma_total_usuarios 
+                                        WHERE usuario_id = ?
+                                    ");
+                                    $stmtKarmaFinal->execute([$_SESSION['id']]);
+                                    $karmaFinalData = $stmtKarmaFinal->fetch(PDO::FETCH_ASSOC);
+                                    $karmaFinal = intval($karmaFinalData['karma_total'] ?? 0);
+                                    $accionesTotales = intval($karmaFinalData['acciones_totales'] ?? 0);
+                                    
+                                    // Recalcular nivel con el karma actualizado
+                                    $nivelActualizado = $karmaHelper->obtenerNivelKarma($karmaFinal);
+                                    
+                                    $karmaActualizado = [
+                                        'karma' => (string)$karmaFinal,
+                                        'nivel' => $nivelActualizado['nivel'] ?? 1,
+                                        'nivel_titulo' => $nivelActualizado['titulo'] ?? 'Novato',
+                                        'nivel_emoji' => $nivelActualizado['emoji'] ?? '🌱',
+                                        'acciones_totales' => $accionesTotales
+                                    ];
+                                    
+                                    error_log("✅ Karma comentario registrado: Usuario {$_SESSION['id']} | Puntos: {$puntosGanados} | Karma total: {$karmaFinal}");
+                                } else {
+                                    error_log("⚠️ No se pudo registrar karma del comentario");
+                                }
                                 
                             } catch (PDOException $e) {
-                                error_log("❌ Error actualizando karma: " . $e->getMessage());
+                                error_log("❌ Error actualizando karma comentario: " . $e->getMessage());
+                                // Continuar sin karma si falla
+                            }
+                        } else {
+                            // Si no se otorga karma, obtener el karma actual sin modificar
+                            try {
+                                $stmtKarmaActual = $conexion->prepare("
+                                    SELECT karma_total, acciones_totales 
+                                    FROM karma_total_usuarios 
+                                    WHERE usuario_id = ?
+                                ");
+                                $stmtKarmaActual->execute([$_SESSION['id']]);
+                                $karmaActualData = $stmtKarmaActual->fetch(PDO::FETCH_ASSOC);
+                                
+                                if ($karmaActualData) {
+                                    $karmaTotal = intval($karmaActualData['karma_total'] ?? 0);
+                                    $nivelData = $karmaHelper->obtenerNivelKarma($karmaTotal);
+                                    
+                                    $karmaActualizado = [
+                                        'karma' => (string)$karmaTotal,
+                                        'nivel' => $nivelData['nivel'] ?? 1,
+                                        'nivel_titulo' => $nivelData['titulo'] ?? 'Novato',
+                                        'nivel_emoji' => $nivelData['emoji'] ?? '🌱',
+                                        'acciones_totales' => intval($karmaActualData['acciones_totales'] ?? 0)
+                                    ];
+                                }
+                            } catch (PDOException $e) {
+                                error_log("❌ Error obteniendo karma actual: " . $e->getMessage());
+                            }
+                        }
+                        
+                        // 🔔 CREAR NOTIFICACIÓN EN EL SISTEMA (campanita)
+                        if ($otorgarKarma && $puntosGanados != 0) {
+                            try {
+                                $signo = $puntosGanados > 0 ? '+' : '';
+                                $notifMensaje = "{$signo}{$puntosGanados} Karma: {$mensajeNotificacion}";
+                                
+                                $notificacionesTriggers->crearNotificacion(
+                                    $_SESSION['id'],       // Para quién es la notificación
+                                    'karma',               // Tipo
+                                    $notifMensaje,         // Mensaje
+                                    null,                  // De usuario (sistema)
+                                    $comentarioId,         // Referencia
+                                    'comentario',          // Tipo de referencia
+                                    null                   // URL
+                                );
+                                
+                                error_log("🔔 Notificación de karma por comentario creada");
+                                
+                            } catch (Exception $e) {
+                                error_log("⚠️ Error al crear notificación karma: " . $e->getMessage());
                             }
                         }
                         
